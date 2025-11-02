@@ -1,0 +1,13 @@
+# Use root/example as user/password credentials
+
+services:
+  backend:
+    image: node:20.10-alpine
+    working_dir: /backend
+    volumes:
+      - ./backend:/backend
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+    command: npm run start:dev
