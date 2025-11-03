@@ -39,12 +39,9 @@ export class HotelsService implements IHotelService {
     return this.hotelModel.find(query).limit(limit).skip(offset).exec();
   }
 
-  async update(
-    id: string,
-    updateData: UpdateHotelParamsDto,
-  ): Promise<HotelDocument> {
+  async update(id: string, data: UpdateHotelParamsDto): Promise<HotelDocument> {
     const hotel = await this.hotelModel
-      .findByIdAndUpdate(id, updateData, { new: true })
+      .findByIdAndUpdate(id, data, { new: true })
       .exec();
 
     if (!hotel) {

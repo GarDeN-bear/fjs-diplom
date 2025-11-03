@@ -24,13 +24,13 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  create(@Body() createUserDto: CreateUserDto): Promise<UserDocument> {
-    return this.usersService.create(createUserDto);
+  create(@Body() data: CreateUserDto): Promise<UserDocument> {
+    return this.usersService.create(data);
   }
 
   @Get()
-  findAll(@Query() searchParams: SearchUserParamsDto): Promise<UserDocument[]> {
-    return this.usersService.findAll(searchParams);
+  findAll(@Query() data: SearchUserParamsDto): Promise<UserDocument[]> {
+    return this.usersService.findAll(data);
   }
 
   @Get(':id')
@@ -41,9 +41,9 @@ export class UsersController {
   @Put(':id')
   update(
     @Param('id') id: string,
-    @Body() updateUserDto: UpdateUserParamsDto,
+    @Body() data: UpdateUserParamsDto,
   ): Promise<UserDocument> {
-    return this.usersService.update(id, updateUserDto);
+    return this.usersService.update(id, data);
   }
 
   @Delete(':id')
