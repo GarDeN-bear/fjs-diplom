@@ -19,11 +19,11 @@ import {
 import { UserDocument } from './schemas/user.schema';
 
 @UsePipes(new ValidationPipe())
-@Controller('users')
+@Controller('/api')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Post()
+  @Post('client/register')
   create(@Body() data: CreateUserDto): Promise<UserDocument> {
     return this.usersService.create(data);
   }
