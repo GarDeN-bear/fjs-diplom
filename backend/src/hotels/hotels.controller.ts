@@ -7,7 +7,9 @@ import {
   Put,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
+
 import { HotelsService } from './hotels.service';
 import { HotelDocument } from './schemas/hotel.schema';
 import {
@@ -15,9 +17,14 @@ import {
   SearchHotelParamsDto,
   UpdateHotelParamsDto,
 } from './dto/hotel.dto';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { JwtAuthGuard } from 'src/auth/guards/jwt.auth.guard';
+import { Roles } from 'src/auth/decorators/roles.decorator';
 
+@UseGuards(RolesGuard, JwtAuthGuard)
+@Roles('admin')
 @Controller('/api/admin/hotels')
-export class HotelsAdminController {
+export class HotelsController {
   constructor(private readonly hotelsService: HotelsService) {}
 
   @Post()
