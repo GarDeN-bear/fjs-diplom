@@ -1,6 +1,18 @@
 # Use root/example as user/password credentials
 
 services:
+  frontend:
+    image: node:20.10-alpine
+    working_dir: /frontend
+    volumes:
+      - ./frontend:/frontend
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+    command: npm run start
+    depends_on:
+      - backend
   backend:
     image: node:20.10-alpine
     working_dir: /backend
