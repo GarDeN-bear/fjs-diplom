@@ -7,7 +7,7 @@
   flex-direction: column;
   row-gap: 5%;
   background-color: #f5f6fa;
-  font-size: 3vh;
+  font-size: 2vh;
 }
 
 .container {
@@ -81,7 +81,15 @@
   margin-bottom: 10%;
 }
 
+.container-nav .row:hover {
+  background-color: #079aa2;
+}
+
 .container-nav a {
   text-decoration: none;
   color: #adb6bd;
+}
+
+.container-nav .row:hover a {
+  color: white;
 }
