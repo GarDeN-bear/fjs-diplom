@@ -2,7 +2,7 @@ import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import "./App.css";
 import Header from "./components/common/Header";
 import Menu from "./components/common/Menu";
-import Main from "./components/hotels/Main";
+import Main from "./components/Main";
 
 function App() {
   return (
@@ -11,7 +11,7 @@ function App() {
       <div className="container">
         <Menu />
         <Routes>
-          <Route path="/" element={<Main />} />
+          <Route path="/*" element={<Main />} />
         </Routes>
       </div>
     </Router>

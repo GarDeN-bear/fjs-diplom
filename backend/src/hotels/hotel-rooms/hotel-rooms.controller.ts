@@ -28,14 +28,14 @@ import { Roles } from 'src/auth/decorators/roles.decorator';
 export class HotelRoomsController {
   constructor(private readonly hotelRoomsService: HotelRoomsService) {}
 
-  @Get('common/hotel-rooms/:id')
-  findById(@Body() id: string): Promise<HotelRoomDocument> {
-    return this.hotelRoomsService.findById(id);
-  }
-
   @Get('common/hotel-rooms/')
   search(@Query() params: SearchRoomsParamsDto): Promise<HotelRoomDocument[]> {
     return this.hotelRoomsService.search(params);
+  }
+
+  @Get('common/hotel-rooms/:id')
+  findById(@Body() id: string): Promise<HotelRoomDocument> {
+    return this.hotelRoomsService.findById(id);
   }
 
   @UseGuards(RolesGuard, JwtAuthGuard)

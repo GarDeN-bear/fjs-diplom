@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
+import { Model, Types, isValidObjectId } from 'mongoose';
 
 import { HotelRoom, HotelRoomDocument } from './schemas/hotel-room.schema';
 import {
@@ -40,6 +40,9 @@ export class HotelRoomsService implements IHotelRoomService {
     const query: any = {};
 
     if (hotel) {
+      if (!isValidObjectId(hotel)) {
+        return [];
+      }
       query.hotel = new Types.ObjectId(hotel);
     }
 

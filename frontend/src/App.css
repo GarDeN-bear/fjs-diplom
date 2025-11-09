@@ -7,7 +7,8 @@
   flex-direction: column;
   row-gap: 5%;
   background-color: #f5f6fa;
-  font-size: 2vh;
+  color: #adb6bd;
+  font-size: 1vw;
 }
 
 .container {
@@ -77,7 +78,6 @@
 
 .container-nav .row {
   list-style-type: ">  ";
-  color: #adb6bd;
   margin-bottom: 10%;
 }
 
@@ -92,4 +92,11 @@
 
 .container-nav .row:hover a {
   color: white;
+}
+
+.container-main {
+  width: 70%;
+  height: 90%;
+  background-color: white;
+  border-radius: 1vh;
 }
