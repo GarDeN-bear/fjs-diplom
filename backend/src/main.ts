@@ -1,8 +1,18 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 
+const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [
+  'http://localhost:5000',
+];
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  await app.listen(process.env.HTTP_PORT ?? 3000);
+  app.enableCors({
+    origin: allowedOrigins,
+    methods: ['GET,PUT,POST,DELETE,PATCH,OPTIONS'],
+    allowedHeaders: ['Content-Type, Accept, Authorization'],
+  });
+  await app.listen(process.env.PORT ?? 3000);
 }
+
 bootstrap();

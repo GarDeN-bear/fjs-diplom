@@ -20,22 +20,4 @@ import { AuthModule } from './auth/auth.module';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {
-  configure(consumer) {
-    // Включить CORS
-    consumer
-      .apply((req, res, next) => {
-        res.header('Access-Control-Allow-Origin', '*');
-        res.header(
-          'Access-Control-Allow-Methods',
-          'GET,PUT,POST,DELETE,PATCH,OPTIONS',
-        );
-        res.header(
-          'Access-Control-Allow-Headers',
-          'Content-Type, Accept, Authorization',
-        );
-        next();
-      })
-      .forRoutes('*');
-  }
-}
+export class AppModule {}
