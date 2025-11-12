@@ -11,7 +11,7 @@ const Menu = () => {
           <Link to="/">Поиск номеров</Link>
         </li>
         <li className="row">
-          <Link to="/">Добавить гостиницу</Link>
+          <Link to="/hotel-create/">Добавить гостиницу</Link>
         </li>
       </ul>
     </nav>

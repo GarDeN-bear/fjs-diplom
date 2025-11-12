@@ -1,58 +1,46 @@
 import { useState, useEffect } from "react";
-const API_BASE_URL =
-  import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
 
-const limit: number = 10;
-const offset: number = 0;
+import * as utils from "../../utils/utils";
+import RoomCard from "./hotel-rooms/RoomCard";
 
-interface Hotel {
-  id: string;
-  title: string;
-}
-
-interface HotelRoom {
-  id: string;
-  description: string;
-  images: string[];
-  hotel: Hotel;
-}
-
-const HotelCatalog = (hotelId: string = "0") => {
-  const [rooms, setRooms] = useState<HotelRoom[]>([]);
+const HotelCatalog = () => {
+  const [hotels, setHotels] = useState<utils.Hotel[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchRooms().finally(() => setLoading(false));
+    fetchHotels().finally(() => setLoading(false));
   }, []);
 
-  const fetchRooms = async () => {
+  const fetchHotels = async () => {
     try {
       const response = await fetch(
-        `${API_BASE_URL}/api/common/hotel-rooms?limit=${limit.toString()}&offset=${offset.toString()}&hotel=${hotelId}`
+        `${
+          utils.VITE_BACKEND_URL
+        }/api/common/hotels?limit=${utils.limit.toString()}&offset=${utils.offset.toString()}`
       );
-      const data: HotelRoom[] = await response.json();
-      setRooms(data);
+      const data: utils.Hotel[] = await response.json();
+      setHotels(data);
     } catch (error) {
-      console.error("Ошибка:", error);
+      console.log("Ошибка: ", error);
     }
   };
 
-  if (loading) return <div>Загрузка...</div>;
-
   return (
     <section className="hotel-catalog">
-      <h1>Гостиницы</h1>
-      <div className="rooms-list">
-        {rooms.map((room) => (
-          <div key={room.id} className="room-card">
-            <h3>{room.hotel.title}</h3>
-            <p>{room.description}</p>
-            {room.images.length > 0 && (
-              <img src={room.images[0]} alt="Гостиница" width="200" />
-            )}
-          </div>
-        ))}
-      </div>
+      <h1>Все гостиницы</h1>
+      {loading ? (
+        <div>Загрузка...</div>
+      ) : (
+        <div className="rooms-list">
+          {hotels.map((hotel) => (
+            <div key={hotel.id} className="hotel-card">
+              <h3>{hotel.title}</h3>
+              <p>{hotel.description}</p>
+              <RoomCard hotelId={hotel.id} />
+            </div>
+          ))}
+        </div>
+      )}
     </section>
   );
 };

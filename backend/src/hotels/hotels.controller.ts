@@ -21,23 +21,25 @@ import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.auth.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 
-@UseGuards(RolesGuard, JwtAuthGuard)
-@Roles('admin')
-@Controller('/api/admin/hotels')
+@Controller('api')
 export class HotelsController {
   constructor(private readonly hotelsService: HotelsService) {}
 
-  @Post()
-  create(@Body() data: CreateHotelDto): Promise<HotelDocument> {
-    return this.hotelsService.create(data);
-  }
-
-  @Get()
+  @Get('common/hotels/')
   search(@Query() params: SearchHotelParamsDto): Promise<HotelDocument[]> {
     return this.hotelsService.search(params);
   }
 
-  @Put(':id')
+  @UseGuards(RolesGuard, JwtAuthGuard)
+  @Roles('admin')
+  @Post('admin/hotels/')
+  create(@Body() data: CreateHotelDto): Promise<HotelDocument> {
+    return this.hotelsService.create(data);
+  }
+
+  @UseGuards(RolesGuard, JwtAuthGuard)
+  @Roles('admin')
+  @Put('admin/hotels/:id')
   update(
     @Param('id') id: string,
     @Body() data: UpdateHotelParamsDto,
@@ -45,7 +47,9 @@ export class HotelsController {
     return this.hotelsService.update(id, data);
   }
 
-  @Delete(':id')
+  @UseGuards(RolesGuard, JwtAuthGuard)
+  @Roles('admin')
+  @Delete('admin/hotels/:id')
   delete(@Param('id') id: string): Promise<void> {
     return this.hotelsService.delete(id);
   }
