@@ -36,14 +36,10 @@ export class HotelRoomsService implements IHotelRoomService {
 
   async search(params: SearchRoomsParamsDto): Promise<HotelRoomDocument[]> {
     const { limit, offset, hotel, isEnabled } = params;
-
     const query: any = {};
 
     if (hotel) {
-      if (!isValidObjectId(hotel)) {
-        return [];
-      }
-      query.hotel = new Types.ObjectId(hotel);
+      query.hotel = hotel;
     }
 
     if (isEnabled !== undefined) {

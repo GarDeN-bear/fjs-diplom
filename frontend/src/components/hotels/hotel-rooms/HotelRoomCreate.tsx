@@ -9,7 +9,7 @@ const HotelRoomCreate = () => {
   const [formData, setFormData] = useState<utils.CreateHotelRoomForm>({
     hotel: "",
     description: "",
-    images: [] as File[],
+    images: null,
     isEnabled: false,
   });
 

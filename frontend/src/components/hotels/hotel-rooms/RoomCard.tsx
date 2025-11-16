@@ -14,6 +14,11 @@ const RoomCard = ({ hotelId, roomId }: RoomCardProps) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!hotelId && !roomId) {
+      setLoading(false);
+      return;
+    }
+
     if (hotelId) {
       fetchRooms().finally(() => setLoading(false));
     } else if (roomId) {
@@ -26,11 +31,11 @@ const RoomCard = ({ hotelId, roomId }: RoomCardProps) => {
       const response = await fetch(
         `${
           utils.VITE_BACKEND_URL
-        }/api/common/hotel-rooms?limit=${utils.limit.toString()}&offset=${utils.offset.toString()}&hotel=${{
-          hotelId,
-        }}`
+        }/api/common/hotel-rooms?limit=${utils.limit.toString()}&offset=${utils.offset.toString()}&hotel=${hotelId}`
       );
       const data: utils.HotelRoom[] = await response.json();
+      console.log(data);
+
       setRooms(data);
     } catch (error) {
       console.error("Ошибка: ", error);
@@ -42,6 +47,7 @@ const RoomCard = ({ hotelId, roomId }: RoomCardProps) => {
       const response = await fetch(
         `${utils.VITE_BACKEND_URL}/api/common/hotel-rooms/${roomId}`
       );
+
       const data: utils.HotelRoom = await response.json();
       setRoom(data);
     } catch (error) {
@@ -56,32 +62,40 @@ const RoomCard = ({ hotelId, roomId }: RoomCardProps) => {
       ) : (
         <div className="rooms-list">
           {room?.id ? (
-            <>
-              {room?.images.map((imag, index) => (
-                <div key={`${room.id}-image-${index}`} className="room-card">
-                  <img src={imag} alt="Комната" width="200" />
-                </div>
-              ))}
-              <p>{room?.description}</p>
-            </>
+            <div key={`room-${room.id}`} className="room-card">
+              <div className="room-images">
+                {room.images.map((image, index) => (
+                  <img
+                    key={`room-${room.id}-image-${image}`}
+                    src={`${utils.VITE_BACKEND_URL}/public/${image}`}
+                    alt={`Комната ${index + 1}`}
+                    width="200"
+                  />
+                ))}
+              </div>
+              <p>{room.description}</p>
+            </div>
           ) : (
-            <>
-              {rooms.map((room) => (
-                <div key={room.id} className="room-card">
-                  {roomId ? (
-                    <p>{room.description}</p>
-                  ) : (
-                    <>
-                      {room.images.length > 0 && (
-                        <Link to={`/room/${room.id}`}>
-                          <img src={room.images[0]} alt="Комната" width="200" />
-                        </Link>
-                      )}
-                    </>
-                  )}
-                </div>
-              ))}
-            </>
+            rooms.map((roomItem) => (
+              <div key={`room-${roomItem.id}`} className="room-card">
+                {roomId ? (
+                  <p>{roomItem.description}</p>
+                ) : (
+                  <div className="room-image">
+                    {roomItem.images.length > 0 && (
+                      <Link to={`/room/${roomItem.id}`}>
+                        <img
+                          key={`room-${roomItem.id}-image-${roomItem.images[0]}`}
+                          src={`${utils.VITE_BACKEND_URL}/public/${roomItem.images[0]}`}
+                          alt="Комната"
+                          width="200"
+                        />
+                      </Link>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))
           )}
         </div>
       )}

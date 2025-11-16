@@ -6,8 +6,8 @@ import * as utils from "../../utils/utils";
 import { useRooms } from "../context/RoomContext";
 
 const HotelCreate = () => {
-  const { hotelRooms } = useRooms();
-  const [formData, setFormData] = useState<utils.CreateHotelForm>({
+  const { hotelRooms, clearRooms } = useRooms();
+  const [hotel, setHotel] = useState<utils.CreateHotelForm>({
     title: "",
     description: "",
   });
@@ -18,6 +18,10 @@ const HotelCreate = () => {
 
   const sendHotelData = async (): Promise<string | undefined> => {
     try {
+      const formData = new FormData();
+      formData.append("title", hotel.title || "");
+      formData.append("description", hotel.description || "");
+
       const response = await fetch(
         `${utils.VITE_BACKEND_URL}/api/admin/hotels/`,
         {
@@ -25,20 +29,21 @@ const HotelCreate = () => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(formData),
+          body: JSON.stringify(hotel),
           credentials: "include",
         }
       );
 
       if (!response.ok) {
-        throw new Error("Ошибка при создании отеля");
+        const error = await response.text();
+        throw new Error(`Ошибка при создании отеля": ${error}`);
       }
 
       const result = await response.json();
       console.log("Отель создан:", result);
       return result._id;
     } catch (error) {
-      console.error("Ошибка:", error);
+      throw new Error(`Ошибка при создании отеля": ${error}`);
     } finally {
       setLoading(false);
     }
@@ -46,29 +51,45 @@ const HotelCreate = () => {
 
   const sendHotelRoomsData = async (hotelId: string) => {
     try {
-      hotelRooms.forEach(async (room) => {
-        room.hotel = hotelId;
-        const response = await fetch(
-          `${utils.VITE_BACKEND_URL}/api/admin/hotel-rooms/`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(room),
-            credentials: "include",
-          }
-        );
+      await Promise.all(
+        hotelRooms.map(async (room) => {
+          const formData = new FormData();
 
-        if (!response.ok) {
-          throw new Error("Ошибка при создании комнаты отеля");
-        }
-        const result = await response.json();
-        console.log("Комната создана:", result);
-      });
-      setFormData({ title: "", description: "" });
+          formData.append("hotel", hotelId);
+          formData.append("description", room.description || "");
+          formData.append("isEnabled", room.isEnabled?.toString() || "false");
+
+          if (room.images && room.images.length > 0) {
+            Array.from(room.images).forEach((file) => {
+              formData.append("images", file);
+            });
+          } else {
+            console.log("Нет файлов для загрузки");
+          }
+
+          const response = await fetch(
+            `${utils.VITE_BACKEND_URL}/api/admin/hotel-rooms/`,
+            {
+              method: "POST",
+              body: formData,
+              credentials: "include",
+            }
+          );
+
+          if (!response.ok) {
+            const error = await response.text();
+            throw new Error(`Ошибка при создании комнаты отеля: ${error}`);
+          }
+
+          const result = await response.json();
+          console.log("Комната создана с файлами:", result);
+          return result;
+        })
+      );
+      setHotel({ title: "", description: "" });
+      clearRooms();
     } catch (error) {
-      console.error("Ошибка:", error);
+      throw new Error(`Ошибка при создании комнаты отеля: ${error}`);
     } finally {
       setLoading(false);
     }
@@ -85,7 +106,7 @@ const HotelCreate = () => {
     field: keyof utils.CreateHotelForm,
     value: string
   ) => {
-    setFormData((prev) => ({
+    setHotel((prev) => ({
       ...prev,
       [field]: value,
     }));
@@ -112,7 +133,7 @@ const HotelCreate = () => {
               <input
                 type="text"
                 id="title"
-                value={formData.title}
+                value={hotel.title}
                 onChange={(e) => handleChange("title", e.target.value)}
                 placeholder="Enter hotel title"
               />
@@ -124,7 +145,7 @@ const HotelCreate = () => {
               </label>
               <textarea
                 id="description"
-                value={formData.description}
+                value={hotel.description}
                 onChange={(e) => handleChange("description", e.target.value)}
                 placeholder="Enter detailed hotel description"
               />

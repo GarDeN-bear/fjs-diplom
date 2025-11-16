@@ -6,7 +6,7 @@ import {
   IsBoolean,
   IsArray,
 } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Type, Transform } from 'class-transformer';
 import { PartialType } from '@nestjs/mapped-types';
 
 export class CreateHotelRoomDto {
@@ -23,6 +23,11 @@ export class CreateHotelRoomDto {
 
   @IsOptional()
   @IsBoolean()
+  @Transform(({ value }) => {
+    if (value === 'true' || value === true) return true;
+    if (value === 'false' || value === false) return false;
+    return value;
+  })
   isEnabled?: boolean;
 }
 

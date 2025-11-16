@@ -1,5 +1,5 @@
 export interface Hotel {
-  id: string;
+  _id: string;
   title: string;
   description: string;
 }
@@ -19,7 +19,7 @@ export interface CreateHotelForm {
 export interface CreateHotelRoomForm {
   hotel: string;
   description?: string;
-  images?: File[];
+  images?: FileList | null;
   isEnabled?: boolean;
 }
 

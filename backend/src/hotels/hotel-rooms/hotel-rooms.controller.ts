@@ -10,6 +10,9 @@ import {
   UseGuards,
   UsePipes,
   ValidationPipe,
+  UseInterceptors,
+  UploadedFiles,
+  Optional,
 } from '@nestjs/common';
 
 import { HotelRoomsService } from './hotel-rooms.service';
@@ -22,6 +25,7 @@ import { HotelRoomDocument } from './schemas/hotel-room.schema';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.auth.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
 
 @UsePipes(new ValidationPipe())
 @Controller('api')
@@ -40,8 +44,27 @@ export class HotelRoomsController {
 
   // @UseGuards(RolesGuard, JwtAuthGuard)
   // @Roles('admin')
+  @UseInterceptors(FileFieldsInterceptor([{ name: 'images', maxCount: 10 }]))
   @Post('admin/hotel-rooms/')
-  create(@Body() data: CreateHotelRoomDto): Promise<HotelRoomDocument> {
+  create(
+    @Optional() @UploadedFiles() files: { images?: Express.Multer.File[] },
+    @Body() data: CreateHotelRoomDto,
+  ): Promise<HotelRoomDocument> {
+    console.log('Полученные данные:', data);
+    console.log('Полученные файлы:', files);
+
+    let imagesPath: string[] = [];
+    if (files && files.images) {
+      console.log('Обрабатываем файлы:', files.images.length);
+      imagesPath = files.images.map((image) => {
+        console.log('Файл:', image.originalname, image.filename, image.size);
+        return image.filename;
+      });
+    } else {
+      console.log('Файлы не получены или пустые');
+    }
+    console.log(imagesPath);
+    data = { ...data, images: imagesPath };
     return this.hotelRoomsService.create(data);
   }
 

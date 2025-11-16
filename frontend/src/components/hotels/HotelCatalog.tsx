@@ -33,8 +33,8 @@ const HotelCatalog = () => {
       ) : (
         <div className="rooms-list">
           {hotels.map((hotel) => (
-            <div key={hotel.id} className="hotel-card">
-              <RoomCard hotelId={hotel.id} />
+            <div key={hotel._id} className="hotel-card">
+              <RoomCard hotelId={hotel._id} />
               <h3>{hotel.title}</h3>
               <p>{hotel.description}</p>
             </div>
