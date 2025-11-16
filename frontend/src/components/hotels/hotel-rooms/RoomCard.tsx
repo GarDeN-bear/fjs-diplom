@@ -16,7 +16,7 @@ const RoomCard = ({ hotelId, roomId }: RoomCardProps) => {
   useEffect(() => {
     if (hotelId) {
       fetchRooms().finally(() => setLoading(false));
-    } else {
+    } else if (roomId) {
       fetchRoom().finally(() => setLoading(false));
     }
   }, [hotelId, roomId]);
@@ -49,32 +49,40 @@ const RoomCard = ({ hotelId, roomId }: RoomCardProps) => {
     }
   };
 
-  if (loading) return <div>Загрузка...</div>;
-
   return (
     <section className="rooms-card">
       {loading ? (
         <div>Загрузка...</div>
       ) : (
         <div className="rooms-list">
-          {room?.id} ? (
-          {room?.images.map((imag) => (
-            <div key={room.id} className="room-card">
-              <img src={imag} alt="Комната" width="200" />
-            </div>
-          ))}
-          <p>{room?.description}</p>) : (
-          {rooms.map((room) => (
-            <div key={room.id} className="room-card">
-              {roomId} ? (<p>{room.description}</p>)
-              {room.images.length > 0 && (
-                <Link to={`/room/${room.id}`}>
-                  <img src={room.images[0]} alt="Комната" width="200" />
-                </Link>
-              )}
-            </div>
-          ))}
-          )
+          {room?.id ? (
+            <>
+              {room?.images.map((imag, index) => (
+                <div key={`${room.id}-image-${index}`} className="room-card">
+                  <img src={imag} alt="Комната" width="200" />
+                </div>
+              ))}
+              <p>{room?.description}</p>
+            </>
+          ) : (
+            <>
+              {rooms.map((room) => (
+                <div key={room.id} className="room-card">
+                  {roomId ? (
+                    <p>{room.description}</p>
+                  ) : (
+                    <>
+                      {room.images.length > 0 && (
+                        <Link to={`/room/${room.id}`}>
+                          <img src={room.images[0]} alt="Комната" width="200" />
+                        </Link>
+                      )}
+                    </>
+                  )}
+                </div>
+              ))}
+            </>
+          )}
         </div>
       )}
     </section>

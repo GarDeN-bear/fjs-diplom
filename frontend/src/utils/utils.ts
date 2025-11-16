@@ -16,6 +16,13 @@ export interface CreateHotelForm {
   description: string;
 }
 
+export interface CreateHotelRoomForm {
+  hotel: string;
+  description?: string;
+  images?: File[];
+  isEnabled?: boolean;
+}
+
 export const limit: number = 10;
 export const offset: number = 0;
 

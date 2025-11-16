@@ -38,8 +38,8 @@ export class HotelRoomsController {
     return this.hotelRoomsService.findById(id);
   }
 
-  @UseGuards(RolesGuard, JwtAuthGuard)
-  @Roles('admin')
+  // @UseGuards(RolesGuard, JwtAuthGuard)
+  // @Roles('admin')
   @Post('admin/hotel-rooms/')
   create(@Body() data: CreateHotelRoomDto): Promise<HotelRoomDocument> {
     return this.hotelRoomsService.create(data);

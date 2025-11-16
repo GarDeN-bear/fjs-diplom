@@ -30,10 +30,11 @@ export class HotelsController {
     return this.hotelsService.search(params);
   }
 
-  @UseGuards(RolesGuard, JwtAuthGuard)
-  @Roles('admin')
+  // @UseGuards(RolesGuard, JwtAuthGuard)
+  // @Roles('admin')
   @Post('admin/hotels/')
   create(@Body() data: CreateHotelDto): Promise<HotelDocument> {
+    console.log(CreateHotelDto);
     return this.hotelsService.create(data);
   }
 
