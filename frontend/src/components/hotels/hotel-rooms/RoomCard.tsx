@@ -69,7 +69,6 @@ const RoomCard = ({ hotelId, roomId }: RoomCardProps) => {
                     key={`room-${room.id}-image-${image}`}
                     src={`${utils.VITE_BACKEND_URL}/public/${image}`}
                     alt={`Комната ${index + 1}`}
-                    width="200"
                   />
                 ))}
               </div>
@@ -83,14 +82,12 @@ const RoomCard = ({ hotelId, roomId }: RoomCardProps) => {
                 ) : (
                   <div className="room-image">
                     {roomItem.images.length > 0 && (
-                      <Link to={`/room/${roomItem.id}`}>
-                        <img
-                          key={`room-${roomItem.id}-image-${roomItem.images[0]}`}
-                          src={`${utils.VITE_BACKEND_URL}/public/${roomItem.images[0]}`}
-                          alt="Комната"
-                          width="200"
-                        />
-                      </Link>
+                      <img
+                        key={`room-${roomItem.id}-image-${roomItem.images[0]}`}
+                        src={`${utils.VITE_BACKEND_URL}/public/${roomItem.images[0]}`}
+                        alt="Комната"
+                        width="200"
+                      />
                     )}
                   </div>
                 )}

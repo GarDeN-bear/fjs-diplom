@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 
 import * as utils from "../../utils/utils";
 import RoomCard from "./hotel-rooms/RoomCard";
+import { Link } from "react-router-dom";
 
 const HotelCatalog = () => {
   const [hotels, setHotels] = useState<utils.Hotel[]>([]);
@@ -31,12 +32,17 @@ const HotelCatalog = () => {
       {loading ? (
         <div>Загрузка...</div>
       ) : (
-        <div className="rooms-list">
+        <div className="hotels-list">
           {hotels.map((hotel) => (
             <div key={hotel._id} className="hotel-card">
               <RoomCard hotelId={hotel._id} />
-              <h3>{hotel.title}</h3>
-              <p>{hotel.description}</p>
+              <div className="hotel-card-description">
+                <h3>{hotel.title}</h3>
+                <p>{hotel.description}</p>
+                <Link to={`/room/${hotel._id}`}>
+                  <button>Подробнее</button>
+                </Link>
+              </div>
             </div>
           ))}
         </div>

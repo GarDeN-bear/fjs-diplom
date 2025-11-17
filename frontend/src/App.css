@@ -1,6 +1,6 @@
 #root {
   width: 100%;
-  height: 100vh;
+  min-height: 100vh;
   margin: auto;
   display: flex;
   align-items: center;
@@ -19,8 +19,9 @@
 }
 
 .container-header {
-  height: 10%;
+  height: 10vh;
   margin-top: 5%;
+  margin-bottom: 5%;
 }
 
 .col-logo {
@@ -96,10 +97,7 @@
 
 .container-main {
   width: 70%;
-  height: 80%;
 
-  background-color: white;
-  border-radius: 1vh;
   display: flex;
   flex-direction: column;
 }
@@ -162,4 +160,37 @@
 .btn {
   background-color: #adb6bd;
   border-radius: 0.1vw;
+}
+
+.hotels-list {
+  display: flex;
+  flex-direction: column;
+  row-gap: 5vh;
+}
+
+.hotel-card {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  background-color: white;
+  border-radius: 1vh;
+  gap: 2vh;
+  padding: 2vh;
+}
+
+.hotel-card-description {
+  display: flex;
+  flex-direction: column;
+}
+
+.hotel-card-description button {
+  background-color: purple;
+  border-radius: 1vh;
+}
+
+.room-image img {
+  width: 15vw;
+  height: 15vw;
+  object-fit: cover;
+  border-radius: 1vh;
 }
