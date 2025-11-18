@@ -184,7 +184,7 @@
 }
 
 .hotel-card-description button {
-  background-color: purple;
+  background-color: cornflowerblue;
   border-radius: 1vh;
 }
 
@@ -193,4 +193,15 @@
   height: 15vw;
   object-fit: cover;
   border-radius: 1vh;
+}
+
+.pagination-btn {
+  background-color: white;
+  color: cornflowerblue;
+  border-radius: 0;
+}
+
+.pagination-btn.active {
+  background-color: cornflowerblue;
+  color: white;
 }
