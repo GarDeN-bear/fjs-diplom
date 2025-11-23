@@ -1,0 +1,111 @@
+.ui-datepicker,
+.ui-datepicker-material-header {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.ui-datepicker .ui-datepicker-header,
+.ui-datepicker .ui-datepicker-title,
+.ui-datepicker table {
+  margin: 0;
+}
+
+.ui-datepicker .ui-datepicker-title {
+  padding: 1vw;
+}
+
+.ui-datepicker table {
+  border-collapse: collapse;
+}
+
+.ui-datepicker-material-header .ui-datepicker-material-date {
+  padding: 1vw;
+}
+.ui-datepicker-material-header
+  .ui-datepicker-material-date
+  .ui-datepicker-material-month,
+.ui-datepicker-material-header
+  .ui-datepicker-material-date
+  .ui-datepicker-material-day-num,
+.ui-datepicker-material-header
+  .ui-datepicker-material-date
+  .ui-datepicker-material-year {
+  padding: 5px;
+}
+.ui-datepicker-material-header
+  .ui-datepicker-material-date
+  .ui-datepicker-material-month {
+  font-size: 2rem;
+  text-transform: uppercase;
+}
+.ui-datepicker-material-header
+  .ui-datepicker-material-date
+  .ui-datepicker-material-day-num {
+  font-size: 4.5rem;
+}
+.ui-datepicker-material-header
+  .ui-datepicker-material-date
+  .ui-datepicker-material-year {
+  font-size: 1.8rem;
+  font-weight: 200;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.ui-datepicker {
+  padding: 0;
+  border: none;
+}
+
+.ui-corner-all {
+  border-radius: 0;
+}
+
+.ui-widget-header {
+  border: 0;
+}
+
+.ui-datepicker-header {
+  display: flex;
+  font-weight: 800;
+  justify-content: space-between;
+}
+
+.ui-datepicker-calendar thead th {
+  color: #adb6bd;
+  font-weight: 800;
+  height: 2vw;
+  width: 2vw;
+}
+
+.ui-datepicker-calendar tbody td {
+  background: none;
+  border: none;
+  text-align: center;
+  height: 2vw;
+  width: 2vw;
+  color: #adb6bd;
+}
+
+.ui-datepicker-calendar tbody td.ui-datepicker-selected {
+  background-color: #dee1e6;
+  color: #adb6bd;
+}
+
+.ui-datepicker-calendar tbody td.ui-datepicker-other-month {
+  opacity: 0.35;
+}
+
+.ui-datepicker-calendar .ui-datepicker-week-end {
+  background-color: #b4cbe5;
+}
+
+.ui-datepicker-calendar tbody td:hover {
+  cursor: pointer;
+}
+
+.ui-datepicker-header-btn {
+  background-color: white;
+  color: black;
+}

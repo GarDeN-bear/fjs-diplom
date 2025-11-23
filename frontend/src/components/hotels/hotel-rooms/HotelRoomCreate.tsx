@@ -73,8 +73,8 @@ const HotelRoomCreate = () => {
             <button type="submit" className="btn btn-primary">
               Добавить
             </button>
+            <button className="btn btn-secondary">Отменить</button>
           </div>
-          <button className="btn btn-primary">Отменить</button>
         </form>
       )}
     </section>

@@ -34,7 +34,6 @@ export class HotelsController {
   // @Roles('admin')
   @Post('admin/hotels/')
   create(@Body() data: CreateHotelDto): Promise<HotelDocument> {
-    console.log(data);
     return this.hotelsService.create(data);
   }
 

@@ -34,7 +34,6 @@ const RoomCard = ({ hotelId, roomId }: RoomCardProps) => {
         }/api/common/hotel-rooms?limit=${utils.limit.toString()}&offset=${utils.offset.toString()}&hotel=${hotelId}`
       );
       const data: utils.HotelRoom[] = await response.json();
-      console.log(data);
 
       setRooms(data);
     } catch (error) {

@@ -8,7 +8,7 @@ const Menu = () => {
           <Link to="/">Все гостиницы</Link>
         </li>
         <li className="row">
-          <Link to="/">Поиск номеров</Link>
+          <Link to="/search">Поиск номеров</Link>
         </li>
         <li className="row">
           <Link to="/hotel-create/">Добавить гостиницу</Link>

@@ -7,7 +7,7 @@
   flex-direction: column;
   row-gap: 5%;
   background-color: #f5f6fa;
-  color: #adb6bd;
+  color: black;
   font-size: 1vw;
 }
 
@@ -33,7 +33,7 @@
   align-items: center;
 
   background-color: #079aa2;
-  border-radius: 1vh;
+  border-radius: 1vw;
 }
 
 .col-logo a {
@@ -59,14 +59,14 @@
   width: 70%;
   height: 100%;
   background-color: white;
-  border-radius: 1vh;
+  border-radius: 1vw;
 }
 
 .container-nav {
   width: 20%;
   height: 50%;
   background-color: white;
-  border-radius: 1vh;
+  border-radius: 1vw;
 
   display: flex;
   justify-content: center;
@@ -79,6 +79,7 @@
 
 .container-nav .row {
   list-style-type: ">  ";
+  color: #adb6bd;
   margin-bottom: 10%;
 }
 
@@ -130,7 +131,7 @@
   font-size: 1vw;
 
   background-color: white;
-  color: #adb6bd;
+  color: black;
   box-sizing: border-box;
   border-width: 0.1vw;
   padding: 0.1vw;
@@ -149,12 +150,15 @@
 
   resize: none;
   background-color: white;
-  color: #adb6bd;
+  color: black;
   box-sizing: border-box;
 }
 
 .form-actions {
   box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  column-gap: 2.5%;
 }
 
 .btn {
@@ -173,9 +177,10 @@
   flex-direction: row;
   width: 100%;
   background-color: white;
-  border-radius: 1vh;
+  border-radius: 1vw;
   gap: 2vh;
   padding: 2vh;
+  box-sizing: border-box;
 }
 
 .hotel-card-description {
@@ -183,16 +188,20 @@
   flex-direction: column;
 }
 
+.hotel-card-description p {
+  color: #adb6bd;
+}
+
 .hotel-card-description button {
   background-color: cornflowerblue;
-  border-radius: 1vh;
+  border-radius: 1vw;
 }
 
 .room-image img {
   width: 15vw;
   height: 15vw;
   object-fit: cover;
-  border-radius: 1vh;
+  border-radius: 1vw;
 }
 
 .pagination-btn {
@@ -204,4 +213,56 @@
 .pagination-btn.active {
   background-color: cornflowerblue;
   color: white;
+}
+
+.container-main-title {
+  background-color: white;
+  margin: 0;
+  padding: 2vw;
+  margin-bottom: 5%;
+  border-radius: 1vw;
+  box-sizing: border-box;
+}
+
+.hotel-create-card {
+  background-color: white;
+  margin: 0;
+  padding: 2vw;
+  border-radius: 1vw;
+  box-sizing: border-box;
+}
+
+.btn-primary {
+  background-color: #e1855e;
+}
+
+.btn-secondary {
+  background-color: #e25d5e;
+}
+
+.form-group-in-out {
+  display: flex;
+  flex-direction: row;
+}
+
+.form-group-in-out input {
+  width: 25%;
+}
+
+.hotel-catalog-search-card {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  row-gap: 2vh;
+}
+
+.hotel-catalog-search-card h1 {
+  margin: 0;
+}
+
+.hotel-catalog-search-card form {
+  display: flex;
+  flex-direction: column;
+  row-gap: 2vh;
+  width: 100%;
 }

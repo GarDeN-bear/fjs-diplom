@@ -63,8 +63,6 @@ const HotelCreate = () => {
             Array.from(room.images).forEach((file) => {
               formData.append("images", file);
             });
-          } else {
-            console.log("Нет файлов для загрузки");
           }
 
           const response = await fetch(
@@ -113,17 +111,16 @@ const HotelCreate = () => {
   };
 
   const navigateToHotelRoomCreate = () => {
-    console.log("navigate");
     navigate("/hotel-room-create");
   };
 
   return (
     <section className="hotel-create">
-      <h1>Добавление гостиницы</h1>
+      <h1 className="container-main-title">Добавление гостиницы</h1>
       {loading ? (
         <div>Загрузка...</div>
       ) : (
-        <>
+        <div className="hotel-create-card">
           <button onClick={navigateToHotelRoomCreate}>Добавить комнату</button>
           <form onSubmit={handleSubmit} className="hotel-create-form">
             <div className="form-group">
@@ -154,9 +151,15 @@ const HotelCreate = () => {
               <button type="submit" className="btn btn-primary">
                 Сохранить
               </button>
+              <button
+                className="btn btn-secondary"
+                onClick={() => navigate("/")}
+              >
+                Отменить
+              </button>
             </div>
           </form>
-        </>
+        </div>
       )}
     </section>
   );

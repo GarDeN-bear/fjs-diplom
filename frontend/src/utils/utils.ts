@@ -19,7 +19,7 @@ export interface CreateHotelForm {
 export interface CreateHotelRoomForm {
   hotel: string;
   description?: string;
-  images?: FileList|null;
+  images?: FileList | null;
   isEnabled?: boolean;
 }
 
@@ -27,4 +27,10 @@ export const limit: number = 2;
 export const offset: number = 0;
 
 export const VITE_BACKEND_URL =
-    import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
+  import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
+
+export enum DayOfMonth {
+  PreviousMonth,
+  CurrentMonth,
+  NextMonth,
+}
