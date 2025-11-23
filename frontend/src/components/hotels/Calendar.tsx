@@ -42,6 +42,50 @@ const Calendar = ({
   departureDate,
   arrivalDate,
 }: CalendarPromt) => {
+  const isMonthInBorders = (day: number, dayOfMonth: DayOfMonth): boolean => {
+    switch (dayOfMonth) {
+      case DayOfMonth.PreviousMonth:
+        return (
+          (departureDate !== null &&
+            day === departureDate.getDate() &&
+            departureDate.getMonth() ===
+              (currentDate.getMonth() - 1 < 0
+                ? 11
+                : currentDate.getMonth() - 1)) ||
+          (arrivalDate !== null &&
+            day === arrivalDate.getDate() &&
+            arrivalDate.getMonth() ===
+              (currentDate.getMonth() - 1 < 0
+                ? 11
+                : currentDate.getMonth() - 1))
+        );
+      case DayOfMonth.NextMonth:
+        return (
+          (departureDate !== null &&
+            day === departureDate.getDate() &&
+            departureDate.getMonth() ===
+              (currentDate.getMonth() + 1 > 11
+                ? 0
+                : currentDate.getMonth() + 1)) ||
+          (arrivalDate !== null &&
+            day === arrivalDate.getDate() &&
+            arrivalDate.getMonth() ===
+              (currentDate.getMonth() + 1 > 11
+                ? 0
+                : currentDate.getMonth() + 1))
+        );
+      default:
+        return (
+          (departureDate !== null &&
+            day === departureDate.getDate() &&
+            departureDate.getMonth() === currentDate.getMonth()) ||
+          (arrivalDate !== null &&
+            day === arrivalDate.getDate() &&
+            arrivalDate.getMonth() === currentDate.getMonth())
+        );
+    }
+  };
+
   const monthName = monthNames[currentDate.getMonth()];
   const lastDayOfPreviousMonth = new Date(
     currentDate.getFullYear(),
@@ -57,10 +101,16 @@ const Calendar = ({
   let firstDayOfMonth = lastDayOfPreviousMonth.getDay();
 
   while (firstDayOfMonth > 0) {
+    let dayOfPreviousMonth =
+      lastDayOfPreviousMonth.getDate() - firstDayOfMonth + 1;
     monthInfo.push({
-      day: lastDayOfPreviousMonth.getDate() - firstDayOfMonth + 1,
+      day: dayOfPreviousMonth,
       week: 1,
-      dayClass: "ui-datepicker-other-month",
+      dayClass:
+        "ui-datepicker-other-month" +
+        (isMonthInBorders(dayOfPreviousMonth, DayOfMonth.PreviousMonth)
+          ? " ui-datepicker-selected"
+          : ""),
       dayOfMonth: DayOfMonth.PreviousMonth,
     });
     --firstDayOfMonth;
@@ -69,26 +119,25 @@ const Calendar = ({
     monthInfo.push({
       day: i,
       week: Math.ceil((monthInfo.length + 1) / 7),
-      dayClass:
-        (departureDate !== null &&
-          i === departureDate.getDate() &&
-          departureDate.getMonth() === currentDate.getMonth()) ||
-        (arrivalDate !== null &&
-          i === arrivalDate.getDate() &&
-          arrivalDate.getMonth() === currentDate.getMonth())
-          ? "ui-datepicker-selected"
-          : "",
+      dayClass: isMonthInBorders(i, DayOfMonth.CurrentMonth)
+        ? "ui-datepicker-selected"
+        : "",
       dayOfMonth: DayOfMonth.CurrentMonth,
     });
   }
   let lastDayOfWeek = 1;
   while (monthInfo.length < 7 * monthInfo[monthInfo.length - 1].week) {
     monthInfo.push({
-      day: lastDayOfWeek++,
+      day: lastDayOfWeek,
       week: monthInfo[monthInfo.length - 1].week,
-      dayClass: "ui-datepicker-other-month",
+      dayClass:
+        "ui-datepicker-other-month" +
+        (isMonthInBorders(lastDayOfWeek, DayOfMonth.NextMonth)
+          ? " ui-datepicker-selected"
+          : ""),
       dayOfMonth: DayOfMonth.NextMonth,
     });
+    lastDayOfWeek++;
   }
 
   const renderRows = () => {
