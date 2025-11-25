@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import type { FormEvent } from "react";
 
 import RoomCard from "./hotel-rooms/RoomCard";
 import * as utils from "../../utils/utils";
 import SearchHotels from "./SearchHotels";
+import { useSearch } from "../context/SearchContext";
 
 interface HotelCatalogPromt {
   search?: boolean;
@@ -18,9 +20,20 @@ const HotelCatalog = ({ search = false }: HotelCatalogPromt) => {
   const [pageNumbers, setPageNumbers] = useState<number[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const { checkInDate, departureDate, calendarState, setCalendarState } =
+    useSearch();
+
+  const navigate = useNavigate();
+
   useEffect(() => {
-    fetchAllHotels().finally(() => setLoading(false));
-  }, [search]);
+    if (!search) {
+      fetchAllHotels().finally(() => setLoading(false));
+    } else {
+      fetchSearchHotels().finally(() => setLoading(false));
+
+      setLoading(false);
+    }
+  }, [search, calendarState]);
 
   useEffect(() => {
     fetchHotelsOnPage();
@@ -59,6 +72,34 @@ const HotelCatalog = ({ search = false }: HotelCatalogPromt) => {
       console.log("Ошибка: ", error);
     }
   };
+  const fetchSearchHotels = async () => {
+    try {
+      const response = await fetch(
+        `${
+          utils.VITE_BACKEND_URL
+        }/api/common/hotels?limit=${limit.toString()}&offset=${(
+          (currentPage - 1) *
+          itemsInPage
+        ).toString()}`
+      );
+      const data: utils.Hotel[] = await response.json();
+      setAllHotels(data);
+      setPageNumbers([]);
+      const totalPages = Math.ceil(data.length / itemsInPage);
+      const numbers = [];
+      for (let i = 1; i <= totalPages; i++) {
+        numbers.push(i);
+      }
+      setPageNumbers(numbers);
+    } catch (error) {
+      console.log("Ошибка: ", error);
+    }
+  };
+
+  const handleOnSubmitSearch = (e: FormEvent) => {
+    e.preventDefault();
+    setCalendarState(false);
+  };
 
   return (
     <section className="hotel-catalog">
@@ -68,7 +109,7 @@ const HotelCatalog = ({ search = false }: HotelCatalogPromt) => {
         <>
           {search ? (
             <>
-              <SearchHotels />
+              <SearchHotels handleOnSubmitSearch={handleOnSubmitSearch} />
               <div className="hotels-list">
                 {hotelsOnPage.map((hotel) => (
                   <div key={hotel._id} className="hotel-card">
@@ -76,9 +117,9 @@ const HotelCatalog = ({ search = false }: HotelCatalogPromt) => {
                     <div className="hotel-card-description">
                       <h3>{hotel.title}</h3>
                       <p>{hotel.description}</p>
-                      <Link to={`/room/${hotel._id}`}>
-                        <button>Подробнее</button>
-                      </Link>
+                      <button onClick={() => navigate(`/hotel/${hotel._id}`)}>
+                        Подробнее
+                      </button>
                     </div>
                   </div>
                 ))}
@@ -94,9 +135,9 @@ const HotelCatalog = ({ search = false }: HotelCatalogPromt) => {
                     <div className="hotel-card-description">
                       <h3>{hotel.title}</h3>
                       <p>{hotel.description}</p>
-                      <Link to={`/room/${hotel._id}`}>
-                        <button>Подробнее</button>
-                      </Link>
+                      <button onClick={() => navigate(`/hotel/${hotel._id}`)}>
+                        Подробнее
+                      </button>
                     </div>
                   </div>
                 ))}

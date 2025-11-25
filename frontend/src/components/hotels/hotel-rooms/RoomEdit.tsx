@@ -1,39 +1,34 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import * as utils from "../../../utils/utils";
-import { useRooms } from "../../context/RoomsContext";
+import { useHotelEdit } from "../../context/HotelEditContext";
 
-const HotelRoomCreate = () => {
-  const [formData, setFormData] = useState<utils.CreateHotelRoomForm>({
-    hotel: "",
-    description: "",
-    images: null,
-    isEnabled: false,
-  });
+const RoomEdit = () => {
+  const { updatedRoom, updateRoom } = useHotelEdit();
 
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
-  const { addRoom } = useRooms();
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setFormData(formData);
-    if (addRoom) addRoom(formData);
-    navigate("/hotel-create");
+    updateRoom(updatedRoom);
+    navigate("/hotel/edit/");
   };
 
   const handleChange = async (
     field: keyof utils.CreateHotelRoomForm,
     value: string | FileList | null
   ) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
+    if (updatedRoom) {
+      updateRoom({
+        ...updatedRoom,
+        [field]: value,
+      });
+    }
   };
 
   return (
@@ -63,7 +58,7 @@ const HotelRoomCreate = () => {
             </label>
             <textarea
               id="description"
-              value={formData.description}
+              value={updatedRoom?.description}
               onChange={(e) => handleChange("description", e.target.value)}
               placeholder="Enter detailed hotel description"
             />
@@ -81,4 +76,4 @@ const HotelRoomCreate = () => {
   );
 };
 
-export default HotelRoomCreate;
+export default RoomEdit;

@@ -266,3 +266,13 @@
   row-gap: 2vh;
   width: 100%;
 }
+
+.rooms-grid {
+  display: flex;
+  flex-direction: row;
+  gap: 5%;
+}
+
+.images-grid {
+  cursor: pointer;
+}

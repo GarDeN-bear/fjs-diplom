@@ -1,25 +1,11 @@
-import {
-  Body,
-  Controller,
-  Post,
-  Get,
-  Query,
-  Put,
-  Param,
-  Delete,
-  UseGuards,
-} from '@nestjs/common';
+import {Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards,} from '@nestjs/common';
+import {Roles} from 'src/auth/decorators/roles.decorator';
+import {JwtAuthGuard} from 'src/auth/guards/jwt.auth.guard';
+import {RolesGuard} from 'src/auth/guards/roles.guard';
 
-import { HotelsService } from './hotels.service';
-import { HotelDocument } from './schemas/hotel.schema';
-import {
-  CreateHotelDto,
-  SearchHotelParamsDto,
-  UpdateHotelParamsDto,
-} from './dto/hotel.dto';
-import { RolesGuard } from 'src/auth/guards/roles.guard';
-import { JwtAuthGuard } from 'src/auth/guards/jwt.auth.guard';
-import { Roles } from 'src/auth/decorators/roles.decorator';
+import {CreateHotelDto, SearchHotelParamsDto, UpdateHotelParamsDto,} from './dto/hotel.dto';
+import {HotelsService} from './hotels.service';
+import {HotelDocument} from './schemas/hotel.schema';
 
 @Controller('api')
 export class HotelsController {
@@ -28,6 +14,11 @@ export class HotelsController {
   @Get('common/hotels/')
   search(@Query() params: SearchHotelParamsDto): Promise<HotelDocument[]> {
     return this.hotelsService.search(params);
+  }
+
+  @Get('common/hotels/:id')
+  find(@Param('id') id: string): Promise<HotelDocument> {
+    return this.hotelsService.findById(id);
   }
 
   // @UseGuards(RolesGuard, JwtAuthGuard)
@@ -41,9 +32,9 @@ export class HotelsController {
   @Roles('admin')
   @Put('admin/hotels/:id')
   update(
-    @Param('id') id: string,
-    @Body() data: UpdateHotelParamsDto,
-  ): Promise<HotelDocument> {
+      @Param('id') id: string,
+      @Body() data: UpdateHotelParamsDto,
+      ): Promise<HotelDocument> {
     return this.hotelsService.update(id, data);
   }
 

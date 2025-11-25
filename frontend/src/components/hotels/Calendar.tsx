@@ -31,57 +31,57 @@ interface CalendarPromt {
   currentDate: Date;
   handleOnBtnPress: (isNextMonth: boolean) => void;
   handleOnDayClick: (day: number, dayOfMonth: DayOfMonth) => void;
+  checkInDate: Date | null;
   departureDate: Date | null;
-  arrivalDate: Date | null;
 }
 
 const Calendar = ({
   currentDate,
   handleOnBtnPress,
   handleOnDayClick,
+  checkInDate,
   departureDate,
-  arrivalDate,
 }: CalendarPromt) => {
   const isMonthInBorders = (day: number, dayOfMonth: DayOfMonth): boolean => {
     switch (dayOfMonth) {
       case DayOfMonth.PreviousMonth:
         return (
-          (departureDate !== null &&
-            day === departureDate.getDate() &&
-            departureDate.getMonth() ===
+          (checkInDate !== null &&
+            day === checkInDate.getDate() &&
+            checkInDate.getMonth() ===
               (currentDate.getMonth() - 1 < 0
                 ? 11
                 : currentDate.getMonth() - 1)) ||
-          (arrivalDate !== null &&
-            day === arrivalDate.getDate() &&
-            arrivalDate.getMonth() ===
+          (departureDate !== null &&
+            day === departureDate.getDate() &&
+            departureDate.getMonth() ===
               (currentDate.getMonth() - 1 < 0
                 ? 11
                 : currentDate.getMonth() - 1))
         );
       case DayOfMonth.NextMonth:
         return (
-          (departureDate !== null &&
-            day === departureDate.getDate() &&
-            departureDate.getMonth() ===
+          (checkInDate !== null &&
+            day === checkInDate.getDate() &&
+            checkInDate.getMonth() ===
               (currentDate.getMonth() + 1 > 11
                 ? 0
                 : currentDate.getMonth() + 1)) ||
-          (arrivalDate !== null &&
-            day === arrivalDate.getDate() &&
-            arrivalDate.getMonth() ===
+          (departureDate !== null &&
+            day === departureDate.getDate() &&
+            departureDate.getMonth() ===
               (currentDate.getMonth() + 1 > 11
                 ? 0
                 : currentDate.getMonth() + 1))
         );
       default:
         return (
+          (checkInDate !== null &&
+            day === checkInDate.getDate() &&
+            checkInDate.getMonth() === currentDate.getMonth()) ||
           (departureDate !== null &&
             day === departureDate.getDate() &&
-            departureDate.getMonth() === currentDate.getMonth()) ||
-          (arrivalDate !== null &&
-            day === arrivalDate.getDate() &&
-            arrivalDate.getMonth() === currentDate.getMonth())
+            departureDate.getMonth() === currentDate.getMonth())
         );
     }
   };

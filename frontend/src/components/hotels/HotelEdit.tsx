@@ -3,14 +3,10 @@ import type { FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 
 import * as utils from "../../utils/utils";
-import { useRooms } from "../context/RoomsContext";
+import { useHotelEdit } from "../context/HotelEditContext";
 
-const HotelCreate = () => {
-  const { hotelRooms, clearRooms } = useRooms();
-  const [hotel, setHotel] = useState<utils.CreateHotelForm>({
-    title: "",
-    description: "",
-  });
+const HotelEdit = () => {
+  const { hotel, rooms, setHotel, removeRoom, updateRoom } = useHotelEdit();
 
   const [loading, setLoading] = useState(false);
 
@@ -19,8 +15,8 @@ const HotelCreate = () => {
   const sendHotelData = async (): Promise<string | undefined> => {
     try {
       const formData = new FormData();
-      formData.append("title", hotel.title || "");
-      formData.append("description", hotel.description || "");
+      formData.append("title", hotel?.title || "");
+      formData.append("description", hotel?.description || "");
 
       const response = await fetch(
         `${utils.VITE_BACKEND_URL}/api/admin/hotels/`,
@@ -36,14 +32,14 @@ const HotelCreate = () => {
 
       if (!response.ok) {
         const error = await response.text();
-        throw new Error(`Ошибка при создании отеля": ${error}`);
+        throw new Error(`Ошибка при обновлении отеля": ${error}`);
       }
 
       const result = await response.json();
-      console.log("Отель создан:", result);
+      console.log("Отель обновлен:", result);
       return result._id;
     } catch (error) {
-      throw new Error(`Ошибка при создании отеля": ${error}`);
+      throw new Error(`Ошибка при обновлении отеля": ${error}`);
     } finally {
       setLoading(false);
     }
@@ -52,12 +48,16 @@ const HotelCreate = () => {
   const sendHotelRoomsData = async (hotelId: string) => {
     try {
       await Promise.all(
-        hotelRooms.map(async (room) => {
+        rooms.map(async (room) => {
           const formData = new FormData();
 
           formData.append("hotel", hotelId);
           formData.append("description", room.description || "");
-          formData.append("isEnabled", room.isEnabled?.toString() || "false");
+          //TODO
+          formData.append(
+            "isEnabled",
+            /*room.isEnabled?.toString() || */ "false"
+          );
 
           if (room.images && room.images.length > 0) {
             Array.from(room.images).forEach((file) => {
@@ -84,8 +84,6 @@ const HotelCreate = () => {
           return result;
         })
       );
-      setHotel({ title: "", description: "" });
-      clearRooms();
     } catch (error) {
       throw new Error(`Ошибка при создании комнаты отеля: ${error}`);
     } finally {
@@ -100,24 +98,19 @@ const HotelCreate = () => {
     if (hotelId != undefined) sendHotelRoomsData(hotelId);
   };
 
-  const handleChange = async (
-    field: keyof utils.CreateHotelForm,
-    value: string
-  ) => {
-    setHotel((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
+  const handleChange = (field: keyof utils.CreateHotelForm, value: string) => {
+    if (hotel) {
+      setHotel({
+        ...hotel,
+        [field]: value,
+      });
+    }
   };
 
-  const navigateToHotelRoomCreate = () => {
-    navigate("/hotel-room-create");
-  };
-
-  // Функция для создания URL для предпросмотра изображений
-  const getImagePreviewUrl = (file: File): string => {
-    return URL.createObjectURL(file);
-  };
+  const handleOnUpdateRoom = (room: utils.HotelRoom) => {
+     updateRoom(room); 
+     navigate(`/room-edit/${room.id}`);
+  }
 
   return (
     <section className="hotel-create">
@@ -126,10 +119,10 @@ const HotelCreate = () => {
         <div>Загрузка...</div>
       ) : (
         <div className="hotel-create-rooms">
-          {hotelRooms.length > 0 && (
+          {rooms.length > 0 && (
             <div className="rooms-preview">
               <div className="rooms-grid">
-                {hotelRooms.map((room, index) => (
+                {rooms.map((room, index) => (
                   <div key={index} className="room-preview-card">
                     {room.images && room.images.length > 0 && (
                       <div className="room-images">
@@ -137,7 +130,7 @@ const HotelCreate = () => {
                           {Array.from(room.images).map((file, imgIndex) => (
                             <div key={imgIndex} className="image-preview">
                               <img
-                                src={getImagePreviewUrl(file)}
+                                src={file}
                                 alt={`Комната ${index + 1} - изображение ${
                                   imgIndex + 1
                                 }`}
@@ -148,9 +141,15 @@ const HotelCreate = () => {
                         </div>
                       </div>
                     )}
+                    <button onClick={() => removeRoom(room)}>
+                      Удалить комнату
+                    </button>
+                    <button onClick={() => handleOnUpdateRoom(room)}>
+                      Обновить комнату
+                    </button>
                   </div>
                 ))}
-                <button onClick={navigateToHotelRoomCreate}>
+                <button onClick={()=> navigate("/hotel-room-create/")}>
                   Добавить комнату
                 </button>
               </div>
@@ -164,7 +163,7 @@ const HotelCreate = () => {
               <input
                 type="text"
                 id="title"
-                value={hotel.title}
+                value={hotel?.title}
                 onChange={(e) => handleChange("title", e.target.value)}
                 placeholder="Enter hotel title"
               />
@@ -176,7 +175,7 @@ const HotelCreate = () => {
               </label>
               <textarea
                 id="description"
-                value={hotel.description}
+                value={hotel?.description}
                 onChange={(e) => handleChange("description", e.target.value)}
                 placeholder="Enter detailed hotel description"
               />
@@ -199,4 +198,4 @@ const HotelCreate = () => {
   );
 };
 
-export default HotelCreate;
+export default HotelEdit;

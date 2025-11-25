@@ -1,18 +1,17 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 import * as utils from "../../../utils/utils";
 
 interface RoomCardProps {
   hotelId?: string;
-  roomId?: string;
 }
 
-const RoomCard = ({ hotelId, roomId }: RoomCardProps) => {
+const RoomCard = ({ hotelId }: RoomCardProps) => {
+  const roomId = useParams().id;
   const [rooms, setRooms] = useState<utils.HotelRoom[]>([]);
   const [room, setRoom] = useState<utils.HotelRoom>();
   const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     if (!hotelId && !roomId) {
       setLoading(false);
@@ -85,7 +84,6 @@ const RoomCard = ({ hotelId, roomId }: RoomCardProps) => {
                         key={`room-${roomItem.id}-image-${roomItem.images[0]}`}
                         src={`${utils.VITE_BACKEND_URL}/public/${roomItem.images[0]}`}
                         alt="Комната"
-                        width="200"
                       />
                     )}
                   </div>

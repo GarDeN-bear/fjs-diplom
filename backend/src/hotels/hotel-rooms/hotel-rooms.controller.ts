@@ -38,7 +38,7 @@ export class HotelRoomsController {
   }
 
   @Get('common/hotel-rooms/:id')
-  findById(@Body() id: string): Promise<HotelRoomDocument> {
+  findById(@Param('id') id: string): Promise<HotelRoomDocument> {
     return this.hotelRoomsService.findById(id);
   }
 

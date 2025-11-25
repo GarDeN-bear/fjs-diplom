@@ -30,7 +30,6 @@ export class HotelRoomsService implements IHotelRoomService {
     if (!hotelRoom) {
       throw new NotFoundException('Room was not found');
     }
-
     return hotelRoom;
   }
 
