@@ -18,10 +18,6 @@ const HotelCreate = () => {
 
   const sendHotelData = async (): Promise<string | undefined> => {
     try {
-      const formData = new FormData();
-      formData.append("title", hotel.title || "");
-      formData.append("description", hotel.description || "");
-
       const response = await fetch(
         `${utils.VITE_BACKEND_URL}/api/admin/hotels/`,
         {

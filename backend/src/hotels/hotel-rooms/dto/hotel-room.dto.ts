@@ -5,6 +5,7 @@ import {
   Min,
   IsBoolean,
   IsArray,
+  IsDate
 } from 'class-validator';
 import { Type, Transform } from 'class-transformer';
 import { PartialType } from '@nestjs/mapped-types';
@@ -44,6 +45,14 @@ export class SearchRoomsParamsDto {
 
   @IsString()
   hotel: string;
+
+  @IsDate()
+  @IsOptional()
+  dateStart: Date;
+
+  @IsDate()
+  @IsOptional()
+  dateEnd: Date;
 
   @IsBoolean()
   @IsOptional()

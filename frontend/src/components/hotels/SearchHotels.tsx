@@ -4,11 +4,7 @@ import Calendar from "./Calendar";
 import { DayOfMonth } from "../../utils/utils";
 import { useSearch } from "../context/SearchContext";
 
-interface SearchHotelsPromt {
-  handleOnSubmitSearch: (e: FormEvent) => void;
-}
-
-const SearchHotels = ({ handleOnSubmitSearch }: SearchHotelsPromt) => {
+const SearchHotels = () => {
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
   const [isCheckIn, setIsDeparture] = useState<boolean>(true);
 
@@ -20,6 +16,11 @@ const SearchHotels = ({ handleOnSubmitSearch }: SearchHotelsPromt) => {
     setDepartureDate,
     setCalendarState,
   } = useSearch();
+
+  const handleOnSubmitSearch = (e: FormEvent) => {
+    e.preventDefault();
+    setCalendarState(false);
+  };
 
   const handleOnBtnPress = (isNextMonth: boolean) => {
     const newDate = new Date(currentDate);

@@ -1,8 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types, isValidObjectId } from 'mongoose';
+import { Model } from 'mongoose';
 
 import { HotelRoom, HotelRoomDocument } from './schemas/hotel-room.schema';
+import {
+  Reservation,
+  ReservationDocument,
+} from 'src/reservations/schemas/reservation.schema';
 import {
   CreateHotelRoomDto,
   SearchRoomsParamsDto,
@@ -15,6 +19,7 @@ export class HotelRoomsService implements IHotelRoomService {
   constructor(
     @InjectModel(HotelRoom.name)
     private hotelRoomModel: Model<HotelRoomDocument>,
+    private reservationModel: Model<ReservationDocument>,
   ) {}
 
   async create(data: CreateHotelRoomDto): Promise<HotelRoomDocument> {
@@ -34,23 +39,60 @@ export class HotelRoomsService implements IHotelRoomService {
   }
 
   async search(params: SearchRoomsParamsDto): Promise<HotelRoomDocument[]> {
-    const { limit, offset, hotel, isEnabled } = params;
-    const query: any = {};
+    const { limit, offset, hotel, dateStart, dateEnd, isEnabled } = params;
 
+    const searchQuery: any = {};
     if (hotel) {
-      query.hotel = hotel;
+      searchQuery.hotel = hotel;
     }
 
     if (isEnabled !== undefined) {
-      query.isEnabled = isEnabled;
+      searchQuery.isEnabled = isEnabled;
+    } else {
+      searchQuery.isEnabled = false;
     }
 
-    return this.hotelRoomModel
-      .find(query)
+    const allPotentialRooms = await this.hotelRoomModel
+      .find(searchQuery)
       .populate('hotel')
-      .limit(limit)
-      .skip(offset)
       .exec();
+
+    const availableRooms: HotelRoomDocument[] = [];
+    if (dateStart && dateEnd) {
+      for (const room of allPotentialRooms) {
+        const isAvailable = await this.isRoomAvailable(
+          room.id,
+          dateStart,
+          dateEnd,
+        );
+        if (isAvailable) {
+          availableRooms.push(room);
+        }
+      }
+    }
+
+    const paginatedRooms: HotelRoomDocument[] = availableRooms.slice(
+      offset,
+      offset + limit,
+    );
+
+    return paginatedRooms;
+  }
+
+  private async isRoomAvailable(
+    roomId: string,
+    dateStart: Date,
+    dateEnd: Date,
+  ): Promise<boolean> {
+    const overlappingReservation = await this.reservationModel
+      .findOne({
+        roomId: roomId,
+        dateEnd: { $gt: dateStart },
+        dateStart: { $lt: dateEnd },
+      })
+      .exec();
+
+    return !overlappingReservation;
   }
 
   async update(

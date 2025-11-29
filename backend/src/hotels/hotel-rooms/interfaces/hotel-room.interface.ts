@@ -9,6 +9,8 @@ export interface SearchRoomsParams {
   limit: number;
   offset: number;
   hotel: string;
+  dateStart?: Date;
+  dateEnd?: Date;
   isEnabled?: boolean;
 }
 

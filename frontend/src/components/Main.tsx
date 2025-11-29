@@ -1,36 +1,40 @@
 import { Route, Routes } from "react-router-dom";
-import HotelCatalog from "./hotels/HotelCatalog";
+import HotelCatalog from "./hotels/HotelsCatalog";
 import RoomCard from "./hotels/hotel-rooms/RoomCard";
 import HotelCard from "./hotels/HotelCard";
 import HotelCreate from "./hotels/HotelCreate";
-import HotelRoomCreate from "./hotels/hotel-rooms/HotelRoomCreate";
+import RoomCreate from "./hotels/hotel-rooms/RoomCreate";
 import { RoomsProvider } from "./context/RoomsContext";
 import { SearchProvider } from "./context/SearchContext";
-import { HotelEditProvider } from "./context/HotelEditContext";
+import { EditProvider } from "./context/EditContext";
 import RoomEdit from "./hotels/hotel-rooms/RoomEdit";
 import HotelEdit from "./hotels/HotelEdit";
 
 //!TODO
 const Main = () => {
   return (
-    <div className="container-main">
+    <section className="container-main">
       <RoomsProvider>
         <SearchProvider>
-          <HotelEditProvider>
-          <Routes>
-            <Route path="/" element={<HotelCatalog />} />
-            <Route path="/search" element={<HotelCatalog search={true} />} />
-            <Route path="/room/:id" element={<RoomCard />} />
-            <Route path="/room-edit/:id" element={<RoomEdit />} />
-            <Route path="/hotel/:id" element={<HotelCard />} />
-            <Route path="/hotel-edit/" element={<HotelEdit />} />
-            <Route path="/hotel-create/" element={<HotelCreate />} />
-            <Route path="/hotel-room-create/" element={<HotelRoomCreate />} />
-          </Routes>
-          </HotelEditProvider>
+          <EditProvider>
+            <Routes>
+              <Route path="/" element={<HotelCatalog />} />
+              <Route path="/search" element={<HotelCatalog />} />
+              <Route path="/room/:id" element={<RoomCard />} />
+              <Route path="/room-edit/:id" element={<RoomEdit />} />
+              <Route path="/hotel/:id" element={<HotelCard />} />
+              <Route path="/hotel/edit/" element={<HotelEdit />} />
+              <Route path="/hotel/create/" element={<HotelEdit />} />
+              <Route path="/hotel-room-create/" element={<RoomCreate />} />
+              <Route
+                path="/hotel-room-reservation/"
+                element={<RoomCard/>}
+              />
+            </Routes>
+          </EditProvider>
         </SearchProvider>
       </RoomsProvider>
-    </div>
+    </section>
   );
 };
 

@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import * as utils from "../../../utils/utils";
 import { useRooms } from "../../context/RoomsContext";
 
-const HotelRoomCreate = () => {
+const RoomCreate = () => {
   const [formData, setFormData] = useState<utils.CreateHotelRoomForm>({
     hotel: "",
     description: "",
@@ -81,4 +81,4 @@ const HotelRoomCreate = () => {
   );
 };
 
-export default HotelRoomCreate;
+export default RoomCreate;

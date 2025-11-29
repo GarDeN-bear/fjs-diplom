@@ -1,5 +1,5 @@
 export interface Hotel {
-  _id: string;
+  id: string;
   title: string;
   description: string;
 }
@@ -8,7 +8,7 @@ export interface HotelRoom {
   id: string;
   description: string;
   images: string[];
-  hotel: Hotel;
+  hotel: string;
 }
 
 export interface CreateHotelForm {
@@ -23,8 +23,17 @@ export interface CreateHotelRoomForm {
   isEnabled?: boolean;
 }
 
-export const limit: number = 2;
+export interface CreateReservation {
+  userId: string;
+  hotelId: string;
+  roomId: string;
+  dateStart: Date;
+  dateEnd: Date;
+}
+
+export const limit: number = 1000;
 export const offset: number = 0;
+export const itemsOnPage: number = 10;
 
 export const VITE_BACKEND_URL =
   import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";

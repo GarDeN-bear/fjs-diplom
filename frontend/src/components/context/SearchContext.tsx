@@ -1,11 +1,11 @@
 import React, { createContext, useContext, useState } from "react";
 
-import * as utils from "../../utils/utils";
-
 interface SearchContextType {
+  hotelName: string | null;
   checkInDate: Date | null;
   departureDate: Date | null;
   calendarState: boolean;
+  setHotelName: (name: string | null) => void;
   setCheckInDate: (date: Date | null) => void;
   setDepartureDate: (date: Date | null) => void;
   setCalendarState: (state: boolean) => void;
@@ -14,14 +14,17 @@ interface SearchContextType {
 const SearchContext = createContext<SearchContextType | null>(null);
 
 export const SearchProvider = ({ children }: { children: React.ReactNode }) => {
+  const [hotelName, setHotelName] = useState<string | null>(null);
   const [checkInDate, setCheckInDate] = useState<Date | null>(null);
   const [departureDate, setDepartureDate] = useState<Date | null>(null);
   const [calendarState, setCalendarState] = useState<boolean>(true);
 
   const value: SearchContextType = {
+    hotelName,
     checkInDate,
     departureDate,
     calendarState,
+    setHotelName,
     setCheckInDate,
     setDepartureDate,
     setCalendarState,
