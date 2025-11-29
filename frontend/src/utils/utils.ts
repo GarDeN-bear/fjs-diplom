@@ -1,11 +1,11 @@
 export interface Hotel {
-  id: string;
+  _id: string;
   title: string;
   description: string;
 }
 
 export interface HotelRoom {
-  id: string;
+  _id: string;
   description: string;
   images: string[];
   hotel: string;

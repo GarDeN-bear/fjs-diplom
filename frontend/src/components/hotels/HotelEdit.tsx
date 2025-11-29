@@ -49,7 +49,7 @@ const HotelEdit = () => {
 
     try {
       const response = await fetch(
-        `${utils.VITE_BACKEND_URL}/api/admin/hotels/${hotel.id}`,
+        `${utils.VITE_BACKEND_URL}/api/admin/hotels/${hotel._id}`,
         {
           method: "PUT",
           headers: {
@@ -75,14 +75,14 @@ const HotelEdit = () => {
   };
 
   const sendRoomsData = async () => {
-    if (!hotel?.id) return;
+    if (!hotel?._id) return;
 
     try {
       await Promise.all(
         rooms.map(async (room) => {
           const formData = new FormData();
 
-          formData.append("hotel", hotel.id);
+          formData.append("hotel", hotel._id);
           formData.append("description", room.room.description || "");
           formData.append("isEnabled", "false"); //!TODO
 
@@ -110,7 +110,7 @@ const HotelEdit = () => {
   ) => {
     try {
       const response = await fetch(
-        `${utils.VITE_BACKEND_URL}/api/admin/hotel-rooms/${room.id}`,
+        `${utils.VITE_BACKEND_URL}/api/admin/hotel-rooms/${room._id}`,
         {
           method: "PUT",
           body: formData,

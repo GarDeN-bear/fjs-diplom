@@ -5,23 +5,43 @@ import * as utils from "../../utils/utils";
 import { useEdit } from "../context/EditContext";
 import RoomCard from "./hotel-rooms/RoomCard";
 
+import { HotelCardMode, useHotelCard } from "../context/HotelCardContext";
+
 interface HotelCardPrompt {
   hotelData?: utils.Hotel | null;
 }
 
-const HotelCard = ({ hotelData }: HotelCardPrompt) => {
-  const hotelId = useParams().id;
+const HotelCard = ({ hotelData = null }: HotelCardPrompt) => {
+  const hotelId = useParams().id ?? null;
   const [loading, setLoading] = useState(true);
 
   const navigate = useNavigate();
   const { hotel, rooms, setHotel, setRooms } = useEdit();
+  const { mode, setMode } = useHotelCard();
 
   useEffect(() => {
-    if (hotelId) {
-      fetchHotel().finally(() => setLoading(false));
-      fetchRooms().finally(() => setLoading(false));
+    let currentMode: HotelCardMode;
+
+    if (hotelData) {
+      currentMode = HotelCardMode.Catalog;
+    } else if (hotelId) {
+      currentMode = HotelCardMode.Common;
+    } else {
+      setLoading(false);
+      return;
     }
-  }, []);
+    setMode(currentMode);
+
+    switch (currentMode) {
+      case HotelCardMode.Common:
+        fetchHotel().finally(() => setLoading(false));
+        fetchRooms().finally(() => setLoading(false));
+        break;
+      default:
+        setLoading(false);
+        break;
+    }
+  }, [hotelData, hotelId]);
 
   const fetchHotel = async () => {
     try {
@@ -47,7 +67,6 @@ const HotelCard = ({ hotelData }: HotelCardPrompt) => {
 
       const fetchedRooms: { room: utils.HotelRoom; isNew: boolean }[] =
         Array.from(data).map((room) => ({ room: room, isNew: false }));
-
       setRooms(fetchedRooms);
     } catch (error) {
       console.error("Ошибка: ", error);
@@ -61,11 +80,15 @@ const HotelCard = ({ hotelData }: HotelCardPrompt) => {
   const hotelCardCatalogView = () => {
     return (
       <>
-        <RoomCard hotelId={hotelData?.id} />
+        <RoomCard hotelId={hotelData?._id} />
         <div className="hotel-card-description">
           <h3>{hotelData?.title}</h3>
           <p>{hotelData?.description}</p>
-          <button onClick={() => navigate(`/hotel/${hotelData?.id}`)}>
+          <button
+            onClick={() => {
+              navigate(`/hotel/${hotelData?._id}`);
+            }}
+          >
             Подробнее
           </button>
         </div>
@@ -79,8 +102,10 @@ const HotelCard = ({ hotelData }: HotelCardPrompt) => {
         <h1 className="container-main-title">{hotel?.title}</h1>
         <p>{hotel?.description}</p>
         <div className="room-cards">
-          {rooms.map((room) => (
-            <RoomCard roomData={room.room} />
+          {rooms.map((room, index) => (
+            <div key={index} className="room-card">
+              <RoomCard roomData={room.room} />
+            </div>
           ))}
         </div>
         <button
@@ -100,14 +125,12 @@ const HotelCard = ({ hotelData }: HotelCardPrompt) => {
   };
 
   const showHotelCard = () => {
-    return hotelId ? hotelCardCommonView() : hotelCardCatalogView();
+    return mode === HotelCardMode.Common
+      ? hotelCardCommonView()
+      : hotelCardCatalogView();
   };
 
-  return (
-    <div className={"hotel-card" + hotelId ? "" : "-catalog"}>
-      {loading ? <div>Загрузка...</div> : showHotelCard()}
-    </div>
-  );
+  return <>{loading ? <div>Загрузка...</div> : showHotelCard()}</>;
 };
 
 export default HotelCard;

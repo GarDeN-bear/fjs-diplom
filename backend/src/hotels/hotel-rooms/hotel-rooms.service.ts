@@ -19,6 +19,7 @@ export class HotelRoomsService implements IHotelRoomService {
   constructor(
     @InjectModel(HotelRoom.name)
     private hotelRoomModel: Model<HotelRoomDocument>,
+    @InjectModel(Reservation.name)
     private reservationModel: Model<ReservationDocument>,
   ) {}
 
@@ -58,6 +59,7 @@ export class HotelRoomsService implements IHotelRoomService {
       .exec();
 
     const availableRooms: HotelRoomDocument[] = [];
+    let paginatedRooms: HotelRoomDocument[] = [];
     if (dateStart && dateEnd) {
       for (const room of allPotentialRooms) {
         const isAvailable = await this.isRoomAvailable(
@@ -69,13 +71,10 @@ export class HotelRoomsService implements IHotelRoomService {
           availableRooms.push(room);
         }
       }
+      paginatedRooms = availableRooms.slice(offset, offset + limit);
+    } else {
+      paginatedRooms = allPotentialRooms.slice(offset, offset + limit);
     }
-
-    const paginatedRooms: HotelRoomDocument[] = availableRooms.slice(
-      offset,
-      offset + limit,
-    );
-
     return paginatedRooms;
   }
 

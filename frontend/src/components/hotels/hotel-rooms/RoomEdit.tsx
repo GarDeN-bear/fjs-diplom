@@ -1,12 +1,17 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import * as utils from "../../../utils/utils";
 import { EditMode, useEdit } from "../../context/EditContext";
+import { RoomCardMode, useRoomCard } from "../../context/RoomCardContext";
+import RoomCard from "./RoomCard";
 
 const RoomEdit = () => {
-  const { roomToEdit, mode, updateRoom } = useEdit();
+  const { rooms, roomToEdit, mode, setRooms, updateRoom } = useEdit();
+  const { setMode } = useRoomCard();
+  setMode(RoomCardMode.HotelEdit);
+  const [room, setRoom] = useState<utils.HotelRoom | null>(null);
 
   const [loading, setLoading] = useState(false);
 
@@ -16,7 +21,12 @@ const RoomEdit = () => {
     if (!roomToEdit) return;
     e.preventDefault();
     setLoading(true);
-    updateRoom(roomToEdit);
+    if (mode === EditMode.Edit) {
+      updateRoom(roomToEdit);
+    } else {
+      if (room) rooms.push({ room: room, isNew: true });
+      setRooms(rooms);
+    }
     navigate("/hotel/edit/");
   };
 
@@ -24,7 +34,9 @@ const RoomEdit = () => {
     field: keyof utils.CreateHotelRoomForm,
     value: string | FileList | null
   ) => {
-    if (roomToEdit) {
+    if (mode === EditMode.Create) {
+      if (room) setRoom({ ...room, [field]: value });
+    } else if (roomToEdit) {
       updateRoom({
         ...roomToEdit,
         [field]: value,
@@ -47,6 +59,11 @@ const RoomEdit = () => {
           <label htmlFor="images" className="form-label">
             Изображения
           </label>
+          <div className="room-cards">
+            {mode === EditMode.Create
+              ? room && <RoomCard roomData={room} />
+              : roomToEdit && <RoomCard roomData={roomToEdit} />}
+          </div>
           <input
             id="images"
             type="file"
@@ -63,9 +80,13 @@ const RoomEdit = () => {
           </label>
           <textarea
             id="description"
-            value={roomToEdit?.description}
+            value={
+              mode === EditMode.Create
+                ? room?.description
+                : roomToEdit?.description
+            }
             onChange={(e) => handleChange("description", e.target.value)}
-            placeholder="Enter detailed hotel description"
+            placeholder="Введите описание комнаты"
           />
         </div>
 
@@ -73,7 +94,12 @@ const RoomEdit = () => {
           <button type="submit" className="btn btn-primary">
             Добавить
           </button>
-          <button className="btn btn-secondary">Отменить</button>
+          <button
+            className="btn btn-secondary"
+            onClick={() => navigate("hotel/edit")}
+          >
+            Отменить
+          </button>
         </div>
       </form>
     );

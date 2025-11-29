@@ -33,7 +33,7 @@ export const EditProvider = ({ children }: { children: React.ReactNode }) => {
   const updateRoom = (room: utils.HotelRoom) => {
     setRooms((prev) =>
       prev.map((prevRoom) =>
-        prevRoom.room.id === room.id
+        prevRoom.room._id === room._id
           ? { room: room, isNew: prevRoom.isNew }
           : { room: prevRoom.room, isNew: prevRoom.isNew }
       )
@@ -41,7 +41,9 @@ export const EditProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const removeRoom = (room: utils.HotelRoom) => {
-    setRooms((prev) => prev.filter((prevRoom) => prevRoom.room.id !== room.id));
+    setRooms((prev) =>
+      prev.filter((prevRoom) => prevRoom.room._id !== room._id)
+    );
   };
 
   const value: EditContextType = {

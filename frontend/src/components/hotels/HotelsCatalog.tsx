@@ -6,6 +6,7 @@ import { useSearch } from "../context/SearchContext";
 import { useHotels, HotelsMode } from "../context/HotelsContext";
 import HotelCard from "./HotelCard";
 import Pagination from "../common/Pagination";
+import { useHotelCard, HotelCardMode } from "../context/HotelCardContext";
 
 const HotelsCatalog = () => {
   const [hotelsSearch, setHotelsSearch] = useState<utils.Hotel[]>([]);
@@ -17,6 +18,7 @@ const HotelsCatalog = () => {
   const { checkInDate, departureDate, calendarState } = useSearch();
 
   const { hotels, mode, setHotels } = useHotels();
+  const { setMode } = useHotelCard();
 
   useEffect(() => {
     switch (mode) {
@@ -30,6 +32,7 @@ const HotelsCatalog = () => {
         setLoading(false);
         break;
     }
+    setMode(HotelCardMode.Catalog);
   }, [mode, calendarState]);
 
   useEffect(() => {
@@ -97,7 +100,7 @@ const HotelsCatalog = () => {
   const findHotelsByRooms = (rooms: utils.HotelRoom[]): utils.Hotel[] => {
     const result: utils.Hotel[] = [];
     Array.from(rooms).forEach((room) => {
-      const foundHotel = hotels.find((hotel) => hotel.id === room.id);
+      const foundHotel = hotels.find((hotel) => hotel._id === room._id);
 
       if (foundHotel) {
         result.push(foundHotel);
@@ -121,8 +124,10 @@ const HotelsCatalog = () => {
   const showHotelCatalogView = () => {
     return (
       <div className="hotels-list">
-        {hotelsOnPage.map((hotel) => (
-          <HotelCard hotelData={hotel} />
+        {hotelsOnPage.map((hotel, index) => (
+          <div key={index} className="hotel-card">
+            <HotelCard hotelData={hotel} />
+          </div>
         ))}
       </div>
     );

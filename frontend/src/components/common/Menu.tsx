@@ -21,7 +21,7 @@ const Menu = () => {
         </li>
         <li className="row">
           <Link
-            to="/hotel-create/"
+            to="/hotel/create/"
             onClick={() => setEditMode(EditMode.Create)}
           >
             Добавить гостиницу

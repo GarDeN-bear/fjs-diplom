@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
@@ -9,6 +9,7 @@ import { UsersModule } from './users/users.module';
 import { HotelsModule } from './hotels/hotels.module';
 import { ReservationsModule } from './reservations/reservations.module';
 import { AuthModule } from './auth/auth.module';
+import { HotelRoomsModule } from './hotels/hotel-rooms/hotel-rooms.module';
 
 @Module({
   imports: [
@@ -19,10 +20,11 @@ import { AuthModule } from './auth/auth.module';
     MongooseModule.forRoot(
       process.env.MONGO_URL || 'mongodb://root:example@mongo:27017/',
     ),
-    UsersModule,
-    HotelsModule,
-    ReservationsModule,
-    AuthModule,
+    forwardRef(() => UsersModule),
+    forwardRef(() => HotelRoomsModule),
+    forwardRef(() => HotelsModule),
+    forwardRef(() => ReservationsModule),
+    forwardRef(() => AuthModule),
   ],
   controllers: [AppController],
   providers: [AppService],

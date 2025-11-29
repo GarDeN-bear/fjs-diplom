@@ -3,37 +3,60 @@ import { useParams, useNavigate } from "react-router-dom";
 
 import * as utils from "../../../utils/utils";
 import { useEdit } from "../../context/EditContext";
+import { useRoomCard, RoomCardMode } from "../../context/RoomCardContext";
 
 interface RoomCardProps {
-  hotelId?: string;
-  roomData?: utils.HotelRoom;
+  hotelId?: string | null;
+  roomData?: utils.HotelRoom | null;
   showEditView?: boolean;
 }
 
 const RoomCard = ({
-  hotelId,
-  roomData,
+  hotelId = null,
+  roomData = null,
   showEditView = false,
 }: RoomCardProps) => {
-  const roomId = useParams().id; //!TODO Проверить
+  const roomId = useParams().id ?? null; //!TODO Проверить
   const [rooms, setRooms] = useState<utils.HotelRoom[]>([]);
   const [room, setRoom] = useState<utils.HotelRoom>();
   const [loading, setLoading] = useState(true);
 
   const { removeRoom, setRoomToEdit } = useEdit();
+  const { mode, setMode } = useRoomCard();
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!hotelId && !roomId) {
-      setLoading(false);
-      return;
-    }
+    let currentMode: RoomCardMode;
 
     if (hotelId) {
-      fetchRooms().finally(() => setLoading(false));
-    } else if (roomId) {
-      fetchRoom().finally(() => setLoading(false));
+      currentMode = RoomCardMode.HotelCatalog;
+    } else if (roomData || roomId) {
+      currentMode = RoomCardMode.Common;
+    } else if (showEditView) {
+      currentMode = RoomCardMode.HotelEdit;
+    } else {
+      currentMode = RoomCardMode.Catalog;
+    }
+
+    setMode(currentMode);
+
+    switch (currentMode) {
+      case RoomCardMode.HotelCatalog:
+        fetchRooms().finally(() => setLoading(false));
+        break;
+      case RoomCardMode.Common:
+        if (roomData) {
+          setRoom(roomData);
+          setLoading(false);
+        } else {
+          fetchRoom().finally(() => setLoading(false));
+        }
+
+        break;
+      default:
+        setLoading(false);
+        break;
     }
   }, []);
 
@@ -65,17 +88,18 @@ const RoomCard = ({
     }
   };
 
-  const roomCardCatalogView = () => {
-    return <>{rooms.map((room) => roomCardHotelView(room))}</>;
+  const roomCardHotelCatalogView = () => {
+    const room: utils.HotelRoom | null = rooms.at(0) ?? null;
+    return <>{roomCardHotelView(room)}</>;
   };
 
-  const roomCardCommonView = () => {
+  const roomCardCommonView = (room: utils.HotelRoom | null) => {
     return (
       <>
         <div className="room-images">
           {room?.images.map((image, index) => (
             <img
-              key={`room-${room.id}-image-${image}`}
+              key={index}
               src={`${utils.VITE_BACKEND_URL}/public/${image}`}
               alt={`Комната ${index + 1}`}
             />
@@ -93,7 +117,6 @@ const RoomCard = ({
           {room?.images && room.images.length > 0 && (
             <>
               <img
-                key={`room-${room.id}-image-${room.images[0]}`}
                 src={`${utils.VITE_BACKEND_URL}/public/${room.images[0]}`}
                 alt="Комната"
               />
@@ -124,7 +147,7 @@ const RoomCard = ({
                     }}
                     onClick={() => {
                       setRoomToEdit(room);
-                      navigate(`/room/edit/${room?.id}`);
+                      navigate(`/room/edit/${room?._id}`);
                     }}
                     title="Редактировать"
                   >
@@ -160,18 +183,21 @@ const RoomCard = ({
   };
 
   const showRoomCard = () => {
-    if (roomData) {
-      return roomCardHotelView(roomData);
-    } else {
-      return room?.id ? roomCardCommonView() : roomCardCatalogView();
+    switch (mode) {
+      case RoomCardMode.Common:
+        if (room) return roomCardCommonView(room);
+        break;
+      case RoomCardMode.HotelCatalog:
+        return roomCardHotelCatalogView();
+      case RoomCardMode.Catalog:
+        break;
+      case RoomCardMode.HotelEdit:
+        if (roomData) return roomCardCommonView(roomData);
+        break;
     }
   };
 
-  return (
-    <section className="room-card">
-      {loading ? <div>Загрузка...</div> : showRoomCard()}
-    </section>
-  );
+  return <> {loading ? <div>Загрузка...</div> : showRoomCard()}</>;
 };
 
 export default RoomCard;

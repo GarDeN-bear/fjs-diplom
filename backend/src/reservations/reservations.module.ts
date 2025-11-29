@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { ReservationsService } from './reservations.service';
 import { ReservationsController } from './reservations.controller';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -21,9 +21,9 @@ import { HotelRoomsModule } from 'src/hotels/hotel-rooms/hotel-rooms.module';
       { name: HotelRoom.name, schema: HotelRoomSchema },
       { name: Hotel.name, schema: HotelSchema }, // if you have a Hotel model
     ]),
-    UsersModule,
-    HotelsModule,
-    HotelRoomsModule,
+    forwardRef(() => UsersModule),
+    forwardRef(() => HotelsModule),
+    forwardRef(() => HotelRoomsModule),
   ],
   providers: [ReservationsService],
   controllers: [ReservationsController],
