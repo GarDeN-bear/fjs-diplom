@@ -5,6 +5,7 @@ export enum RoomCardMode {
   Catalog,
   HotelCatalog,
   HotelEdit,
+  None,
 }
 interface RoomCardContextType {
   mode: RoomCardMode;
@@ -18,7 +19,7 @@ export const RoomCardProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const [mode, setMode] = useState<RoomCardMode>(RoomCardMode.Common);
+  const [mode, setMode] = useState<RoomCardMode>(RoomCardMode.None);
 
   const value: RoomCardContextType = {
     mode,

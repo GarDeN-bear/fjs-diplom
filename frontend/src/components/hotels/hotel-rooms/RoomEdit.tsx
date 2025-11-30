@@ -1,28 +1,31 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 
 import * as utils from "../../../utils/utils";
 import { EditMode, useEdit } from "../../context/EditContext";
-import { RoomCardMode, useRoomCard } from "../../context/RoomCardContext";
 import RoomCard from "./RoomCard";
 
 const RoomEdit = () => {
   const { rooms, roomToEdit, mode, setRooms, updateRoom } = useEdit();
-  const { setMode } = useRoomCard();
-  setMode(RoomCardMode.HotelEdit);
   const [room, setRoom] = useState<utils.HotelRoom | null>(null);
 
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (mode === EditMode.None) {
+      navigate("/");
+    }
+    setRoom({ _id: "", description: "", images: [], hotel: "" });
+  }, []);
+
   const handleSubmit = async (e: FormEvent) => {
-    if (!roomToEdit) return;
     e.preventDefault();
     setLoading(true);
     if (mode === EditMode.Edit) {
-      updateRoom(roomToEdit);
+      if (roomToEdit) updateRoom(roomToEdit);
     } else {
       if (room) rooms.push({ room: room, isNew: true });
       setRooms(rooms);
@@ -35,7 +38,9 @@ const RoomEdit = () => {
     value: string | FileList | null
   ) => {
     if (mode === EditMode.Create) {
-      if (room) setRoom({ ...room, [field]: value });
+      if (room) {
+        setRoom({ ...room, [field]: value });
+      }
     } else if (roomToEdit) {
       updateRoom({
         ...roomToEdit,

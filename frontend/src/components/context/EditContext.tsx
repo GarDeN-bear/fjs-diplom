@@ -5,6 +5,7 @@ import * as utils from "../../utils/utils";
 export enum EditMode {
   Edit,
   Create,
+  None,
 }
 
 interface EditContextType {
@@ -13,7 +14,7 @@ interface EditContextType {
   rooms: { room: utils.HotelRoom; isNew: boolean }[];
   roomToEdit: utils.HotelRoom | null;
   setMode: (mode: EditMode) => void;
-  setHotel: (hotel: utils.Hotel) => void;
+  setHotel: (hotel: utils.Hotel | null) => void;
   setRooms: (room: { room: utils.HotelRoom; isNew: boolean }[]) => void;
   updateRoom: (room: utils.HotelRoom) => void;
   removeRoom: (room: utils.HotelRoom) => void;
@@ -27,7 +28,7 @@ export const EditProvider = ({ children }: { children: React.ReactNode }) => {
   const [rooms, setRooms] = useState<
     { room: utils.HotelRoom; isNew: boolean }[]
   >([]);
-  const [mode, setMode] = useState<EditMode>(EditMode.Edit);
+  const [mode, setMode] = useState<EditMode>(EditMode.None);
   const [roomToEdit, setRoomToEdit] = useState<utils.HotelRoom | null>(null);
 
   const updateRoom = (room: utils.HotelRoom) => {

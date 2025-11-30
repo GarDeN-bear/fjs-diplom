@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -7,11 +7,20 @@ import { useEdit, EditMode } from "../context/EditContext";
 import RoomCard from "./hotel-rooms/RoomCard";
 
 const HotelEdit = () => {
-  const { hotel, rooms, mode, setHotel } = useEdit();
+  const { hotel, rooms, mode, setHotel, setRooms } = useEdit();
 
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (mode === EditMode.Create) {
+      setHotel(null);
+      setRooms([]);
+    } else if (mode === EditMode.None) {
+      navigate("/");
+    }
+  }, []);
 
   const sendCreateHotelData = async () => {
     if (!hotel) return;
@@ -179,19 +188,20 @@ const HotelEdit = () => {
 
   const showRoomsView = () => {
     return (
-      rooms.length > 0 && (
-        <div className="room-cards">
-          {rooms.map((room) => (
-            <RoomCard roomData={room.room} showEditView={true} />
+      <div className="room-cards">
+        {rooms.length > 0 &&
+          rooms.map((room, index) => (
+            <RoomCard key={index} roomData={room.room} showEditView={true} />
           ))}
-          <button
-            className="room-create"
-            onClick={() => navigate("/room/create")}
-          >
-            Добавить комнату
-          </button>
-        </div>
-      )
+        <button
+          className="room-create"
+          onClick={() => {
+            navigate("/room/create");
+          }}
+        >
+          Добавить комнату
+        </button>
+      </div>
     );
   };
 
@@ -205,7 +215,7 @@ const HotelEdit = () => {
           <input
             type="text"
             id="title"
-            value={hotel?.title}
+            value={hotel ? hotel.title : ""}
             onChange={(e) => handleChange("title", e.target.value)}
             placeholder="Введите название"
             readOnly={mode === EditMode.Edit}
@@ -218,7 +228,7 @@ const HotelEdit = () => {
           </label>
           <textarea
             id="description"
-            value={hotel?.description}
+            value={hotel ? hotel.description : ""}
             onChange={(e) => handleChange("description", e.target.value)}
             placeholder="Введите описание"
           />

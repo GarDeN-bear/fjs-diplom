@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
-import { data, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import * as utils from "../../utils/utils";
-import { useEdit } from "../context/EditContext";
+import { EditMode, useEdit } from "../context/EditContext";
 import RoomCard from "./hotel-rooms/RoomCard";
 
 import { HotelCardMode, useHotelCard } from "../context/HotelCardContext";
@@ -16,7 +16,7 @@ const HotelCard = ({ hotelData = null }: HotelCardPrompt) => {
   const [loading, setLoading] = useState(true);
 
   const navigate = useNavigate();
-  const { hotel, rooms, setHotel, setRooms } = useEdit();
+  const { hotel, rooms, setHotel, setRooms, setMode: setEditMode } = useEdit();
   const { mode, setMode } = useHotelCard();
 
   useEffect(() => {
@@ -31,7 +31,6 @@ const HotelCard = ({ hotelData = null }: HotelCardPrompt) => {
       return;
     }
     setMode(currentMode);
-
     switch (currentMode) {
       case HotelCardMode.Common:
         fetchHotel().finally(() => setLoading(false));
@@ -41,7 +40,7 @@ const HotelCard = ({ hotelData = null }: HotelCardPrompt) => {
         setLoading(false);
         break;
     }
-  }, [hotelData, hotelId]);
+  }, []);
 
   const fetchHotel = async () => {
     try {
@@ -116,7 +115,10 @@ const HotelCard = ({ hotelData = null }: HotelCardPrompt) => {
         </button>
         <button
           className="btn btn-primary"
-          onClick={() => navigate("/hotel/edit/")}
+          onClick={() => {
+            setEditMode(EditMode.Edit);
+            navigate("/hotel/edit/");
+          }}
         >
           Редактировать
         </button>

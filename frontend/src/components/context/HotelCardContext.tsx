@@ -4,6 +4,7 @@ import * as utils from "../../utils/utils";
 export enum HotelCardMode {
   Common,
   Catalog,
+  None,
 }
 interface HotelCardContextType {
   mode: HotelCardMode;
@@ -19,7 +20,7 @@ export const HotelCardProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const [mode, setMode] = useState<HotelCardMode>(HotelCardMode.Common);
+  const [mode, setMode] = useState<HotelCardMode>(HotelCardMode.None);
   const [hotel, setHotel] = useState<utils.Hotel | null>(null);
 
   const value: HotelCardContextType = {

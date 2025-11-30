@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 
 import * as utils from "../../utils/utils";
 import SearchHotels from "./SearchHotels";
@@ -17,11 +18,21 @@ const HotelsCatalog = () => {
 
   const { checkInDate, departureDate, calendarState } = useSearch();
 
-  const { hotels, mode, setHotels } = useHotels();
+  const { hotels, mode, setHotels, setMode: setHotelsMode } = useHotels();
   const { setMode } = useHotelCard();
+  const location = useLocation();
 
   useEffect(() => {
-    switch (mode) {
+    let currentMode: HotelsMode = HotelsMode.None;
+    if (location.pathname === "/") {
+      currentMode = HotelsMode.Common;
+    } else if (location.pathname === "/search") {
+      currentMode = HotelsMode.Search;
+    }
+
+    setHotelsMode(currentMode);
+
+    switch (currentMode) {
       case HotelsMode.Search:
         fetchSearchHotels().finally(() => setLoading(false));
         break;

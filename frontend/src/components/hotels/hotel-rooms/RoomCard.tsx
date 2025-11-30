@@ -31,16 +31,15 @@ const RoomCard = ({
 
     if (hotelId) {
       currentMode = RoomCardMode.HotelCatalog;
-    } else if (roomData || roomId) {
-      currentMode = RoomCardMode.Common;
     } else if (showEditView) {
       currentMode = RoomCardMode.HotelEdit;
+    } else if (roomData || roomId) {
+      currentMode = RoomCardMode.Common;
     } else {
       currentMode = RoomCardMode.Catalog;
     }
 
     setMode(currentMode);
-
     switch (currentMode) {
       case RoomCardMode.HotelCatalog:
         fetchRooms().finally(() => setLoading(false));
@@ -58,7 +57,7 @@ const RoomCard = ({
         setLoading(false);
         break;
     }
-  }, []);
+  }, [hotelId, roomData, roomId]);
 
   const fetchRooms = async () => {
     try {
@@ -120,7 +119,6 @@ const RoomCard = ({
                 src={`${utils.VITE_BACKEND_URL}/public/${room.images[0]}`}
                 alt="Комната"
               />
-              {"//TODO Перенести стили"}
               {showEditView && (
                 <div
                   style={{

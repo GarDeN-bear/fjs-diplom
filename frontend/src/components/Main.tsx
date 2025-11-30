@@ -18,12 +18,11 @@ const Main = () => {
             <Routes>
               <Route path="/" element={<HotelCatalog />} />
               <Route path="/search" element={<HotelCatalog />} />
-              <Route path="/room/:id" element={<RoomCard />} />
-              <Route path="/room-edit/:id" element={<RoomEdit />} />
+              <Route path="/room/edit" element={<RoomEdit />} />
+              <Route path="/room/create" element={<RoomEdit />} />
               <Route path="/hotel/:id" element={<HotelCard />} />
               <Route path="/hotel/edit/" element={<HotelEdit />} />
               <Route path="/hotel/create/" element={<HotelEdit />} />
-              <Route path="/hotel-room-reservation/" element={<RoomCard />} />
             </Routes>
           </SearchProvider>
         </RoomCardProvider>
