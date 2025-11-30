@@ -7,7 +7,7 @@ import { EditMode, useEdit } from "../../context/EditContext";
 import RoomCard from "./RoomCard";
 
 const RoomEdit = () => {
-  const { rooms, roomToEdit, mode, setRooms, updateRoom } = useEdit();
+  const { rooms, roomToEdit, roomMode, setRooms, updateRoom } = useEdit();
   const [room, setRoom] = useState<utils.HotelRoom | null>(null);
 
   const [loading, setLoading] = useState(false);
@@ -15,7 +15,7 @@ const RoomEdit = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (mode === EditMode.None) {
+    if (roomMode === EditMode.None) {
       navigate("/");
     }
     setRoom({ _id: "", description: "", images: [], hotel: "" });
@@ -24,7 +24,7 @@ const RoomEdit = () => {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    if (mode === EditMode.Edit) {
+    if (roomMode === EditMode.Edit) {
       if (roomToEdit) updateRoom(roomToEdit);
     } else {
       if (room) rooms.push({ room: room, isNew: true });
@@ -37,20 +37,26 @@ const RoomEdit = () => {
     field: keyof utils.CreateHotelRoomForm,
     value: string | FileList | null
   ) => {
-    if (mode === EditMode.Create) {
+    let processedValue: string | FileList | string[] | null = value;
+
+    if (field === "images" && value instanceof FileList) {
+      // processedValue = await fileListToUrls(value);
+    }
+    if (roomMode === EditMode.Create) {
       if (room) {
-        setRoom({ ...room, [field]: value });
+        setRoom({ ...room, [field]: processedValue });
       }
     } else if (roomToEdit) {
       updateRoom({
         ...roomToEdit,
-        [field]: value,
+        [field]: processedValue,
       });
     }
+    console.log(roomMode, room);
   };
 
   const showTitleView = () => {
-    return mode === EditMode.Create ? (
+    return roomMode === EditMode.Create ? (
       <h1>Добавление номера</h1>
     ) : (
       <h1>Редактирование номера</h1>
@@ -65,7 +71,7 @@ const RoomEdit = () => {
             Изображения
           </label>
           <div className="room-cards">
-            {mode === EditMode.Create
+            {roomMode === EditMode.Create
               ? room && <RoomCard roomData={room} />
               : roomToEdit && <RoomCard roomData={roomToEdit} />}
           </div>
@@ -86,7 +92,7 @@ const RoomEdit = () => {
           <textarea
             id="description"
             value={
-              mode === EditMode.Create
+              roomMode === EditMode.Create
                 ? room?.description
                 : roomToEdit?.description
             }

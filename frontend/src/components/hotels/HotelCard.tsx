@@ -16,7 +16,13 @@ const HotelCard = ({ hotelData = null }: HotelCardPrompt) => {
   const [loading, setLoading] = useState(true);
 
   const navigate = useNavigate();
-  const { hotel, rooms, setHotel, setRooms, setMode: setEditMode } = useEdit();
+  const {
+    hotel,
+    rooms,
+    setHotel,
+    setRooms,
+    setHotelMode: setEditMode,
+  } = useEdit();
   const { mode, setMode } = useHotelCard();
 
   useEffect(() => {

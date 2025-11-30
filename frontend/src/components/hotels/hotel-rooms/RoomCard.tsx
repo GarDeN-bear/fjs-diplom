@@ -2,8 +2,9 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
 import * as utils from "../../../utils/utils";
-import { useEdit } from "../../context/EditContext";
+import { EditMode, useEdit } from "../../context/EditContext";
 import { useRoomCard, RoomCardMode } from "../../context/RoomCardContext";
+import RoomEdit from "./RoomEdit";
 
 interface RoomCardProps {
   hotelId?: string | null;
@@ -21,7 +22,7 @@ const RoomCard = ({
   const [room, setRoom] = useState<utils.HotelRoom>();
   const [loading, setLoading] = useState(true);
 
-  const { removeRoom, setRoomToEdit } = useEdit();
+  const { removeRoom, setRoomToEdit, roomMode } = useEdit();
   const { mode, setMode } = useRoomCard();
 
   const navigate = useNavigate();
@@ -38,7 +39,6 @@ const RoomCard = ({
     } else {
       currentMode = RoomCardMode.Catalog;
     }
-
     setMode(currentMode);
     switch (currentMode) {
       case RoomCardMode.HotelCatalog:
@@ -99,7 +99,11 @@ const RoomCard = ({
           {room?.images.map((image, index) => (
             <img
               key={index}
-              src={`${utils.VITE_BACKEND_URL}/public/${image}`}
+              src={
+                roomMode === EditMode.None
+                  ? `${utils.VITE_BACKEND_URL}/public/${image}`
+                  : image
+              }
               alt={`Комната ${index + 1}`}
             />
           ))}

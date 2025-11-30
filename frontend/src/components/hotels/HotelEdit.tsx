@@ -7,17 +7,18 @@ import { useEdit, EditMode } from "../context/EditContext";
 import RoomCard from "./hotel-rooms/RoomCard";
 
 const HotelEdit = () => {
-  const { hotel, rooms, mode, setHotel, setRooms } = useEdit();
+  const { hotel, rooms, hotelMode, setHotel, setRooms, setRoomMode } =
+    useEdit();
 
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (mode === EditMode.Create) {
+    if (hotelMode === EditMode.Create) {
       setHotel(null);
       setRooms([]);
-    } else if (mode === EditMode.None) {
+    } else if (hotelMode === EditMode.None) {
       navigate("/");
     }
   }, []);
@@ -166,7 +167,7 @@ const HotelEdit = () => {
     e.preventDefault();
     setLoading(true);
 
-    switch (mode) {
+    switch (hotelMode) {
       case EditMode.Create:
         await sendCreateHotelData();
         break;
@@ -196,6 +197,7 @@ const HotelEdit = () => {
         <button
           className="room-create"
           onClick={() => {
+            setRoomMode(EditMode.Create);
             navigate("/room/create");
           }}
         >
@@ -218,7 +220,7 @@ const HotelEdit = () => {
             value={hotel ? hotel.title : ""}
             onChange={(e) => handleChange("title", e.target.value)}
             placeholder="Введите название"
-            readOnly={mode === EditMode.Edit}
+            readOnly={hotelMode === EditMode.Edit}
           />
         </div>
 
@@ -246,7 +248,7 @@ const HotelEdit = () => {
   };
 
   const showTitleView = () => {
-    return mode == EditMode.Edit ? (
+    return hotelMode == EditMode.Edit ? (
       <h1 className="container-main-title">Редактирование гостиницы</h1>
     ) : (
       <h1 className="container-main-title">Добавление гостиницы</h1>

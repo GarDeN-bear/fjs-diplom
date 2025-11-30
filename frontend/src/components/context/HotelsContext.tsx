@@ -13,7 +13,7 @@ interface HotelsContextType {
   hotels: utils.Hotel[];
   rooms: utils.HotelRoom[];
   setHotels: (hotel: utils.Hotel[]) => void;
-  setRooms: (room: utils.HotelRoom[]) => void;
+  setRooms: (rooms: utils.HotelRoom[]) => void;
   setMode: (mode: HotelsMode) => void;
 }
 
