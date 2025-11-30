@@ -7,20 +7,8 @@ export interface Hotel {
 export interface HotelRoom {
   _id: string;
   description: string;
-  images: string[];
+  images: string[] | FileList;
   hotel: string;
-}
-
-export interface CreateHotelForm {
-  title: string;
-  description: string;
-}
-
-export interface CreateHotelRoomForm {
-  hotel: string;
-  description?: string;
-  images?: FileList | null;
-  isEnabled?: boolean;
 }
 
 export interface CreateReservation {

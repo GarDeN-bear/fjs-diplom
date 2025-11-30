@@ -97,7 +97,7 @@ const HotelEdit = () => {
           formData.append("isEnabled", "false"); //!TODO
 
           if (room.room.images && room.room.images.length > 0) {
-            Array.from(room.room.images).forEach((file) => {
+            Array.from(room.room.images as FileList).forEach((file) => {
               formData.append("images", file);
             });
           }
@@ -178,7 +178,7 @@ const HotelEdit = () => {
     await sendRoomsData();
   };
 
-  const handleChange = (field: keyof utils.CreateHotelForm, value: string) => {
+  const handleChange = (field: keyof utils.Hotel, value: string) => {
     if (hotel) {
       setHotel({
         ...hotel,

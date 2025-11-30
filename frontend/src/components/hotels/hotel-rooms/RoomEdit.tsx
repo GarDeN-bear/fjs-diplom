@@ -34,22 +34,17 @@ const RoomEdit = () => {
   };
 
   const handleChange = async (
-    field: keyof utils.CreateHotelRoomForm,
+    field: keyof utils.CreateRoomForm,
     value: string | FileList | null
   ) => {
-    let processedValue: string | FileList | string[] | null = value;
-
-    if (field === "images" && value instanceof FileList) {
-      // processedValue = await fileListToUrls(value);
-    }
     if (roomMode === EditMode.Create) {
       if (room) {
-        setRoom({ ...room, [field]: processedValue });
+        setRoom({ ...room, [field]: value });
       }
     } else if (roomToEdit) {
       updateRoom({
         ...roomToEdit,
-        [field]: processedValue,
+        [field]: value,
       });
     }
     console.log(roomMode, room);
@@ -71,9 +66,9 @@ const RoomEdit = () => {
             Изображения
           </label>
           <div className="room-cards">
-            {roomMode === EditMode.Create
-              ? room && <RoomCard roomData={room} />
-              : roomToEdit && <RoomCard roomData={roomToEdit} />}
+            {roomMode === EditMode.Edit && roomToEdit && (
+              <RoomCard roomData={roomToEdit} />
+            )}
           </div>
           <input
             id="images"

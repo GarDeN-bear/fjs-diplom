@@ -96,17 +96,18 @@ const RoomCard = ({
     return (
       <>
         <div className="room-images">
-          {room?.images.map((image, index) => (
-            <img
-              key={index}
-              src={
-                roomMode === EditMode.None
-                  ? `${utils.VITE_BACKEND_URL}/public/${image}`
-                  : image
-              }
-              alt={`Комната ${index + 1}`}
-            />
-          ))}
+          {room?.images &&
+            (room?.images as string[]).map((image, index) => (
+              <img
+                key={index}
+                src={
+                  roomMode === EditMode.None
+                    ? `${utils.VITE_BACKEND_URL}/public/${image}`
+                    : image
+                }
+                alt={`Комната ${index + 1}`}
+              />
+            ))}
         </div>
         <p>{room?.description}</p>
       </>
