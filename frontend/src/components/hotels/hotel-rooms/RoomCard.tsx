@@ -4,17 +4,16 @@ import { useParams, useNavigate } from "react-router-dom";
 import * as utils from "../../../utils/utils";
 import { EditMode, useEdit } from "../../context/EditContext";
 import { useRoomCard, RoomCardMode } from "../../context/RoomCardContext";
-import RoomEdit from "./RoomEdit";
 
 interface RoomCardProps {
-  hotelId?: string | null;
-  roomData?: utils.HotelRoom | null;
+  hotelId?: string;
+  roomData?: utils.HotelRoom;
   showEditView?: boolean;
 }
 
 const RoomCard = ({
-  hotelId = null,
-  roomData = null,
+  hotelId = "",
+  roomData = utils.emptyRoom,
   showEditView = false,
 }: RoomCardProps) => {
   const roomId = useParams().id ?? null; //!TODO Проверить
@@ -22,25 +21,15 @@ const RoomCard = ({
   const [room, setRoom] = useState<utils.HotelRoom>();
   const [loading, setLoading] = useState(true);
 
-  const { removeRoom, setRoomToEdit, roomMode } = useEdit();
-  const { mode, setMode } = useRoomCard();
+  const { hotelMode, removeRoom, setRoomToEdit, setHotelClear, setRoomMode } =
+    useEdit();
+
+  const { mode } = useRoomCard();
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    let currentMode: RoomCardMode;
-
-    if (hotelId) {
-      currentMode = RoomCardMode.HotelCatalog;
-    } else if (showEditView) {
-      currentMode = RoomCardMode.HotelEdit;
-    } else if (roomData || roomId) {
-      currentMode = RoomCardMode.Common;
-    } else {
-      currentMode = RoomCardMode.Catalog;
-    }
-    setMode(currentMode);
-    switch (currentMode) {
+    switch (mode) {
       case RoomCardMode.HotelCatalog:
         fetchRooms().finally(() => setLoading(false));
         break;
@@ -51,13 +40,18 @@ const RoomCard = ({
         } else {
           fetchRoom().finally(() => setLoading(false));
         }
-
+        break;
+      case RoomCardMode.Hotel:
+        if (roomData) {
+          setRoom(roomData);
+          setLoading(false);
+        }
         break;
       default:
         setLoading(false);
         break;
     }
-  }, [hotelId, roomData, roomId]);
+  }, [roomData]);
 
   const fetchRooms = async () => {
     try {
@@ -95,21 +89,42 @@ const RoomCard = ({
   const roomCardCommonView = (room: utils.HotelRoom | null) => {
     return (
       <>
-        <div className="room-images">
-          {room?.images &&
-            (room?.images as string[]).map((image, index) => (
+        {room?.images &&
+          room.images.map((image, index) => (
+            <div key={index} className="room-image">
               <img
-                key={index}
-                src={
-                  roomMode === EditMode.None
-                    ? `${utils.VITE_BACKEND_URL}/public/${image}`
-                    : image
-                }
+                src={utils.getImageUrl(image)}
                 alt={`Комната ${index + 1}`}
               />
-            ))}
+              {showEditView && (
+                <div className="room-image-btns">
+                  <button
+                    className="btn-edit"
+                    onClick={() => {
+                      setRoomToEdit(room);
+                      setRoomMode(EditMode.Edit);
+                      setHotelClear(false);
+                      navigate(`/room/edit/${room?._id}`);
+                    }}
+                    title="Редактировать"
+                  >
+                    ✏️
+                  </button>
+
+                  <button
+                    className="btn-edit btn-remove"
+                    onClick={() => removeRoom(room)}
+                    title="Удалить"
+                  >
+                    ×
+                  </button>
+                </div>
+              )}
+            </div>
+          ))}
+        <div className="room-card-description">
+          <p>{room?.description}</p>
         </div>
-        <p>{room?.description}</p>
       </>
     );
   };
@@ -119,68 +134,39 @@ const RoomCard = ({
       <>
         <div className="room-image">
           {room?.images && room.images.length > 0 && (
-            <>
-              <img
-                src={`${utils.VITE_BACKEND_URL}/public/${room.images[0]}`}
-                alt="Комната"
-              />
-              {showEditView && (
-                <div
-                  style={{
-                    position: "absolute",
-                    top: "10px",
-                    right: "10px",
-                    display: "flex",
-                    gap: "8px",
+            <img src={utils.getImageUrl(room.images[0])} alt="Комната" />
+          )}
+          {room && showEditView && (
+            <div className="room-image-btns">
+              {hotelMode === EditMode.Edit && (
+                <button
+                  className="btn-edit"
+                  onClick={() => {
+                    setRoomToEdit(room);
+                    setRoomMode(EditMode.Edit);
+                    navigate(`/room/edit/${room?._id}`);
                   }}
+                  title="Редактировать"
                 >
-                  <button
-                    style={{
-                      background: "rgba(0, 123, 255, 0.9)",
-                      color: "white",
-                      border: "none",
-                      borderRadius: "50%",
-                      width: "32px",
-                      height: "32px",
-                      cursor: "pointer",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: "16px",
-                    }}
-                    onClick={() => {
-                      setRoomToEdit(room);
-                      navigate(`/room/edit/${room?._id}`);
-                    }}
-                    title="Редактировать"
-                  >
-                    ✏️
-                  </button>
-
-                  <button
-                    style={{
-                      background: "rgba(220, 53, 69, 0.9)",
-                      color: "white",
-                      border: "none",
-                      borderRadius: "50%",
-                      width: "32px",
-                      height: "32px",
-                      cursor: "pointer",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: "16px",
-                    }}
-                    onClick={() => removeRoom(room)}
-                    title="Удалить"
-                  >
-                    ×
-                  </button>
-                </div>
+                  ✏️
+                </button>
               )}
-            </>
+
+              <button
+                className="btn-edit btn-remove"
+                onClick={() => removeRoom(room)}
+                title="Удалить"
+              >
+                ×
+              </button>
+            </div>
           )}
         </div>
+        {mode !== RoomCardMode.HotelCatalog && (
+          <div className="room-card-description">
+            <p>{room?.description}</p>
+          </div>
+        )}
       </>
     );
   };
@@ -190,12 +176,12 @@ const RoomCard = ({
       case RoomCardMode.Common:
         if (room) return roomCardCommonView(room);
         break;
+      case RoomCardMode.Hotel:
+        if (room) return roomCardHotelView(room);
+        break;
       case RoomCardMode.HotelCatalog:
         return roomCardHotelCatalogView();
       case RoomCardMode.Catalog:
-        break;
-      case RoomCardMode.HotelEdit:
-        if (roomData) return roomCardCommonView(roomData);
         break;
     }
   };

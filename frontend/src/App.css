@@ -112,8 +112,6 @@
 }
 
 .hotel-create-form {
-  height: 100%;
-
   display: flex;
   flex-direction: column;
   row-gap: 5vh;
@@ -159,6 +157,11 @@
   display: flex;
   flex-direction: row;
   column-gap: 2.5%;
+  background-color: white;
+  padding: 2vh;
+  border-radius: 1vw;
+  margin-top: 2vh;
+  margin-bottom: 2vh;
 }
 
 .btn {
@@ -166,13 +169,29 @@
   border-radius: 0.1vw;
 }
 
-.hotels-list {
+.hotels-list,
+.rooms-list {
   display: flex;
   flex-direction: column;
   row-gap: 5vh;
 }
 
-.hotel-card {
+.btn-room-image {
+  text-align: center;
+  width: 15vw;
+  height: 15vw;
+  border-radius: 1vw;
+  background-color: #eeeeee;
+  color: #adb6bd;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 5vw;
+}
+
+.hotel-card,
+.room-card {
   display: flex;
   flex-direction: row;
   width: 100%;
@@ -183,18 +202,23 @@
   box-sizing: border-box;
 }
 
-.hotel-card-description {
+.hotel-card-description,
+.room-card-description {
   display: flex;
   flex-direction: column;
 }
 
-.hotel-card-description p {
+.hotel-card-description,
+.room-card-description p {
   color: #adb6bd;
 }
 
 .hotel-card-description button {
   background-color: cornflowerblue;
   border-radius: 1vw;
+}
+.room-image {
+  position: relative;
 }
 
 .room-image img {
@@ -215,11 +239,14 @@
   color: white;
 }
 
-.container-main-title {
+.container-main-title,
+.container-description,
+.hotel-create-form {
   background-color: white;
   margin: 0;
   padding: 2vw;
   margin-bottom: 5%;
+  margin-top: 2.5%;
   border-radius: 1vw;
   box-sizing: border-box;
 }
@@ -275,4 +302,27 @@
 
 .images-grid {
   cursor: pointer;
+}
+
+.room-image-btns {
+  position: absolute;
+  top: 0.5vw;
+  right: 0.5vw;
+
+  display: flex;
+  column-gap: 0.5vw;
+}
+
+.btn-edit {
+  width: 2vw;
+  height: 2vw;
+  padding: 0;
+  border-radius: 0.5vw;
+  background-color: #eeeeee;
+  color: #adb6bd;
+}
+
+.btn-remove {
+  font-size: 2vw;
+  line-height: 0; /* Совпадает с высотой кнопки */
 }

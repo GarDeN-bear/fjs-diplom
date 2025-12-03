@@ -6,7 +6,7 @@ import { EditMode, useEdit } from "../context/EditContext";
 import RoomCard from "./hotel-rooms/RoomCard";
 
 import { HotelCardMode, useHotelCard } from "../context/HotelCardContext";
-
+import { useRoomCard, RoomCardMode } from "../context/RoomCardContext";
 interface HotelCardPrompt {
   hotelData?: utils.Hotel | null;
 }
@@ -23,19 +23,24 @@ const HotelCard = ({ hotelData = null }: HotelCardPrompt) => {
     setRooms,
     setHotelMode: setEditMode,
   } = useEdit();
+
   const { mode, setMode } = useHotelCard();
+  const { mode: roomCardMode, setMode: setRoomCardMode } = useRoomCard();
 
   useEffect(() => {
     let currentMode: HotelCardMode;
 
     if (hotelData) {
       currentMode = HotelCardMode.Catalog;
+      setRoomCardMode(RoomCardMode.HotelCatalog);
     } else if (hotelId) {
       currentMode = HotelCardMode.Common;
+      setRoomCardMode(RoomCardMode.Hotel);
     } else {
       setLoading(false);
       return;
     }
+
     setMode(currentMode);
     switch (currentMode) {
       case HotelCardMode.Common:
@@ -105,29 +110,31 @@ const HotelCard = ({ hotelData = null }: HotelCardPrompt) => {
     return (
       <>
         <h1 className="container-main-title">{hotel?.title}</h1>
-        <p>{hotel?.description}</p>
-        <div className="room-cards">
+        <p className="container-description">{hotel?.description}</p>
+        <div className="rooms-list">
           {rooms.map((room, index) => (
             <div key={index} className="room-card">
               <RoomCard roomData={room.room} />
             </div>
           ))}
         </div>
-        <button
-          className="btn btn-primary"
-          onClick={() => handleOnReservationBtn(hotel?.title)}
-        >
-          Забронировать
-        </button>
-        <button
-          className="btn btn-primary"
-          onClick={() => {
-            setEditMode(EditMode.Edit);
-            navigate("/hotel/edit/");
-          }}
-        >
-          Редактировать
-        </button>
+        <div className="form-actions">
+          <button
+            className="btn btn-primary"
+            onClick={() => handleOnReservationBtn(hotel?.title)}
+          >
+            Забронировать
+          </button>
+          <button
+            className="btn btn-primary"
+            onClick={() => {
+              setEditMode(EditMode.Edit);
+              navigate("/hotel/edit/");
+            }}
+          >
+            Редактировать
+          </button>
+        </div>
       </>
     );
   };

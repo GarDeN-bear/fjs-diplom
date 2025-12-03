@@ -4,7 +4,7 @@ import { useEdit, EditMode } from "../context/EditContext";
 
 const Menu = () => {
   const { setMode } = useHotels();
-  const { setMode: setEditMode } = useEdit();
+  const { setHotelMode: setEditMode } = useEdit();
 
   return (
     <nav className="container-nav">

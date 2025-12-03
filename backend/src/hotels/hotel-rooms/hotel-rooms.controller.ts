@@ -1,31 +1,12 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Post,
-  Put,
-  Delete,
-  Param,
-  Query,
-  UseGuards,
-  UsePipes,
-  ValidationPipe,
-  UseInterceptors,
-  UploadedFiles,
-  Optional,
-} from '@nestjs/common';
+import {Body, Controller, Delete, Get, Optional, Param, Post, Put, Query, UploadedFiles, UseGuards, UseInterceptors, UsePipes, ValidationPipe,} from '@nestjs/common';
+import {FileFieldsInterceptor} from '@nestjs/platform-express';
+import {Roles} from 'src/auth/decorators/roles.decorator';
+import {JwtAuthGuard} from 'src/auth/guards/jwt.auth.guard';
+import {RolesGuard} from 'src/auth/guards/roles.guard';
 
-import { HotelRoomsService } from './hotel-rooms.service';
-import {
-  CreateHotelRoomDto,
-  SearchRoomsParamsDto,
-  UpdateHotelRoomParamsDto,
-} from './dto/hotel-room.dto';
-import { HotelRoomDocument } from './schemas/hotel-room.schema';
-import { RolesGuard } from 'src/auth/guards/roles.guard';
-import { JwtAuthGuard } from 'src/auth/guards/jwt.auth.guard';
-import { Roles } from 'src/auth/decorators/roles.decorator';
-import { FileFieldsInterceptor } from '@nestjs/platform-express';
+import {CreateHotelRoomDto, SearchRoomsParamsDto, UpdateHotelRoomParamsDto,} from './dto/hotel-room.dto';
+import {HotelRoomsService} from './hotel-rooms.service';
+import {HotelRoomDocument} from './schemas/hotel-room.schema';
 
 @UsePipes(new ValidationPipe())
 @Controller('api')
@@ -44,37 +25,39 @@ export class HotelRoomsController {
 
   // @UseGuards(RolesGuard, JwtAuthGuard)
   // @Roles('admin')
-  @UseInterceptors(FileFieldsInterceptor([{ name: 'images', maxCount: 10 }]))
+  @UseInterceptors(FileFieldsInterceptor([{name: 'images', maxCount: 10}]))
   @Post('admin/hotel-rooms/')
   create(
-    @Optional() @UploadedFiles() files: { images?: Express.Multer.File[] },
-    @Body() data: CreateHotelRoomDto,
-  ): Promise<HotelRoomDocument> {
-    console.log('Полученные данные:', data);
-    console.log('Полученные файлы:', files);
-
+      @Optional() @UploadedFiles() files: {images?: Express.Multer.File[]},
+      @Body() data: CreateHotelRoomDto,
+      ): Promise<HotelRoomDocument> {
     let imagesPath: string[] = [];
     if (files && files.images) {
-      console.log('Обрабатываем файлы:', files.images.length);
       imagesPath = files.images.map((image) => {
-        console.log('Файл:', image.originalname, image.filename, image.size);
         return image.filename;
       });
-    } else {
-      console.log('Файлы не получены или пустые');
     }
-    console.log(imagesPath);
-    data = { ...data, images: imagesPath };
+
+    data = {...data, images: imagesPath};
     return this.hotelRoomsService.create(data);
   }
 
-  @UseGuards(RolesGuard, JwtAuthGuard)
-  @Roles('admin')
+  // @UseGuards(RolesGuard, JwtAuthGuard)
+  // @Roles('admin')
+  @UseInterceptors(FileFieldsInterceptor([{name: 'images', maxCount: 10}]))
   @Put('admin/hotel-rooms/:id')
   update(
-    @Param('id') id: string,
-    @Body() data: UpdateHotelRoomParamsDto,
-  ): Promise<HotelRoomDocument> {
+      @Param('id') id: string,
+      @Optional() @UploadedFiles() files: {images?: Express.Multer.File[]},
+      @Body() data: UpdateHotelRoomParamsDto,
+      ): Promise<HotelRoomDocument> {
+    let imagesPath: string[] = data.images || [];
+    if (files && files.images) {
+      imagesPath = files.images.map((image) => {
+        return image.filename;
+      });
+    }
+    data = {...data, images: imagesPath};
     return this.hotelRoomsService.update(id, data);
   }
 

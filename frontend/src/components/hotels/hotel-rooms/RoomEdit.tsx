@@ -5,10 +5,15 @@ import { useNavigate } from "react-router-dom";
 import * as utils from "../../../utils/utils";
 import { EditMode, useEdit } from "../../context/EditContext";
 import RoomCard from "./RoomCard";
+import { useRoomCard, RoomCardMode } from "../../context/RoomCardContext";
 
 const RoomEdit = () => {
-  const { rooms, roomToEdit, roomMode, setRooms, updateRoom } = useEdit();
-  const [room, setRoom] = useState<utils.HotelRoom | null>(null);
+  const { rooms, roomToEdit, roomMode, setHotelClear, setRooms, updateRoom } =
+    useEdit();
+
+  const { setMode } = useRoomCard();
+
+  const [room, setRoom] = useState<utils.HotelRoom>();
 
   const [loading, setLoading] = useState(false);
 
@@ -18,7 +23,8 @@ const RoomEdit = () => {
     if (roomMode === EditMode.None) {
       navigate("/");
     }
-    setRoom({ _id: "", description: "", images: [], hotel: "" });
+    setMode(RoomCardMode.Common);
+    if (roomMode !== EditMode.Edit) setRoom(utils.emptyRoom);
   }, []);
 
   const handleSubmit = async (e: FormEvent) => {
@@ -26,35 +32,47 @@ const RoomEdit = () => {
     setLoading(true);
     if (roomMode === EditMode.Edit) {
       if (roomToEdit) updateRoom(roomToEdit);
+      navigate("/hotel/edit/");
     } else {
       if (room) rooms.push({ room: room, isNew: true });
       setRooms(rooms);
+      setHotelClear(false);
+      navigate("/hotel/create/");
     }
-    navigate("/hotel/edit/");
   };
 
   const handleChange = async (
-    field: keyof utils.CreateRoomForm,
+    field: keyof utils.HotelRoom,
     value: string | FileList | null
   ) => {
     if (roomMode === EditMode.Create) {
       if (room) {
-        setRoom({ ...room, [field]: value });
+        if (field === "images" && value instanceof FileList) {
+          setRoom({ ...room, [field]: Array.from(value) });
+        } else {
+          setRoom({ ...room, [field]: value });
+        }
       }
-    } else if (roomToEdit) {
-      updateRoom({
-        ...roomToEdit,
-        [field]: value,
-      });
+    } else if (roomMode === EditMode.Edit) {
+      if (field === "images" && value instanceof FileList) {
+        updateRoom({
+          ...roomToEdit,
+          [field]: Array.from(value),
+        });
+      } else {
+        updateRoom({
+          ...roomToEdit,
+          [field]: value,
+        });
+      }
     }
-    console.log(roomMode, room);
   };
 
   const showTitleView = () => {
     return roomMode === EditMode.Create ? (
-      <h1>Добавление номера</h1>
+      <h1 className="container-main-title">Добавление номера</h1>
     ) : (
-      <h1>Редактирование номера</h1>
+      <h1 className="container-main-title">Редактирование номера</h1>
     );
   };
 
@@ -66,9 +84,9 @@ const RoomEdit = () => {
             Изображения
           </label>
           <div className="room-cards">
-            {roomMode === EditMode.Edit && roomToEdit && (
-              <RoomCard roomData={roomToEdit} />
-            )}
+            {roomMode === EditMode.Edit
+              ? roomToEdit && <RoomCard roomData={roomToEdit} />
+              : room && <RoomCard roomData={room} />}
           </div>
           <input
             id="images"
@@ -78,6 +96,11 @@ const RoomEdit = () => {
             onChange={(e) => {
               handleChange("images", e.target.files);
             }}
+            required={
+              roomMode === EditMode.Edit
+                ? roomToEdit.images.length === 0
+                : room?.images.length === 0
+            }
           />
         </div>
         <div className="form-group">
@@ -98,7 +121,7 @@ const RoomEdit = () => {
 
         <div className="form-actions">
           <button type="submit" className="btn btn-primary">
-            Добавить
+            {roomMode === EditMode.Create ? "Добавить" : "Обновить"}
           </button>
           <button
             className="btn btn-secondary"

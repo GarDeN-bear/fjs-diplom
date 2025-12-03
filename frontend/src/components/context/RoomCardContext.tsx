@@ -2,9 +2,9 @@ import React, { createContext, useContext, useState } from "react";
 
 export enum RoomCardMode {
   Common,
+  Hotel,
   Catalog,
   HotelCatalog,
-  HotelEdit,
   None,
 }
 interface RoomCardContextType {

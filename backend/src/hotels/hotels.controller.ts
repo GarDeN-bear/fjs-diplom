@@ -42,8 +42,8 @@ export class HotelsController {
     return this.hotelsService.create(data);
   }
 
-  @UseGuards(RolesGuard, JwtAuthGuard)
-  @Roles('admin')
+  // @UseGuards(RolesGuard, JwtAuthGuard)
+  // @Roles('admin')
   @Put('admin/hotels/:id')
   update(
     @Param('id') id: string,

@@ -4,11 +4,22 @@ import { useNavigate } from "react-router-dom";
 
 import * as utils from "../../utils/utils";
 import { useEdit, EditMode } from "../context/EditContext";
+import { useRoomCard, RoomCardMode } from "../context/RoomCardContext";
 import RoomCard from "./hotel-rooms/RoomCard";
 
 const HotelEdit = () => {
-  const { hotel, rooms, hotelMode, setHotel, setRooms, setRoomMode } =
-    useEdit();
+  const {
+    hotel,
+    hotelClear,
+    setHotelClear,
+    rooms,
+    hotelMode,
+    setHotel,
+    setRooms,
+    setRoomMode,
+  } = useEdit();
+
+  const { setMode } = useRoomCard();
 
   const [loading, setLoading] = useState(false);
 
@@ -16,17 +27,21 @@ const HotelEdit = () => {
 
   useEffect(() => {
     if (hotelMode === EditMode.Create) {
-      setHotel(null);
-      setRooms([]);
+      if (hotelClear) {
+        setHotel(utils.emptyHotel);
+        setRooms([]);
+      }
     } else if (hotelMode === EditMode.None) {
       navigate("/");
     }
-  }, []);
+    setMode(RoomCardMode.Hotel);
+    setHotelClear(true);
+  }, [hotelMode]);
 
-  const sendCreateHotelData = async () => {
-    if (!hotel) return;
-
+  const sendCreateHotelData = async (): Promise<string> => {
     try {
+      const { _id, ...hotelWithoutId } = hotel;
+
       const response = await fetch(
         `${utils.VITE_BACKEND_URL}/api/admin/hotels/`,
         {
@@ -34,7 +49,7 @@ const HotelEdit = () => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(hotel),
+          body: JSON.stringify(hotelWithoutId),
           credentials: "include",
         }
       );
@@ -47,6 +62,7 @@ const HotelEdit = () => {
       const data = await response.json();
       setHotel(data);
       console.log("Отель создан:", data);
+      return data._id;
     } catch (error) {
       throw new Error(`Ошибка при создании отеля": ${error}`);
     } finally {
@@ -55,8 +71,6 @@ const HotelEdit = () => {
   };
 
   const sendEditHotelData = async () => {
-    if (!hotel) return;
-
     try {
       const response = await fetch(
         `${utils.VITE_BACKEND_URL}/api/admin/hotels/${hotel._id}`,
@@ -84,24 +98,25 @@ const HotelEdit = () => {
     }
   };
 
-  const sendRoomsData = async () => {
-    if (!hotel?._id) return;
-
+  const sendRoomsData = async (hotelId: string) => {
     try {
       await Promise.all(
         rooms.map(async (room) => {
           const formData = new FormData();
 
-          formData.append("hotel", hotel._id);
+          formData.append("hotel", hotelId);
           formData.append("description", room.room.description || "");
           formData.append("isEnabled", "false"); //!TODO
-
           if (room.room.images && room.room.images.length > 0) {
-            Array.from(room.room.images as FileList).forEach((file) => {
+            Array.from(room.room.images).filter(img => img instanceof File).forEach((file) => {
               formData.append("images", file);
             });
+            let existingImages: string[] = [];
+            Array.from(room.room.images).filter(img => typeof img === 'string').forEach((file) => {
+              existingImages.push(file);
+            });
+            formData.append("images", JSON.stringify(existingImages));
           }
-
           if (room.isNew) {
             sendCreateRoomData(formData);
           } else {
@@ -167,42 +182,46 @@ const HotelEdit = () => {
     e.preventDefault();
     setLoading(true);
 
+    let hotelId = hotel._id;
     switch (hotelMode) {
       case EditMode.Create:
-        await sendCreateHotelData();
+        hotelId = await sendCreateHotelData();
         break;
       default:
         await sendEditHotelData();
         break;
     }
-    await sendRoomsData();
+    await sendRoomsData(hotelId);
+    navigate("/");
   };
 
   const handleChange = (field: keyof utils.Hotel, value: string) => {
-    if (hotel) {
-      setHotel({
-        ...hotel,
-        [field]: value,
-      });
-    }
+    setHotel({
+      ...hotel,
+      [field]: value,
+    });
   };
 
   const showRoomsView = () => {
     return (
-      <div className="room-cards">
+      <div className="rooms-list">
         {rooms.length > 0 &&
           rooms.map((room, index) => (
-            <RoomCard key={index} roomData={room.room} showEditView={true} />
+            <div key={index} className="room-card">
+              <RoomCard key={index} roomData={room.room} showEditView={true} />
+            </div>
           ))}
-        <button
-          className="room-create"
-          onClick={() => {
-            setRoomMode(EditMode.Create);
-            navigate("/room/create");
-          }}
-        >
-          Добавить комнату
-        </button>
+        <div className="room-card">
+          <button
+            className="btn-room-image"
+            onClick={() => {
+              setRoomMode(EditMode.Create);
+              navigate("/room/create");
+            }}
+          >
+            +
+          </button>
+        </div>
       </div>
     );
   };
@@ -217,10 +236,11 @@ const HotelEdit = () => {
           <input
             type="text"
             id="title"
-            value={hotel ? hotel.title : ""}
+            value={hotel.title}
             onChange={(e) => handleChange("title", e.target.value)}
             placeholder="Введите название"
             readOnly={hotelMode === EditMode.Edit}
+            required
           />
         </div>
 
@@ -230,7 +250,7 @@ const HotelEdit = () => {
           </label>
           <textarea
             id="description"
-            value={hotel ? hotel.description : ""}
+            value={hotel.description}
             onChange={(e) => handleChange("description", e.target.value)}
             placeholder="Введите описание"
           />

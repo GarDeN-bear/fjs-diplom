@@ -4,12 +4,25 @@ export interface Hotel {
   description: string;
 }
 
+export const emptyHotel: Hotel = {
+  _id: "",
+  title: "",
+  description: "",
+};
+
 export interface HotelRoom {
   _id: string;
   description: string;
-  images: string[] | FileList;
+  images: (string | File)[];
   hotel: string;
 }
+
+export const emptyRoom: HotelRoom = {
+  _id: "",
+  description: "",
+  images: [],
+  hotel: "",
+};
 
 export interface CreateReservation {
   userId: string;
@@ -31,3 +44,11 @@ export enum DayOfMonth {
   CurrentMonth,
   NextMonth,
 }
+
+export const getImageUrl = (image: string | File): string => {
+  if (typeof image === "string") {
+    return `${VITE_BACKEND_URL}/public/${image}`;
+  } else {
+    return URL.createObjectURL(image);
+  }
+};
