@@ -17,7 +17,7 @@ export const SearchProvider = ({ children }: { children: React.ReactNode }) => {
   const [hotelName, setHotelName] = useState<string | null>(null);
   const [checkInDate, setCheckInDate] = useState<Date | null>(null);
   const [departureDate, setDepartureDate] = useState<Date | null>(null);
-  const [calendarState, setCalendarState] = useState<boolean>(true);
+  const [calendarState, setCalendarState] = useState<boolean>(false);
 
   const value: SearchContextType = {
     hotelName,

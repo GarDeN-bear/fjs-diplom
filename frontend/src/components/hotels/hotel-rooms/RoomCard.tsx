@@ -154,7 +154,7 @@ const RoomCard = ({
 
               <button
                 className="btn-edit btn-remove"
-                onClick={() => removeRoom(room)}
+                onClick={() => removeRoom(room, hotelMode === EditMode.Edit)}
                 title="Удалить"
               >
                 ×
@@ -186,7 +186,9 @@ const RoomCard = ({
     }
   };
 
-  return <> {loading ? <div>Загрузка...</div> : showRoomCard()}</>;
+  if (loading) return <div>Загрузка...</div>;
+
+  return showRoomCard();
 };
 
 export default RoomCard;

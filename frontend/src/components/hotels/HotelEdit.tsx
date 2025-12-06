@@ -3,7 +3,7 @@ import type { FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 
 import * as utils from "../../utils/utils";
-import { useEdit, EditMode } from "../context/EditContext";
+import { useEdit, EditMode, ActionMode } from "../context/EditContext";
 import { useRoomCard, RoomCardMode } from "../context/RoomCardContext";
 import RoomCard from "./hotel-rooms/RoomCard";
 
@@ -36,6 +36,16 @@ const HotelEdit = () => {
     }
     setMode(RoomCardMode.Hotel);
     setHotelClear(true);
+      const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+  };
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(scrollToTop);
+  });
   }, [hotelMode]);
 
   const sendCreateHotelData = async (): Promise<string> => {
@@ -98,6 +108,29 @@ const HotelEdit = () => {
     }
   };
 
+  const sendRemoveHotelData = async () => {
+    try {
+      const response = await fetch(
+        `${utils.VITE_BACKEND_URL}/api/admin/hotels/${hotel._id}`,
+        {
+          method: "DELETE",
+          credentials: "include",
+        }
+      );
+
+      if (!response.ok) {
+        const error = await response.text();
+        throw new Error(`Ошибка при удалении отеля": ${error}`);
+      }
+
+      console.log("Отель удален");
+    } catch (error) {
+      throw new Error(`Ошибка при удалении отеля": ${error}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const sendRoomsData = async (hotelId: string) => {
     try {
       await Promise.all(
@@ -108,19 +141,29 @@ const HotelEdit = () => {
           formData.append("description", room.room.description || "");
           formData.append("isEnabled", "false"); //!TODO
           if (room.room.images && room.room.images.length > 0) {
-            Array.from(room.room.images).filter(img => img instanceof File).forEach((file) => {
-              formData.append("images", file);
-            });
+            Array.from(room.room.images)
+              .filter((img) => img instanceof File)
+              .forEach((file) => {
+                formData.append("images", file);
+              });
             let existingImages: string[] = [];
-            Array.from(room.room.images).filter(img => typeof img === 'string').forEach((file) => {
-              existingImages.push(file);
-            });
+            Array.from(room.room.images)
+              .filter((img) => typeof img === "string")
+              .forEach((file) => {
+                existingImages.push(file);
+              });
             formData.append("images", JSON.stringify(existingImages));
           }
-          if (room.isNew) {
-            sendCreateRoomData(formData);
-          } else {
-            sendEditRoomData(formData, room.room);
+          switch (room.mode) {
+            case ActionMode.Create:
+              sendCreateRoomData(formData);
+              break;
+            case ActionMode.Edit:
+              sendEditRoomData(formData, room.room);
+              break;
+            case ActionMode.Remove:
+              sendRemoveRoomData(room.room);
+              break;
           }
         })
       );
@@ -178,18 +221,49 @@ const HotelEdit = () => {
     }
   };
 
+  const sendRemoveRoomData = async (room: utils.HotelRoom) => {
+    try {
+      const response = await fetch(
+        `${utils.VITE_BACKEND_URL}/api/admin/hotel-rooms/${room._id}`,
+        {
+          method: "DELETE",
+          credentials: "include",
+        }
+      );
+
+      if (!response.ok) {
+        const error = await response.text();
+        throw new Error(`Ошибка при удалении комнаты отеля: ${error}`);
+      }
+
+      console.log("Комната удалена с файлами");
+    } catch (error) {
+      throw new Error(`Ошибка при удалении комнаты отеля: ${error}`);
+    }
+  };
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     let hotelId = hotel._id;
-    switch (hotelMode) {
-      case EditMode.Create:
-        hotelId = await sendCreateHotelData();
-        break;
-      default:
-        await sendEditHotelData();
-        break;
+    if (rooms.filter((room) => room.mode !== ActionMode.Remove).length > 0) {
+      switch (hotelMode) {
+        case EditMode.Create:
+          hotelId = await sendCreateHotelData();
+          break;
+        default:
+          await sendEditHotelData();
+          break;
+      }
+    } else {
+      switch (hotelMode) {
+        case EditMode.Edit:
+          await sendRemoveHotelData();
+          break;
+        default:
+          break;
+      }
     }
     await sendRoomsData(hotelId);
     navigate("/");
@@ -208,7 +282,13 @@ const HotelEdit = () => {
         {rooms.length > 0 &&
           rooms.map((room, index) => (
             <div key={index} className="room-card">
-              <RoomCard key={index} roomData={room.room} showEditView={true} />
+              {room.mode !== ActionMode.Remove && (
+                <RoomCard
+                  key={index}
+                  roomData={room.room}
+                  showEditView={true}
+                />
+              )}
             </div>
           ))}
         <div className="room-card">

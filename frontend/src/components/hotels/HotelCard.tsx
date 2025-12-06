@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import * as utils from "../../utils/utils";
-import { EditMode, useEdit } from "../context/EditContext";
+import { ActionMode, EditMode, useEdit } from "../context/EditContext";
 import RoomCard from "./hotel-rooms/RoomCard";
 
 import { HotelCardMode, useHotelCard } from "../context/HotelCardContext";
@@ -25,7 +25,7 @@ const HotelCard = ({ hotelData = null }: HotelCardPrompt) => {
   } = useEdit();
 
   const { mode, setMode } = useHotelCard();
-  const { mode: roomCardMode, setMode: setRoomCardMode } = useRoomCard();
+  const { setMode: setRoomCardMode } = useRoomCard();
 
   useEffect(() => {
     let currentMode: HotelCardMode;
@@ -75,8 +75,8 @@ const HotelCard = ({ hotelData = null }: HotelCardPrompt) => {
       );
       const data: utils.HotelRoom[] = await response.json();
 
-      const fetchedRooms: { room: utils.HotelRoom; isNew: boolean }[] =
-        Array.from(data).map((room) => ({ room: room, isNew: false }));
+      const fetchedRooms: { room: utils.HotelRoom; mode: ActionMode }[] =
+        Array.from(data).map((room) => ({ room: room, mode: ActionMode.Edit }));
       setRooms(fetchedRooms);
     } catch (error) {
       console.error("Ошибка: ", error);
@@ -140,12 +140,14 @@ const HotelCard = ({ hotelData = null }: HotelCardPrompt) => {
   };
 
   const showHotelCard = () => {
-    return mode === HotelCardMode.Common
-      ? hotelCardCommonView()
-      : hotelCardCatalogView();
+    return mode === HotelCardMode.Catalog
+      ? hotelCardCatalogView()
+      : hotelCardCommonView();
   };
 
-  return <>{loading ? <div>Загрузка...</div> : showHotelCard()}</>;
+  if (loading) return <div>Загрузка...</div>;
+
+  return showHotelCard();
 };
 
 export default HotelCard;

@@ -1,5 +1,4 @@
-import { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useState, useEffect, } from "react";
 
 import * as utils from "../../utils/utils";
 import SearchHotels from "./SearchHotels";
@@ -16,45 +15,42 @@ const HotelsCatalog = () => {
   const [numbers, setNumbers] = useState<number[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const { checkInDate, departureDate, calendarState } = useSearch();
+  const { checkInDate, departureDate } = useSearch();
 
-  const { hotels, mode, setHotels, setMode: setHotelsMode } = useHotels();
-  const { setMode } = useHotelCard();
-  const location = useLocation();
+  const { hotels, mode, setHotels } = useHotels();
+  const { setMode, } = useHotelCard();
 
   useEffect(() => {
-    let currentMode: HotelsMode = HotelsMode.None;
-    if (location.pathname === "/") {
-      currentMode = HotelsMode.Common;
-    } else if (location.pathname === "/search") {
-      currentMode = HotelsMode.Search;
-    }
-
-    setHotelsMode(currentMode);
-
-    switch (currentMode) {
+    switch (mode) {
       case HotelsMode.Search:
         fetchSearchHotels().finally(() => setLoading(false));
         break;
-      case HotelsMode.Common:
+      default:
         fetchHotels().finally(() => setLoading(false));
         break;
-      default:
-        setLoading(false);
-        break;
     }
+
     setMode(HotelCardMode.Catalog);
-  }, [mode, calendarState]);
+  }, [mode]);
 
   useEffect(() => {
     fetchHotelsOnPage();
   }, [hotels, hotelsSearch, currentNumber]);
 
-  const fetchHotelsOnPage = async () => {
-    if (hotels.length <= 0) {
-      return;
-    }
+  useEffect(() => {
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+  };
 
+  requestAnimationFrame(() => {
+    requestAnimationFrame(scrollToTop);
+  });
+  }, [hotelsOnPage]);
+
+  const fetchHotelsOnPage = async () => {
     const firstIndex = (currentNumber - 1) * utils.itemsOnPage;
     const page = hotels.slice(firstIndex, firstIndex + utils.itemsOnPage);
     setHotelsOnPage(page);
@@ -144,15 +140,11 @@ const HotelsCatalog = () => {
     );
   };
 
+  if (loading) return <div>Загрузка...</div>;
+
   return (
     <div className="hotel-catalog">
-      {loading ? (
-        <div>Загрузка...</div>
-      ) : (
-        <>
-          {showHeaderView()} {showHotelCatalogView()}
-        </>
-      )}
+      {showHeaderView()} {showHotelCatalogView()}
       <Pagination
         currentNumber={currentNumber}
         numbers={numbers}

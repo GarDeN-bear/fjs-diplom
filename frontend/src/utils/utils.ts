@@ -5,23 +5,23 @@ export interface Hotel {
 }
 
 export const emptyHotel: Hotel = {
-  _id: "",
-  title: "",
-  description: "",
+  _id: '',
+  title: '',
+  description: '',
 };
 
 export interface HotelRoom {
   _id: string;
   description: string;
-  images: (string | File)[];
+  images: (string|File)[];
   hotel: string;
 }
 
 export const emptyRoom: HotelRoom = {
-  _id: "",
-  description: "",
+  _id: '',
+  description: '',
   images: [],
-  hotel: "",
+  hotel: '',
 };
 
 export interface CreateReservation {
@@ -34,10 +34,10 @@ export interface CreateReservation {
 
 export const limit: number = 1000;
 export const offset: number = 0;
-export const itemsOnPage: number = 10;
+export const itemsOnPage: number = 3;
 
 export const VITE_BACKEND_URL =
-  import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
+    import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
 
 export enum DayOfMonth {
   PreviousMonth,
@@ -45,8 +45,8 @@ export enum DayOfMonth {
   NextMonth,
 }
 
-export const getImageUrl = (image: string | File): string => {
-  if (typeof image === "string") {
+export const getImageUrl = (image: string|File): string => {
+  if (typeof image === 'string') {
     return `${VITE_BACKEND_URL}/public/${image}`;
   } else {
     return URL.createObjectURL(image);

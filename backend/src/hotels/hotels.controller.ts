@@ -52,10 +52,12 @@ export class HotelsController {
     return this.hotelsService.update(id, data);
   }
 
-  @UseGuards(RolesGuard, JwtAuthGuard)
-  @Roles('admin')
+  // @UseGuards(RolesGuard, JwtAuthGuard)
+  // @Roles('admin')
   @Delete('admin/hotels/:id')
   delete(@Param('id') id: string): Promise<void> {
+    console.log(id);
+
     return this.hotelsService.delete(id);
   }
 }

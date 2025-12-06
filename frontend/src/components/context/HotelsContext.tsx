@@ -5,7 +5,6 @@ import * as utils from "../../utils/utils";
 export enum HotelsMode {
   Common,
   Search,
-  None,
 }
 
 interface HotelsContextType {
@@ -22,7 +21,7 @@ const HotelsContext = createContext<HotelsContextType | null>(null);
 export const HotelsProvider = ({ children }: { children: React.ReactNode }) => {
   const [hotels, setHotels] = useState<utils.Hotel[]>([]);
   const [rooms, setRooms] = useState<utils.HotelRoom[]>([]);
-  const [mode, setMode] = useState<HotelsMode>(HotelsMode.None);
+  const [mode, setMode] = useState<HotelsMode>(HotelsMode.Common);
 
   const value: HotelsContextType = {
     mode,

@@ -3,12 +3,12 @@ import type { FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 
 import * as utils from "../../../utils/utils";
-import { EditMode, useEdit } from "../../context/EditContext";
+import { ActionMode, EditMode, useEdit } from "../../context/EditContext";
 import RoomCard from "./RoomCard";
 import { useRoomCard, RoomCardMode } from "../../context/RoomCardContext";
 
 const RoomEdit = () => {
-  const { rooms, roomToEdit, roomMode, setHotelClear, setRooms, updateRoom } =
+  const { rooms, roomToEdit,hotelMode, roomMode, setHotelClear, setRooms, updateRoom } =
     useEdit();
 
   const { setMode } = useRoomCard();
@@ -25,6 +25,16 @@ const RoomEdit = () => {
     }
     setMode(RoomCardMode.Common);
     if (roomMode !== EditMode.Edit) setRoom(utils.emptyRoom);
+      const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+  };
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(scrollToTop);
+  });
   }, []);
 
   const handleSubmit = async (e: FormEvent) => {
@@ -34,7 +44,7 @@ const RoomEdit = () => {
       if (roomToEdit) updateRoom(roomToEdit);
       navigate("/hotel/edit/");
     } else {
-      if (room) rooms.push({ room: room, isNew: true });
+      if (room) rooms.push({ room: room, mode: ActionMode.Create });
       setRooms(rooms);
       setHotelClear(false);
       navigate("/hotel/create/");
@@ -124,8 +134,15 @@ const RoomEdit = () => {
             {roomMode === EditMode.Create ? "Добавить" : "Обновить"}
           </button>
           <button
+          type="button"
             className="btn btn-secondary"
-            onClick={() => navigate("hotel/edit")}
+            onClick={() => {
+              setRoom(utils.emptyRoom)
+    setHotelClear(false);
+
+            {hotelMode === EditMode.Create ? navigate("/hotel/create") : navigate("/hotel/edit")}
+
+              }}
           >
             Отменить
           </button>
