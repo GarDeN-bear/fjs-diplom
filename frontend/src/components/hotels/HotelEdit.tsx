@@ -1,82 +1,91 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { FormEvent } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import * as utils from "../../utils/utils";
-import { useEdit, EditMode, ActionMode } from "../context/EditContext";
-import { useRoomCard, RoomCardMode } from "../context/RoomCardContext";
+import { useHotelEdit, ActionMode } from "../context/HotelEditContext";
 import RoomCard from "./hotel-rooms/RoomCard";
+import { RoomCardMode, useHotels } from "../context/HotelsContext";
+import { useRoomCreate } from "../context/RoomCreateContext";
+import { useRoomEdit } from "../context/RoomEditContext";
 
 const HotelEdit = () => {
-  const {
-    hotel,
-    hotelClear,
-    setHotelClear,
-    rooms,
-    hotelMode,
-    setHotel,
-    setRooms,
-    setRoomMode,
-  } = useEdit();
-
-  const { setMode } = useRoomCard();
+  const id: string | undefined = useParams().id;
+  const { hotel, rooms, setHotel, setRooms, updateRoom, removeRoom } =
+    useHotelEdit();
+  const { setOnHandleSubmit: setOnHandleSubmitRoomCreate } = useRoomCreate();
+  const { setRoom, setOnHandleSubmit: setOnHandleSubmitRoomEdit } =
+    useRoomEdit();
+  const { returnToMain } = useHotels();
 
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
-    if (hotelMode === EditMode.Create) {
-      if (hotelClear) {
-        setHotel(utils.emptyHotel);
-        setRooms([]);
-      }
-    } else if (hotelMode === EditMode.None) {
-      navigate("/");
+    if (!id) navigate("/");
+    if (location.state?.skipRefresh) return;
+
+    fetchHotel(id).finally(() => setLoading(false));
+    fetchRooms(id).finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => {
+    utils.scrollToTop();
+  }, [rooms]);
+
+  useEffect(() => {
+    if (returnToMain) navigate("/");
+
+    setOnHandleSubmitRoomCreate(handleRoomCreateSubmit);
+    setOnHandleSubmitRoomEdit(handleRoomEditSubmit);
+  }, [rooms]);
+
+  const handleRoomCreateSubmit = useCallback(
+    async (room: utils.HotelRoom) => {
+      setLoading(true);
+      setRooms([...rooms, { room: room, mode: ActionMode.Create }]);
+      navigate(`/hotel/edit/${id}`, { state: { skipRefresh: true } });
+    },
+    [rooms]
+  );
+
+  const handleRoomEditSubmit = useCallback(async (room: utils.HotelRoom) => {
+    setLoading(true);
+    updateRoom(room);
+    navigate(`/hotel/edit/${id}`, { state: { skipRefresh: true } });
+  }, []);
+
+  const fetchHotel = async (id?: string) => {
+    if (!id) return;
+
+    try {
+      const response = await fetch(
+        `${utils.VITE_BACKEND_URL}/api/common/hotels/${id}`
+      );
+      const data: utils.Hotel = await response.json();
+
+      setHotel(data);
+    } catch (error) {
+      console.error("Ошибка: ", error);
     }
-    setMode(RoomCardMode.Hotel);
-    setHotelClear(true);
-      const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth"
-    });
   };
 
-  requestAnimationFrame(() => {
-    requestAnimationFrame(scrollToTop);
-  });
-  }, [hotelMode]);
+  const fetchRooms = async (id?: string) => {
+    if (!id) return;
 
-  const sendCreateHotelData = async (): Promise<string> => {
     try {
-      const { _id, ...hotelWithoutId } = hotel;
-
       const response = await fetch(
-        `${utils.VITE_BACKEND_URL}/api/admin/hotels/`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(hotelWithoutId),
-          credentials: "include",
-        }
+        `${
+          utils.VITE_BACKEND_URL
+        }/api/common/hotel-rooms?limit=${utils.limit.toString()}&offset=${utils.offset.toString()}&hotel=${id}`
       );
+      const data: utils.HotelRoom[] = await response.json();
 
-      if (!response.ok) {
-        const error = await response.text();
-        throw new Error(`Ошибка при создании отеля": ${error}`);
-      }
-
-      const data = await response.json();
-      setHotel(data);
-      console.log("Отель создан:", data);
-      return data._id;
+      setRooms(data.map((room) => ({ room, mode: ActionMode.None })));
     } catch (error) {
-      throw new Error(`Ошибка при создании отеля": ${error}`);
-    } finally {
-      setLoading(false);
+      console.error("Ошибка: ", error);
     }
   };
 
@@ -131,13 +140,13 @@ const HotelEdit = () => {
     }
   };
 
-  const sendRoomsData = async (hotelId: string) => {
+  const sendRoomsData = async () => {
     try {
       await Promise.all(
         rooms.map(async (room) => {
           const formData = new FormData();
 
-          formData.append("hotel", hotelId);
+          formData.append("hotel", hotel._id);
           formData.append("description", room.room.description || "");
           formData.append("isEnabled", "false"); //!TODO
           if (room.room.images && room.room.images.length > 0) {
@@ -246,26 +255,12 @@ const HotelEdit = () => {
     e.preventDefault();
     setLoading(true);
 
-    let hotelId = hotel._id;
     if (rooms.filter((room) => room.mode !== ActionMode.Remove).length > 0) {
-      switch (hotelMode) {
-        case EditMode.Create:
-          hotelId = await sendCreateHotelData();
-          break;
-        default:
-          await sendEditHotelData();
-          break;
-      }
+      await sendEditHotelData();
     } else {
-      switch (hotelMode) {
-        case EditMode.Edit:
-          await sendRemoveHotelData();
-          break;
-        default:
-          break;
-      }
+      await sendRemoveHotelData();
     }
-    await sendRoomsData(hotelId);
+    await sendRoomsData();
     navigate("/");
   };
 
@@ -276,26 +271,45 @@ const HotelEdit = () => {
     });
   };
 
+  const setRoomCardView = (room: {
+    room: utils.HotelRoom;
+    mode: ActionMode;
+  }) => {
+    switch (room.mode) {
+      case ActionMode.Edit:
+      case ActionMode.None:
+        return (
+          <RoomCard
+            mode={RoomCardMode.Hotel}
+            roomData={room.room}
+            roomCardAddView={roomCardAddEditView}
+          />
+        );
+      case ActionMode.Create:
+        return (
+          <RoomCard
+            mode={RoomCardMode.Hotel}
+            roomData={room.room}
+            roomCardAddView={roomCardAddCreateView}
+          />
+        );
+      default:
+        return <></>;
+    }
+  };
   const showRoomsView = () => {
     return (
       <div className="rooms-list">
         {rooms.length > 0 &&
           rooms.map((room, index) => (
             <div key={index} className="room-card">
-              {room.mode !== ActionMode.Remove && (
-                <RoomCard
-                  key={index}
-                  roomData={room.room}
-                  showEditView={true}
-                />
-              )}
+              {setRoomCardView(room)}
             </div>
           ))}
         <div className="room-card">
           <button
             className="btn-room-image"
             onClick={() => {
-              setRoomMode(EditMode.Create);
               navigate("/room/create");
             }}
           >
@@ -303,6 +317,49 @@ const HotelEdit = () => {
           </button>
         </div>
       </div>
+    );
+  };
+
+  const roomCardAddEditView = (room: utils.HotelRoom) => {
+    return (
+      <>
+        <div className="room-image-btns">
+          <button
+            className="btn-edit"
+            onClick={() => {
+              setRoom(room);
+              navigate(`/room/edit/${room._id}`);
+            }}
+            title="Редактировать"
+          >
+            ✏️
+          </button>
+
+          <button
+            className="btn-edit btn-remove"
+            onClick={() => removeRoom(room)}
+            title="Удалить"
+          >
+            ×
+          </button>
+        </div>
+      </>
+    );
+  };
+
+  const roomCardAddCreateView = (room: utils.HotelRoom) => {
+    return (
+      <>
+        <div className="room-image-btns">
+          <button
+            className="btn-edit btn-remove"
+            onClick={() => removeRoom(room)}
+            title="Удалить"
+          >
+            ×
+          </button>
+        </div>
+      </>
     );
   };
 
@@ -319,7 +376,7 @@ const HotelEdit = () => {
             value={hotel.title}
             onChange={(e) => handleChange("title", e.target.value)}
             placeholder="Введите название"
-            readOnly={hotelMode === EditMode.Edit}
+            readOnly
             required
           />
         </div>
@@ -347,25 +404,15 @@ const HotelEdit = () => {
     );
   };
 
-  const showTitleView = () => {
-    return hotelMode == EditMode.Edit ? (
-      <h1 className="container-main-title">Редактирование гостиницы</h1>
-    ) : (
-      <h1 className="container-main-title">Добавление гостиницы</h1>
-    );
-  };
+  if (loading) return <div>Загрузка...</div>;
 
   return (
     <section className="hotel-create">
-      {showTitleView()}
-      {loading ? (
-        <div>Загрузка...</div>
-      ) : (
-        <div className="hotel-create-rooms">
-          {showRoomsView()}
-          {showHotelFormView()}
-        </div>
-      )}
+      <h1 className="container-main-title">Редактирование гостиницы</h1>
+      <div className="hotel-create-rooms">
+        {showRoomsView()}
+        {showHotelFormView()}
+      </div>
     </section>
   );
 };

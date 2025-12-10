@@ -2,61 +2,50 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import * as utils from "../../utils/utils";
-import { ActionMode, EditMode, useEdit } from "../context/EditContext";
 import RoomCard from "./hotel-rooms/RoomCard";
 
-import { HotelCardMode, useHotelCard } from "../context/HotelCardContext";
-import { useRoomCard, RoomCardMode } from "../context/RoomCardContext";
+import { HotelCardMode, RoomCardMode } from "../context/HotelsContext";
+import { useSearch } from "../context/HotelsSearchContext";
+
 interface HotelCardPrompt {
-  hotelData?: utils.Hotel | null;
+  mode: HotelCardMode;
+  hotelData?: utils.Hotel;
 }
 
-const HotelCard = ({ hotelData = null }: HotelCardPrompt) => {
-  const hotelId = useParams().id ?? null;
+const HotelCard = ({ mode, hotelData }: HotelCardPrompt) => {
+  const hotelId = useParams().id;
+  const [hotel, setHotel] = useState<utils.Hotel>(utils.emptyHotel);
+  const [rooms, setRooms] = useState<utils.HotelRoom[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const navigate = useNavigate();
-  const {
-    hotel,
-    rooms,
-    setHotel,
-    setRooms,
-    setHotelMode: setEditMode,
-  } = useEdit();
+  const { setHotelName } = useSearch();
 
-  const { mode, setMode } = useHotelCard();
-  const { setMode: setRoomCardMode } = useRoomCard();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    let currentMode: HotelCardMode;
+    let id: string | undefined = hotelId;
 
-    if (hotelData) {
-      currentMode = HotelCardMode.Catalog;
-      setRoomCardMode(RoomCardMode.HotelCatalog);
-    } else if (hotelId) {
-      currentMode = HotelCardMode.Common;
-      setRoomCardMode(RoomCardMode.Hotel);
-    } else {
-      setLoading(false);
-      return;
-    }
+    switch (mode) {
+      case HotelCardMode.Catalog:
+        if (!hotelData) return;
 
-    setMode(currentMode);
-    switch (currentMode) {
-      case HotelCardMode.Common:
-        fetchHotel().finally(() => setLoading(false));
-        fetchRooms().finally(() => setLoading(false));
+        setHotel(hotelData);
+        id = hotelData?._id;
         break;
       default:
-        setLoading(false);
+        fetchHotel(id).finally(() => setLoading(false));
         break;
     }
-  }, []);
 
-  const fetchHotel = async () => {
+    fetchRooms(id).finally(() => setLoading(false));
+  }, [hotelData]);
+
+  const fetchHotel = async (id?: string) => {
+    if (!id) return;
+
     try {
       const response = await fetch(
-        `${utils.VITE_BACKEND_URL}/api/common/hotels/${hotelId}`
+        `${utils.VITE_BACKEND_URL}/api/common/hotels/${id}`
       );
       const data: utils.Hotel = await response.json();
 
@@ -66,31 +55,32 @@ const HotelCard = ({ hotelData = null }: HotelCardPrompt) => {
     }
   };
 
-  const fetchRooms = async () => {
+  const fetchRooms = async (id?: string) => {
+    if (!id) return;
+
     try {
       const response = await fetch(
         `${
           utils.VITE_BACKEND_URL
-        }/api/common/hotel-rooms?limit=${utils.limit.toString()}&offset=${utils.offset.toString()}&hotel=${hotelId}`
+        }/api/common/hotel-rooms?limit=${utils.limit.toString()}&offset=${utils.offset.toString()}&hotel=${id}`
       );
       const data: utils.HotelRoom[] = await response.json();
 
-      const fetchedRooms: { room: utils.HotelRoom; mode: ActionMode }[] =
-        Array.from(data).map((room) => ({ room: room, mode: ActionMode.Edit }));
-      setRooms(fetchedRooms);
+      setRooms(data);
     } catch (error) {
       console.error("Ошибка: ", error);
     }
   };
 
-  const handleOnReservationBtn = (title?: string) => {
-    navigate(`/reservation`);
+  const handleOnReservationBtn = (title: string) => {
+    setHotelName(title);
+    navigate(`/search`);
   };
 
   const hotelCardCatalogView = () => {
     return (
       <>
-        <RoomCard hotelId={hotelData?._id} />
+        <RoomCard mode={RoomCardMode.HotelCatalog} roomData={rooms.at(0)} />
         <div className="hotel-card-description">
           <h3>{hotelData?.title}</h3>
           <p>{hotelData?.description}</p>
@@ -114,7 +104,7 @@ const HotelCard = ({ hotelData = null }: HotelCardPrompt) => {
         <div className="rooms-list">
           {rooms.map((room, index) => (
             <div key={index} className="room-card">
-              <RoomCard roomData={room.room} />
+              <RoomCard mode={RoomCardMode.Hotel} roomData={room} />
             </div>
           ))}
         </div>
@@ -128,8 +118,7 @@ const HotelCard = ({ hotelData = null }: HotelCardPrompt) => {
           <button
             className="btn btn-primary"
             onClick={() => {
-              setEditMode(EditMode.Edit);
-              navigate("/hotel/edit/");
+              navigate(`/hotel/edit/${hotel._id}`);
             }}
           >
             Редактировать

@@ -1,26 +1,25 @@
-import { useState } from "react";
-import type { FormEvent } from "react";
+import { useState, type FormEvent, type ChangeEvent } from "react";
+import * as utils from "../../utils/utils";
 import Calendar from "./Calendar";
-import { DayOfMonth } from "../../utils/utils";
-import { useSearch } from "../context/SearchContext";
+import { useHotelsSearch } from "../context/HotelsSearchContext";
 
-const SearchHotels = () => {
+interface SearchFormPrompt {
+  handleSubmit: () => void;
+}
+
+const SearchForm = ({ handleSubmit }: SearchFormPrompt) => {
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
-  const [isCheckIn, setIsDeparture] = useState<boolean>(true);
+  const [isDateStartSetup, setIsDateStartSetup] = useState<boolean>(true);
+  const [showCalendar, setShowCalendar] = useState<boolean>(true);
 
   const {
-    checkInDate,
-    departureDate,
-    calendarState,
-    setCheckInDate,
-    setDepartureDate,
-    setCalendarState,
-  } = useSearch();
-
-  const handleOnSubmitSearch = (e: FormEvent) => {
-    e.preventDefault();
-    setCalendarState(false);
-  };
+    dateStart,
+    dateEnd,
+    hotelName,
+    setDateStart,
+    setDateEnd,
+    setHotelName,
+  } = useHotelsSearch();
 
   const handleOnBtnPress = (isNextMonth: boolean) => {
     const newDate = new Date(currentDate);
@@ -45,12 +44,12 @@ const SearchHotels = () => {
     setCurrentDate(newDate);
   };
 
-  const handleOnDayClick = (day: number, dayOfMonth: DayOfMonth) => {
+  const handleOnDayClick = (day: number, dayOfMonth: utils.DayOfMonth) => {
     let selectedMonth = currentDate.getMonth();
     let selectedYear = currentDate.getFullYear();
 
     switch (dayOfMonth) {
-      case DayOfMonth.PreviousMonth:
+      case utils.DayOfMonth.PreviousMonth:
         if (selectedMonth === 0) {
           --selectedYear;
           selectedMonth = 11;
@@ -58,7 +57,7 @@ const SearchHotels = () => {
           --selectedMonth;
         }
         break;
-      case DayOfMonth.NextMonth:
+      case utils.DayOfMonth.NextMonth:
         if (selectedMonth === 11) {
           ++selectedYear;
           selectedMonth = 0;
@@ -71,20 +70,20 @@ const SearchHotels = () => {
     }
 
     const selectedDate = new Date(selectedYear, selectedMonth, day);
-    if (isCheckIn) {
-      if (departureDate === null) {
-        setCheckInDate(selectedDate);
-      } else if (selectedDate < departureDate) {
-        setCheckInDate(selectedDate);
+    if (isDateStartSetup) {
+      if (dateStart === null) {
+        setDateEnd(selectedDate);
+      } else if (selectedDate > dateStart) {
+        setDateEnd(selectedDate);
       }
     } else {
-      if (checkInDate === null) {
-        setDepartureDate(selectedDate);
-      } else if (selectedDate > checkInDate) {
-        setDepartureDate(selectedDate);
+      if (dateEnd === null) {
+        setDateStart(selectedDate);
+      } else if (selectedDate < dateEnd) {
+        setDateStart(selectedDate);
       }
     }
-    setIsDeparture(!isCheckIn);
+    setIsDateStartSetup(isDateStartSetup);
   };
 
   const formatDateForDisplay = (date: Date | null): string => {
@@ -97,13 +96,22 @@ const SearchHotels = () => {
     return `${year}.${month}.${day}`;
   };
 
-  return (
-    <div className="hotel-catalog-search-card container-main-title">
-      <h1>Поиск гостиницы</h1>
-      <form onSubmit={handleOnSubmitSearch}>
+  const showSearchForm = () => {
+    return (
+      <form
+        onSubmit={(e: FormEvent) => {
+          e.preventDefault();
+          handleSubmit();
+          setShowCalendar(false);
+        }}
+      >
         <div className="form-group">
           <input
             type="text"
+            value={hotelName}
+            onChange={(e: ChangeEvent<HTMLInputElement>) =>
+              setHotelName(e.target.value)
+            }
             placeholder="Введите название гостиницы (необязательно)"
           />
         </div>
@@ -111,22 +119,20 @@ const SearchHotels = () => {
           <input
             type="text"
             placeholder="Заезд"
-            value={formatDateForDisplay(checkInDate)}
+            value={formatDateForDisplay(dateStart)}
             readOnly
-            onClick={(e: FormEvent) => {
-              e.preventDefault();
-              setCalendarState(true);
+            onClick={() => {
+              setShowCalendar(true);
             }}
           />
           <span>-</span>
           <input
             type="text"
             placeholder="Выезд"
-            value={formatDateForDisplay(departureDate)}
+            value={formatDateForDisplay(dateEnd)}
             readOnly
-            onClick={(e: FormEvent) => {
-              e.preventDefault();
-              setCalendarState(true);
+            onClick={() => {
+              setShowCalendar(true);
             }}
           />
         </div>
@@ -136,17 +142,24 @@ const SearchHotels = () => {
           </button>
         </div>
       </form>
-      {calendarState && (
+    );
+  };
+
+  return (
+    <div className="hotel-catalog-search-card container-main-title">
+      <h1>Поиск гостиницы</h1>
+      {showSearchForm()}
+      {showCalendar && (
         <Calendar
           currentDate={currentDate}
           handleOnBtnPress={handleOnBtnPress}
           handleOnDayClick={handleOnDayClick}
-          checkInDate={checkInDate}
-          departureDate={departureDate}
+          dateStart={dateStart}
+          dateEnd={dateEnd}
         />
       )}
     </div>
   );
 };
 
-export default SearchHotels;
+export default SearchForm;

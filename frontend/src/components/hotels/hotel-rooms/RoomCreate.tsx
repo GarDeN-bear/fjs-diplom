@@ -1,13 +1,15 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 
 import * as utils from "../../../utils/utils";
-import { useRoomEdit } from "../../context/RoomEditContext";
 import RoomCard from "./RoomCard";
-import { useNavigate } from "react-router-dom";
 import { RoomCardMode, useHotels } from "../../context/HotelsContext";
+import { useRoomCreate } from "../../context/RoomCreateContext";
+import { useNavigate } from "react-router-dom";
 
-const RoomEdit = () => {
-  const { room, setRoom, onHandleSubmit } = useRoomEdit();
+const RoomCreate = () => {
+  const [room, setRoom] = useState<utils.HotelRoom>(utils.emptyRoom);
+
+  const { onHandleSubmit } = useRoomCreate();
   const { returnToMain } = useHotels();
 
   const navigate = useNavigate();
@@ -16,7 +18,7 @@ const RoomEdit = () => {
     if (returnToMain) navigate("/");
 
     utils.scrollToTop();
-  }, [room]);
+  }, [room.images]);
 
   const handleChange = async (
     field: keyof utils.HotelRoom,
@@ -31,10 +33,13 @@ const RoomEdit = () => {
     }
   };
 
-  const showEditView = () => {
+  const showRoomCreateView = () => {
+    if (!room) return;
+
     return (
       <form
-        onSubmit={() => {
+        onSubmit={(e: FormEvent) => {
+          e.preventDefault();
           onHandleSubmit(room);
         }}
         className="hotel-create-form"
@@ -44,7 +49,7 @@ const RoomEdit = () => {
             Изображения
           </label>
           <div className="room-cards">
-            <RoomCard mode={RoomCardMode.Common} roomData={room} />
+            <RoomCard mode={RoomCardMode.Create} roomData={room} />
           </div>
           <input
             id="images"
@@ -71,13 +76,13 @@ const RoomEdit = () => {
 
         <div className="form-actions">
           <button type="submit" className="btn btn-primary">
-            Обновить
+            Добавить
           </button>
           <button
             type="button"
             className="btn btn-secondary"
             onClick={() => {
-              useNavigate()("/hotel/edit");
+              useNavigate()("/");
             }}
           >
             Отменить
@@ -89,10 +94,10 @@ const RoomEdit = () => {
 
   return (
     <section className="hotel-create">
-      <h1 className="container-main-title">Редактирование номера</h1>
-      {showEditView()}
+      <h1 className="container-main-title">Добавление номера</h1>
+      {showRoomCreateView()}
     </section>
   );
 };
 
-export default RoomEdit;
+export default RoomCreate;

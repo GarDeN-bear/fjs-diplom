@@ -1,53 +1,29 @@
-import { useState, useEffect, } from "react";
+import { useState, useEffect } from "react";
 
 import * as utils from "../../utils/utils";
-import SearchHotels from "./SearchHotels";
-import { useSearch } from "../context/SearchContext";
-import { useHotels, HotelsMode } from "../context/HotelsContext";
+import { HotelCardMode, useHotels } from "../context/HotelsContext";
 import HotelCard from "./HotelCard";
 import Pagination from "../common/Pagination";
-import { useHotelCard, HotelCardMode } from "../context/HotelCardContext";
 
 const HotelsCatalog = () => {
-  const [hotelsSearch, setHotelsSearch] = useState<utils.Hotel[]>([]);
   const [hotelsOnPage, setHotelsOnPage] = useState<utils.Hotel[]>([]);
   const [currentNumber, setCurrentNumber] = useState(1);
   const [numbers, setNumbers] = useState<number[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const { checkInDate, departureDate } = useSearch();
-
-  const { hotels, mode, setHotels } = useHotels();
-  const { setMode, } = useHotelCard();
+  const { hotels, setHotels, setReturnToMain } = useHotels();
 
   useEffect(() => {
-    switch (mode) {
-      case HotelsMode.Search:
-        fetchSearchHotels().finally(() => setLoading(false));
-        break;
-      default:
-        fetchHotels().finally(() => setLoading(false));
-        break;
-    }
-
-    setMode(HotelCardMode.Catalog);
-  }, [mode]);
+    fetchHotels().finally(() => setLoading(false));
+    setReturnToMain(false);
+  }, []);
 
   useEffect(() => {
     fetchHotelsOnPage();
-  }, [hotels, hotelsSearch, currentNumber]);
+  }, [hotels, currentNumber]);
 
   useEffect(() => {
-  const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth"
-    });
-  };
-
-  requestAnimationFrame(() => {
-    requestAnimationFrame(scrollToTop);
-  });
+    utils.scrollToTop();
   }, [hotelsOnPage]);
 
   const fetchHotelsOnPage = async () => {
@@ -79,61 +55,12 @@ const HotelsCatalog = () => {
     }
   };
 
-  const fetchSearchHotels = async () => {
-    try {
-      const response = await fetch(
-        `${
-          utils.VITE_BACKEND_URL
-        }/api/common/hotel-rooms?limit=${utils.limit.toString()}&offset=${(
-          (currentNumber - 1) *
-          utils.itemsOnPage
-        ).toString()}&dateStart=${checkInDate}&dateEnd=${departureDate}`
-      );
-
-      const data: utils.HotelRoom[] = await response.json();
-      const foundHotels: utils.Hotel[] = findHotelsByRooms(data);
-      setHotelsSearch(foundHotels);
-      const totalPages = Math.ceil(foundHotels.length / utils.itemsOnPage);
-      const numbers = [];
-      for (let i = 1; i <= totalPages; i++) {
-        numbers.push(i);
-      }
-      setNumbers(numbers);
-    } catch (error) {
-      console.log("Ошибка: ", error);
-    }
-  };
-
-  const findHotelsByRooms = (rooms: utils.HotelRoom[]): utils.Hotel[] => {
-    const result: utils.Hotel[] = [];
-    Array.from(rooms).forEach((room) => {
-      const foundHotel = hotels.find((hotel) => hotel._id === room._id);
-
-      if (foundHotel) {
-        result.push(foundHotel);
-      }
-    });
-    return result;
-  };
-
-  const showHeaderView = () => {
-    return (
-      <>
-        {mode === HotelsMode.Search ? (
-          <SearchHotels />
-        ) : (
-          <h1 className="container-main-title">Все гостиницы</h1>
-        )}
-      </>
-    );
-  };
-
   const showHotelCatalogView = () => {
     return (
       <div className="hotels-list">
         {hotelsOnPage.map((hotel, index) => (
           <div key={index} className="hotel-card">
-            <HotelCard hotelData={hotel} />
+            <HotelCard mode={HotelCardMode.Catalog} hotelData={hotel} />
           </div>
         ))}
       </div>
@@ -144,7 +71,8 @@ const HotelsCatalog = () => {
 
   return (
     <div className="hotel-catalog">
-      {showHeaderView()} {showHotelCatalogView()}
+      <h1 className="container-main-title">Все гостиницы</h1>
+      {showHotelCatalogView()}
       <Pagination
         currentNumber={currentNumber}
         numbers={numbers}

@@ -2,18 +2,27 @@ import React, { createContext, useContext, useState } from "react";
 
 import * as utils from "../../utils/utils";
 
-export enum HotelsMode {
+export enum HotelCardMode {
   Common,
-  Search,
+  Catalog,
+  None,
+}
+
+export enum RoomCardMode {
+  Common,
+  Create,
+  Hotel,
+  HotelCatalog,
+  None,
 }
 
 interface HotelsContextType {
-  mode: HotelsMode;
+  returnToMain: boolean;
   hotels: utils.Hotel[];
   rooms: utils.HotelRoom[];
   setHotels: (hotel: utils.Hotel[]) => void;
   setRooms: (rooms: utils.HotelRoom[]) => void;
-  setMode: (mode: HotelsMode) => void;
+  setReturnToMain: (flag: boolean) => void;
 }
 
 const HotelsContext = createContext<HotelsContextType | null>(null);
@@ -21,15 +30,15 @@ const HotelsContext = createContext<HotelsContextType | null>(null);
 export const HotelsProvider = ({ children }: { children: React.ReactNode }) => {
   const [hotels, setHotels] = useState<utils.Hotel[]>([]);
   const [rooms, setRooms] = useState<utils.HotelRoom[]>([]);
-  const [mode, setMode] = useState<HotelsMode>(HotelsMode.Common);
+  const [returnToMain, setReturnToMain] = useState<boolean>(true);
 
   const value: HotelsContextType = {
-    mode,
     hotels,
     rooms,
-    setMode,
+    returnToMain,
     setHotels,
     setRooms,
+    setReturnToMain,
   };
 
   return (

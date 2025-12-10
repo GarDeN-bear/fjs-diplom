@@ -1,19 +1,26 @@
-import {Injectable, NotFoundException} from '@nestjs/common';
-import {InjectModel} from '@nestjs/mongoose';
-import {Model} from 'mongoose';
-import {Reservation, ReservationDocument,} from 'src/reservations/schemas/reservation.schema';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import {
+  Reservation,
+  ReservationDocument,
+} from 'src/reservations/schemas/reservation.schema';
 
-import {CreateHotelRoomDto, SearchRoomsParamsDto, UpdateHotelRoomParamsDto,} from './dto/hotel-room.dto';
-import {IHotelRoomService} from './interfaces/hotel-room.interface';
-import {HotelRoom, HotelRoomDocument} from './schemas/hotel-room.schema';
+import {
+  CreateHotelRoomDto,
+  SearchRoomsParamsDto,
+  UpdateHotelRoomParamsDto,
+} from './dto/hotel-room.dto';
+import { IHotelRoomService } from './interfaces/hotel-room.interface';
+import { HotelRoom, HotelRoomDocument } from './schemas/hotel-room.schema';
 
 @Injectable()
 export class HotelRoomsService implements IHotelRoomService {
   constructor(
-      @InjectModel(HotelRoom.name) private hotelRoomModel:
-          Model<HotelRoomDocument>,
-      @InjectModel(Reservation.name) private reservationModel:
-          Model<ReservationDocument>,
+    @InjectModel(HotelRoom.name)
+    private hotelRoomModel: Model<HotelRoomDocument>,
+    @InjectModel(Reservation.name)
+    private reservationModel: Model<ReservationDocument>,
   ) {}
 
   async create(data: CreateHotelRoomDto): Promise<HotelRoomDocument> {
@@ -22,8 +29,10 @@ export class HotelRoomsService implements IHotelRoomService {
   }
 
   async findById(id: string): Promise<HotelRoomDocument> {
-    const hotelRoom =
-        await this.hotelRoomModel.findById(id).populate('hotel').exec();
+    const hotelRoom = await this.hotelRoomModel
+      .findById(id)
+      .populate('hotel')
+      .exec();
     if (!hotelRoom) {
       throw new NotFoundException('Room was not found');
     }
@@ -31,7 +40,7 @@ export class HotelRoomsService implements IHotelRoomService {
   }
 
   async search(params: SearchRoomsParamsDto): Promise<HotelRoomDocument[]> {
-    const {limit, offset, hotel, dateStart, dateEnd, isEnabled} = params;
+    const { limit, offset, hotel, dateStart, dateEnd, isEnabled } = params;
 
     const searchQuery: any = {};
     if (hotel) {
@@ -44,17 +53,18 @@ export class HotelRoomsService implements IHotelRoomService {
       searchQuery.isEnabled = false;
     }
 
-    const allPotentialRooms =
-        await this.hotelRoomModel.find(searchQuery).populate('hotel').exec();
-
+    const allPotentialRooms = await this.hotelRoomModel
+      .find(searchQuery)
+      .populate('hotel')
+      .exec();
     const availableRooms: HotelRoomDocument[] = [];
     let paginatedRooms: HotelRoomDocument[] = [];
     if (dateStart && dateEnd) {
       for (const room of allPotentialRooms) {
         const isAvailable = await this.isRoomAvailable(
-            room.id,
-            dateStart,
-            dateEnd,
+          room.id,
+          dateStart,
+          dateEnd,
         );
         if (isAvailable) {
           availableRooms.push(room);
@@ -68,29 +78,29 @@ export class HotelRoomsService implements IHotelRoomService {
   }
 
   private async isRoomAvailable(
-      roomId: string,
-      dateStart: Date,
-      dateEnd: Date,
-      ): Promise<boolean> {
+    roomId: string,
+    dateStart: Date,
+    dateEnd: Date,
+  ): Promise<boolean> {
     const overlappingReservation = await this.reservationModel
-                                       .findOne({
-                                         roomId: roomId,
-                                         dateEnd: {$gt: dateStart},
-                                         dateStart: {$lt: dateEnd},
-                                       })
-                                       .exec();
+      .findOne({
+        roomId: roomId,
+        dateEnd: { $gt: dateStart },
+        dateStart: { $lt: dateEnd },
+      })
+      .exec();
 
     return !overlappingReservation;
   }
 
   async update(
-      id: string,
-      data: UpdateHotelRoomParamsDto,
-      ): Promise<HotelRoomDocument> {
-    const hotelRoom =
-        await this.hotelRoomModel.findByIdAndUpdate(id, data, {new: true})
-            .populate('hotel')
-            .exec();
+    id: string,
+    data: UpdateHotelRoomParamsDto,
+  ): Promise<HotelRoomDocument> {
+    const hotelRoom = await this.hotelRoomModel
+      .findByIdAndUpdate(id, data, { new: true })
+      .populate('hotel')
+      .exec();
     if (!hotelRoom) {
       throw new NotFoundException('Room was not found');
     }

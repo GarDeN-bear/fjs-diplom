@@ -1,77 +1,44 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, type ReactNode } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-
 import * as utils from "../../../utils/utils";
-import { EditMode, useEdit } from "../../context/EditContext";
-import { useRoomCard, RoomCardMode } from "../../context/RoomCardContext";
-
+import { RoomCardMode } from "../../context/HotelsContext";
+import { useSearch } from "../../context/HotelsSearchContext";
 interface RoomCardProps {
-  hotelId?: string;
+  mode: RoomCardMode;
   roomData?: utils.HotelRoom;
-  showEditView?: boolean;
+  roomCardAddView?: (room: utils.HotelRoom) => ReactNode;
 }
 
-const RoomCard = ({
-  hotelId = "",
-  roomData = utils.emptyRoom,
-  showEditView = false,
-}: RoomCardProps) => {
-  const roomId = useParams().id ?? null; //!TODO Проверить
-  const [rooms, setRooms] = useState<utils.HotelRoom[]>([]);
-  const [room, setRoom] = useState<utils.HotelRoom>();
+const RoomCard = ({ mode, roomData, roomCardAddView }: RoomCardProps) => {
+  const roomId = useParams().id;
+  const [room, setRoom] = useState<utils.HotelRoom>(utils.emptyRoom);
   const [loading, setLoading] = useState(true);
 
-  const { hotelMode, removeRoom, setRoomToEdit, setHotelClear, setRoomMode } =
-    useEdit();
-
-  const { mode } = useRoomCard();
-
+  const { checkInDate, departureDate } = useSearch();
   const navigate = useNavigate();
 
   useEffect(() => {
+    let id: string | undefined = roomId;
+
     switch (mode) {
-      case RoomCardMode.HotelCatalog:
-        fetchRooms().finally(() => setLoading(false));
-        break;
-      case RoomCardMode.Common:
-        if (roomData) {
-          setRoom(roomData);
-          setLoading(false);
-        } else {
-          fetchRoom().finally(() => setLoading(false));
-        }
-        break;
       case RoomCardMode.Hotel:
-        if (roomData) {
-          setRoom(roomData);
-          setLoading(false);
-        }
+      case RoomCardMode.HotelCatalog:
+      case RoomCardMode.Create:
+        if (roomData) setRoom(roomData);
+        setLoading(false);
         break;
       default:
-        setLoading(false);
+        fetchRoom(id).finally(() => setLoading(false));
         break;
     }
   }, [roomData]);
 
-  const fetchRooms = async () => {
+  const fetchRoom = async (id?: string) => {
+    if (!id) return;
+
     try {
       const response = await fetch(
-        `${
-          utils.VITE_BACKEND_URL
-        }/api/common/hotel-rooms?limit=${utils.limit.toString()}&offset=${utils.offset.toString()}&hotel=${hotelId}`
-      );
-      const data: utils.HotelRoom[] = await response.json();
-
-      setRooms(data);
-    } catch (error) {
-      console.error("Ошибка: ", error);
-    }
-  };
-
-  const fetchRoom = async () => {
-    try {
-      const response = await fetch(
-        `${utils.VITE_BACKEND_URL}/api/common/hotel-rooms/${roomId}`
+        `${utils.VITE_BACKEND_URL}/api/common/hotel-rooms/${id}`
       );
 
       const data: utils.HotelRoom = await response.json();
@@ -81,90 +48,84 @@ const RoomCard = ({
     }
   };
 
-  const roomCardHotelCatalogView = () => {
-    const room: utils.HotelRoom | null = rooms.at(0) ?? null;
-    return <>{roomCardHotelView(room)}</>;
+  const sendCreateReservationData = async () => {
+    if (!roomId || !checkInDate || !departureDate) {
+      return;
+    }
+    try {
+      const reservation: utils.CreateReservation = {
+        userId: "",
+        hotelId: "",
+        roomId: "",
+        dateStart: checkInDate,
+        dateEnd: departureDate,
+      };
+
+      const response = await fetch(
+        `${utils.VITE_BACKEND_URL}/api/client/reservations/`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(reservation),
+          credentials: "include",
+        }
+      );
+
+      if (!response.ok) {
+        const error = await response.text();
+        throw new Error(`Ошибка при бронировании комнаты отеля: ${error}`);
+      }
+
+      const result = await response.json();
+      console.log("Комната забронированя с файлами:", result);
+    } catch (error) {
+      throw new Error(`Ошибка при бронировании комнаты отеля: ${error}`);
+    }
   };
 
-  const roomCardCommonView = (room: utils.HotelRoom | null) => {
+  const handleOnReservationBtn = () => {
+    sendCreateReservationData();
+    navigate("/");
+  };
+
+  const roomCardCommonView = () => {
     return (
       <>
-        {room?.images &&
-          room.images.map((image, index) => (
-            <div key={index} className="room-image">
-              <img
-                src={utils.getImageUrl(image)}
-                alt={`Комната ${index + 1}`}
-              />
-              {showEditView && (
-                <div className="room-image-btns">
-                  <button
-                    className="btn-edit"
-                    onClick={() => {
-                      setRoomToEdit(room);
-                      setRoomMode(EditMode.Edit);
-                      setHotelClear(false);
-                      navigate(`/room/edit/${room?._id}`);
-                    }}
-                    title="Редактировать"
-                  >
-                    ✏️
-                  </button>
-
-                  <button
-                    className="btn-edit btn-remove"
-                    onClick={() => removeRoom(room)}
-                    title="Удалить"
-                  >
-                    ×
-                  </button>
-                </div>
-              )}
+        {room.images.map((image, index) => (
+          <div key={index} className="room-image">
+            <img src={utils.getImageUrl(image)} alt={`Комната ${index + 1}`} />
+            <div className="form-actions">
+              {/* <button
+                className="btn btn-primary"
+                onClick={() => handleOnReservationBtn()}
+              >
+                Забронировать
+              </button> */}
             </div>
-          ))}
+            {roomCardAddView && roomCardAddView(room)}
+          </div>
+        ))}
         <div className="room-card-description">
-          <p>{room?.description}</p>
+          <p>{room.description}</p>
         </div>
       </>
     );
   };
 
-  const roomCardHotelView = (room: utils.HotelRoom | null) => {
+  const roomCardHotelView = () => {
     return (
       <>
         <div className="room-image">
-          {room?.images && room.images.length > 0 && (
+          {room.images.length > 0 && (
             <img src={utils.getImageUrl(room.images[0])} alt="Комната" />
           )}
-          {room && showEditView && (
-            <div className="room-image-btns">
-              {hotelMode === EditMode.Edit && (
-                <button
-                  className="btn-edit"
-                  onClick={() => {
-                    setRoomToEdit(room);
-                    setRoomMode(EditMode.Edit);
-                    navigate(`/room/edit/${room?._id}`);
-                  }}
-                  title="Редактировать"
-                >
-                  ✏️
-                </button>
-              )}
-
-              <button
-                className="btn-edit btn-remove"
-                onClick={() => removeRoom(room, hotelMode === EditMode.Edit)}
-                title="Удалить"
-              >
-                ×
-              </button>
-            </div>
-          )}
+          {roomCardAddView && roomCardAddView(room)}
         </div>
         {mode !== RoomCardMode.HotelCatalog && (
           <div className="room-card-description">
-            <p>{room?.description}</p>
+            <p>{room.description}</p>
           </div>
         )}
       </>
@@ -173,16 +134,11 @@ const RoomCard = ({
 
   const showRoomCard = () => {
     switch (mode) {
-      case RoomCardMode.Common:
-        if (room) return roomCardCommonView(room);
-        break;
       case RoomCardMode.Hotel:
-        if (room) return roomCardHotelView(room);
-        break;
       case RoomCardMode.HotelCatalog:
-        return roomCardHotelCatalogView();
-      case RoomCardMode.Catalog:
-        break;
+        return roomCardHotelView();
+      default:
+        return roomCardCommonView();
     }
   };
 
