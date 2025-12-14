@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState } from "react";
-import * as utils from "../../utils/utils";
+import * as utils from "../../../utils/utils";
 
 interface SearchContextType {
   hotels: utils.Hotel[];
@@ -7,13 +7,13 @@ interface SearchContextType {
   hotelName: string;
   dateStart: Date | null;
   dateEnd: Date | null;
-  calendarState: boolean;
+  showCalendar: boolean;
   setHotels: (hotel: utils.Hotel[]) => void;
   setRooms: (rooms: utils.HotelRoom[]) => void;
   setHotelName: (name: string) => void;
   setDateStart: (date: Date | null) => void;
   setDateEnd: (date: Date | null) => void;
-  setCalendarState: (state: boolean) => void;
+  setShowCalendar: (state: boolean) => void;
 }
 
 const HotelsSearchContext = createContext<SearchContextType | null>(null);
@@ -28,7 +28,7 @@ export const HotelsSearchProvider = ({
   const [hotelName, setHotelName] = useState<string>("");
   const [dateStart, setDateStart] = useState<Date | null>(null);
   const [dateEnd, setDateEnd] = useState<Date | null>(null);
-  const [calendarState, setCalendarState] = useState<boolean>(false);
+  const [showCalendar, setShowCalendar] = useState<boolean>(false);
 
   const value: SearchContextType = {
     hotels,
@@ -36,13 +36,13 @@ export const HotelsSearchProvider = ({
     hotelName,
     dateStart,
     dateEnd,
-    calendarState,
+    showCalendar,
     setHotels,
     setRooms,
     setHotelName,
     setDateStart,
     setDateEnd,
-    setCalendarState,
+    setShowCalendar,
   };
 
   return (

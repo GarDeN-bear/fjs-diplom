@@ -1,22 +1,24 @@
 import { Route, Routes } from "react-router-dom";
 import HotelCatalog from "./hotels/HotelsCatalog";
 import HotelCard from "./hotels/HotelCard";
-import { HotelsSearchProvider } from "./context/HotelsSearchContext";
-import RoomEdit from "./hotels/hotel-rooms/RoomEdit";
-import HotelEdit from "./hotels/HotelEdit";
+import { HotelsSearchProvider } from "./context/hotels/HotelsSearchContext";
+import RoomEdit from "./hotels/hotels-management/hotel-rooms/RoomEdit";
+import HotelEdit from "./hotels/hotels-management/HotelEdit";
 import {
   HotelCardMode,
   HotelsProvider,
   RoomCardMode,
-} from "./context/HotelsContext";
+} from "./context/hotels/HotelsContext";
 import RoomCard from "./hotels/hotel-rooms/RoomCard";
-import { HotelCreateProvider } from "./context/HotelCreateContext";
-import RoomCreate from "./hotels/hotel-rooms/RoomCreate";
-import { RoomCreateProvider } from "./context/RoomCreateContext";
-import { HotelEditProvider } from "./context/HotelEditContext";
-import { RoomEditProvider } from "./context/RoomEditContext";
-import HotelCreate from "./hotels/HotelCreate";
-import HotelsSearch from "./hotels/HotelsSearch";
+import { HotelCreateProvider } from "./context/hotels/HotelCreateContext";
+import RoomCreate from "./hotels/hotels-management/hotel-rooms/RoomCreate";
+import { RoomCreateProvider } from "./context/hotels/RoomCreateContext";
+import { HotelEditProvider } from "./context/hotels/HotelEditContext";
+import { RoomEditProvider } from "./context/hotels/RoomEditContext";
+import HotelCreate from "./hotels/hotels-management/HotelCreate";
+import HotelsSearch from "./hotels/hotels-search/HotelsSearch";
+import LoginCard from "./auth/LoginCard";
+import RegisterCard from "./auth/RegisterCard";
 
 const AppProviders = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -56,6 +58,8 @@ const Main = () => {
           />
           <Route path="/hotel/edit/:id" element={<HotelEdit />} />
           <Route path="/hotel/create" element={<HotelCreate />} />
+          <Route path="/auth/login" element={<LoginCard />} />
+          <Route path="/auth/register" element={<RegisterCard />} />
         </Routes>
       </AppProviders>
     </section>

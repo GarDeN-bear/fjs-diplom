@@ -21,7 +21,7 @@
 .container-header {
   height: 10vh;
   margin-top: 5%;
-  margin-bottom: 5%;
+  margin-bottom: 7.5%;
 }
 
 .col-logo {
@@ -56,6 +56,9 @@
 }
 
 .col-nav {
+  display: flex;
+  justify-content: flex-end;
+
   width: 70%;
   height: 100%;
   background-color: white;
@@ -324,5 +327,44 @@
 
 .btn-remove {
   font-size: 2vw;
-  line-height: 0; /* Совпадает с высотой кнопки */
+  line-height: 0;
+}
+
+.avatar-btn {
+  width: 2.5vw;
+  height: 10vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #079aa2;
+  border-radius: 50%;
+  border: 1%;
+}
+
+.avatar-btn img {
+  width: 2.5vw;
+  height: 8vh;
+
+  object-fit: contain;
+  cursor: pointer;
+}
+
+.auth-menu {
+  position: absolute;
+  top: 27%;
+  background-color: white;
+  border-radius: 0.5vw;
+  padding: 1vw;
+}
+
+.auth-menu li {
+  text-decoration: none;
+  list-style-type: none;
+  cursor: pointer;
+  color: #adb6bd;
+  margin-bottom: 10%;
+}
+
+.auth-menu li:hover {
+  background-color: #079aa2;
 }

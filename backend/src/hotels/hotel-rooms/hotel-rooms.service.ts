@@ -55,7 +55,6 @@ export class HotelRoomsService implements IHotelRoomService {
 
     const allPotentialRooms = await this.hotelRoomModel
       .find(searchQuery)
-      .populate('hotel')
       .exec();
     const availableRooms: HotelRoomDocument[] = [];
     let paginatedRooms: HotelRoomDocument[] = [];
@@ -74,6 +73,7 @@ export class HotelRoomsService implements IHotelRoomService {
     } else {
       paginatedRooms = allPotentialRooms.slice(offset, offset + limit);
     }
+
     return paginatedRooms;
   }
 

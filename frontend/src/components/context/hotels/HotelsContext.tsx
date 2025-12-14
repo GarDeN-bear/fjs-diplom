@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState } from "react";
 
-import * as utils from "../../utils/utils";
+import * as utils from "../../../utils/utils";
 
 export enum HotelCardMode {
   Common,

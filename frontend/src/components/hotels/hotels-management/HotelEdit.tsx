@@ -2,12 +2,15 @@ import { useCallback, useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
-import * as utils from "../../utils/utils";
-import { useHotelEdit, ActionMode } from "../context/HotelEditContext";
-import RoomCard from "./hotel-rooms/RoomCard";
-import { RoomCardMode, useHotels } from "../context/HotelsContext";
-import { useRoomCreate } from "../context/RoomCreateContext";
-import { useRoomEdit } from "../context/RoomEditContext";
+import * as utils from "../../../utils/utils";
+import {
+  useHotelEdit,
+  ActionMode,
+} from "../../context/hotels/HotelEditContext";
+import RoomCard from "../../hotels/hotel-rooms/RoomCard";
+import { RoomCardMode, useHotels } from "../../context/hotels/HotelsContext";
+import { useRoomCreate } from "../../context/hotels/RoomCreateContext";
+import { useRoomEdit } from "../../context/hotels/RoomEditContext";
 
 const HotelEdit = () => {
   const id: string | undefined = useParams().id;

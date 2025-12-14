@@ -1,7 +1,7 @@
 import { useState, type FormEvent, type ChangeEvent } from "react";
-import * as utils from "../../utils/utils";
+import * as utils from "../../../utils/utils";
 import Calendar from "./Calendar";
-import { useHotelsSearch } from "../context/HotelsSearchContext";
+import { useHotelsSearch } from "../../context/hotels/HotelsSearchContext";
 
 interface SearchFormPrompt {
   handleSubmit: () => void;
@@ -10,12 +10,13 @@ interface SearchFormPrompt {
 const SearchForm = ({ handleSubmit }: SearchFormPrompt) => {
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
   const [isDateStartSetup, setIsDateStartSetup] = useState<boolean>(true);
-  const [showCalendar, setShowCalendar] = useState<boolean>(true);
 
   const {
     dateStart,
     dateEnd,
     hotelName,
+    showCalendar,
+    setShowCalendar,
     setDateStart,
     setDateEnd,
     setHotelName,
@@ -71,19 +72,19 @@ const SearchForm = ({ handleSubmit }: SearchFormPrompt) => {
 
     const selectedDate = new Date(selectedYear, selectedMonth, day);
     if (isDateStartSetup) {
-      if (dateStart === null) {
-        setDateEnd(selectedDate);
-      } else if (selectedDate > dateStart) {
-        setDateEnd(selectedDate);
-      }
-    } else {
       if (dateEnd === null) {
         setDateStart(selectedDate);
       } else if (selectedDate < dateEnd) {
         setDateStart(selectedDate);
       }
+    } else {
+      if (dateStart === null) {
+        setDateEnd(selectedDate);
+      } else if (selectedDate > dateStart) {
+        setDateEnd(selectedDate);
+      }
     }
-    setIsDateStartSetup(isDateStartSetup);
+    setIsDateStartSetup(!isDateStartSetup);
   };
 
   const formatDateForDisplay = (date: Date | null): string => {
@@ -101,8 +102,8 @@ const SearchForm = ({ handleSubmit }: SearchFormPrompt) => {
       <form
         onSubmit={(e: FormEvent) => {
           e.preventDefault();
-          handleSubmit();
           setShowCalendar(false);
+          handleSubmit();
         }}
       >
         <div className="form-group">

@@ -1,6 +1,6 @@
 import React, { createContext, useCallback, useContext, useState } from "react";
 
-import * as utils from "../../utils/utils";
+import * as utils from "../../../utils/utils";
 
 interface RoomEditContextType {
   room: utils.HotelRoom;

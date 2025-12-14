@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useCallback, useState } from "react";
 
-import * as utils from "../../utils/utils";
+import * as utils from "../../../utils/utils";
 
 interface RoomCreateContextType {
   onHandleSubmit: (room: utils.HotelRoom) => void;

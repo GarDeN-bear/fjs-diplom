@@ -2,11 +2,11 @@ import { useEffect, useCallback, useState } from "react";
 import type { FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 
-import * as utils from "../../utils/utils";
-import RoomCard from "./hotel-rooms/RoomCard";
-import { useHotelCreate } from "../context/HotelCreateContext";
-import { RoomCardMode, useHotels } from "../context/HotelsContext";
-import { useRoomCreate } from "../context/RoomCreateContext";
+import * as utils from "../../../utils/utils";
+import RoomCard from "../hotel-rooms/RoomCard";
+import { useHotelCreate } from "../../context/hotels/HotelCreateContext";
+import { RoomCardMode, useHotels } from "../../context/hotels/HotelsContext";
+import { useRoomCreate } from "../../context/hotels/RoomCreateContext";
 
 const HotelCreate = () => {
   const [loading, setLoading] = useState(false);

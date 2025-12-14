@@ -1,7 +1,15 @@
-import {PartialType} from '@nestjs/mapped-types';
-import {Transform, Type} from 'class-transformer';
-import {IsArray, IsBoolean, IsDate, IsNumber, IsOptional, IsString, Min} from 'class-validator';
-import {console} from 'inspector';
+import { PartialType } from '@nestjs/mapped-types';
+import { Transform, Type } from 'class-transformer';
+import {
+  IsArray,
+  IsBoolean,
+  IsDate,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Min,
+} from 'class-validator';
+import { console } from 'inspector';
 
 export class CreateHotelRoomDto {
   @IsString() hotel: string;
@@ -10,7 +18,7 @@ export class CreateHotelRoomDto {
 
   @IsOptional()
   @IsArray()
-  @Transform(({value}) => {
+  @Transform(({ value }) => {
     if (typeof value === 'string') {
       try {
         const parsed = JSON.parse(value);
@@ -28,7 +36,7 @@ export class CreateHotelRoomDto {
 
   @IsOptional()
   @IsBoolean()
-  @Transform(({value}) => {
+  @Transform(({ value }) => {
     if (typeof value === 'string') {
       if (value === 'true') return true;
       if (value === 'false') return false;
@@ -46,14 +54,33 @@ export class SearchRoomsParamsDto {
 
   @IsNumber() @Min(0) @Type(() => Number) offset: number = 0;
 
-  @IsString() hotel: string;
+  @IsString()
+  @IsOptional()
+  hotel: string;
 
-  @IsDate() @IsOptional() dateStart: Date;
+  @IsDate()
+  @IsOptional()
+  @Transform(({ value }) => (value ? new Date(value) : null))
+  dateStart: Date;
 
-  @IsDate() @IsOptional() dateEnd: Date;
+  @IsDate()
+  @IsOptional()
+  @Transform(({ value }) => (value ? new Date(value) : null))
+  dateEnd: Date;
 
-  @IsBoolean() @IsOptional() isEnabled?: boolean;
+  @IsBoolean()
+  @IsOptional()
+  @Transform(({ value }) => {
+    if (typeof value === 'string') {
+      if (value === 'true') return true;
+      if (value === 'false') return false;
+    } else {
+      if (value === true) return true;
+      if (value === false) return false;
+    }
+    return value;
+  })
+  isEnabled?: boolean;
 }
 
-export class UpdateHotelRoomParamsDto extends PartialType
-(CreateHotelRoomDto) {}
+export class UpdateHotelRoomParamsDto extends PartialType(CreateHotelRoomDto) {}

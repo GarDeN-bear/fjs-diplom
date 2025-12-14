@@ -1,8 +1,8 @@
 import { useState, useEffect, type ReactNode } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import * as utils from "../../../utils/utils";
-import { RoomCardMode } from "../../context/HotelsContext";
-import { useSearch } from "../../context/HotelsSearchContext";
+import { RoomCardMode } from "../../context/hotels/HotelsContext";
+import { useHotelsSearch } from "../../context/hotels/HotelsSearchContext";
 interface RoomCardProps {
   mode: RoomCardMode;
   roomData?: utils.HotelRoom;
@@ -14,8 +14,9 @@ const RoomCard = ({ mode, roomData, roomCardAddView }: RoomCardProps) => {
   const [room, setRoom] = useState<utils.HotelRoom>(utils.emptyRoom);
   const [loading, setLoading] = useState(true);
 
-  const { checkInDate, departureDate } = useSearch();
   const navigate = useNavigate();
+
+  const { dateStart, dateEnd } = useHotelsSearch();
 
   useEffect(() => {
     let id: string | undefined = roomId;
@@ -49,16 +50,17 @@ const RoomCard = ({ mode, roomData, roomCardAddView }: RoomCardProps) => {
   };
 
   const sendCreateReservationData = async () => {
-    if (!roomId || !checkInDate || !departureDate) {
+    if (!room.hotel || !roomId || !dateStart || !dateEnd) {
       return;
     }
+
     try {
       const reservation: utils.CreateReservation = {
         userId: "",
-        hotelId: "",
-        roomId: "",
-        dateStart: checkInDate,
-        dateEnd: departureDate,
+        hotelId: room.hotel,
+        roomId: roomId,
+        dateStart: dateStart,
+        dateEnd: dateEnd,
       };
 
       const response = await fetch(
@@ -97,12 +99,12 @@ const RoomCard = ({ mode, roomData, roomCardAddView }: RoomCardProps) => {
           <div key={index} className="room-image">
             <img src={utils.getImageUrl(image)} alt={`Комната ${index + 1}`} />
             <div className="form-actions">
-              {/* <button
+              <button
                 className="btn btn-primary"
                 onClick={() => handleOnReservationBtn()}
               >
                 Забронировать
-              </button> */}
+              </button>
             </div>
             {roomCardAddView && roomCardAddView(room)}
           </div>

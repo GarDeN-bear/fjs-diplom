@@ -32,6 +32,32 @@ export interface CreateReservation {
   dateEnd: Date;
 }
 
+export interface LoginUser {
+  email: string;
+  password: string;
+}
+
+export const emptyLoginUser: LoginUser = {
+  email: "",
+  password: "",
+};
+
+export interface RegisterUser {
+  email: string;
+  password: string;
+  name: string;
+  contactPhone?: string;
+  role?: string;
+}
+
+export const emptyRegisterUser: RegisterUser = {
+  email: "",
+  password: "",
+  name: "",
+  contactPhone: "",
+  role: "client",
+};
+
 export const limit: number = 1000;
 export const offset: number = 0;
 export const itemsOnPage: number = 3;

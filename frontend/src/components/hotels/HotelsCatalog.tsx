@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 
 import * as utils from "../../utils/utils";
-import { HotelCardMode, useHotels } from "../context/HotelsContext";
+import { HotelCardMode, useHotels } from "../context/hotels/HotelsContext";
 import HotelCard from "./HotelCard";
 import Pagination from "../common/Pagination";
 

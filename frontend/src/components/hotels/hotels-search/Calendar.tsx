@@ -1,6 +1,6 @@
-import "../../css/Calendar.css";
+import "../../../css/Calendar.css";
 
-import { DayOfMonth } from "../../utils/utils";
+import { DayOfMonth } from "../../../utils/utils";
 
 const daysOfWeek = [
   ["Понедельник", "Пн"],

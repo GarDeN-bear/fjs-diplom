@@ -1,15 +1,13 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect } from "react";
 
-import * as utils from "../../../utils/utils";
-import RoomCard from "./RoomCard";
-import { RoomCardMode, useHotels } from "../../context/HotelsContext";
-import { useRoomCreate } from "../../context/RoomCreateContext";
+import * as utils from "../../../../utils/utils";
+import { useRoomEdit } from "../../../context/hotels/RoomEditContext";
+import RoomCard from "../../hotel-rooms/RoomCard";
 import { useNavigate } from "react-router-dom";
+import { RoomCardMode, useHotels } from "../../../context/hotels/HotelsContext";
 
-const RoomCreate = () => {
-  const [room, setRoom] = useState<utils.HotelRoom>(utils.emptyRoom);
-
-  const { onHandleSubmit } = useRoomCreate();
+const RoomEdit = () => {
+  const { room, setRoom, onHandleSubmit } = useRoomEdit();
   const { returnToMain } = useHotels();
 
   const navigate = useNavigate();
@@ -18,7 +16,7 @@ const RoomCreate = () => {
     if (returnToMain) navigate("/");
 
     utils.scrollToTop();
-  }, [room.images]);
+  }, [room]);
 
   const handleChange = async (
     field: keyof utils.HotelRoom,
@@ -33,13 +31,10 @@ const RoomCreate = () => {
     }
   };
 
-  const showRoomCreateView = () => {
-    if (!room) return;
-
+  const showEditView = () => {
     return (
       <form
-        onSubmit={(e: FormEvent) => {
-          e.preventDefault();
+        onSubmit={() => {
           onHandleSubmit(room);
         }}
         className="hotel-create-form"
@@ -49,7 +44,7 @@ const RoomCreate = () => {
             Изображения
           </label>
           <div className="room-cards">
-            <RoomCard mode={RoomCardMode.Create} roomData={room} />
+            <RoomCard mode={RoomCardMode.Common} roomData={room} />
           </div>
           <input
             id="images"
@@ -76,13 +71,13 @@ const RoomCreate = () => {
 
         <div className="form-actions">
           <button type="submit" className="btn btn-primary">
-            Добавить
+            Обновить
           </button>
           <button
             type="button"
             className="btn btn-secondary"
             onClick={() => {
-              useNavigate()("/");
+              useNavigate()("/hotel/edit");
             }}
           >
             Отменить
@@ -94,10 +89,10 @@ const RoomCreate = () => {
 
   return (
     <section className="hotel-create">
-      <h1 className="container-main-title">Добавление номера</h1>
-      {showRoomCreateView()}
+      <h1 className="container-main-title">Редактирование номера</h1>
+      {showEditView()}
     </section>
   );
 };
 
-export default RoomCreate;
+export default RoomEdit;

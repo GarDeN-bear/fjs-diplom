@@ -4,8 +4,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import * as utils from "../../utils/utils";
 import RoomCard from "./hotel-rooms/RoomCard";
 
-import { HotelCardMode, RoomCardMode } from "../context/HotelsContext";
-import { useSearch } from "../context/HotelsSearchContext";
+import { HotelCardMode, RoomCardMode } from "../context/hotels/HotelsContext";
+import { useHotelsSearch } from "../context/hotels/HotelsSearchContext";
 
 interface HotelCardPrompt {
   mode: HotelCardMode;
@@ -18,8 +18,7 @@ const HotelCard = ({ mode, hotelData }: HotelCardPrompt) => {
   const [rooms, setRooms] = useState<utils.HotelRoom[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const { setHotelName } = useSearch();
-
+  const { dateStart, dateEnd, setHotelName } = useHotelsSearch();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -73,8 +72,8 @@ const HotelCard = ({ mode, hotelData }: HotelCardPrompt) => {
   };
 
   const handleOnReservationBtn = (title: string) => {
-    setHotelName(title);
     navigate(`/search`);
+    setHotelName(title);
   };
 
   const hotelCardCatalogView = () => {
@@ -109,12 +108,14 @@ const HotelCard = ({ mode, hotelData }: HotelCardPrompt) => {
           ))}
         </div>
         <div className="form-actions">
-          <button
-            className="btn btn-primary"
-            onClick={() => handleOnReservationBtn(hotel?.title)}
-          >
-            Забронировать
-          </button>
+          {(!dateStart || !dateEnd) && (
+            <button
+              className="btn btn-primary"
+              onClick={() => handleOnReservationBtn(hotel?.title)}
+            >
+              Забронировать
+            </button>
+          )}
           <button
             className="btn btn-primary"
             onClick={() => {
