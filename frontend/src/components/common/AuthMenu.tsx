@@ -2,7 +2,11 @@ import { useNavigate } from "react-router-dom";
 
 import { useAuth, Role } from "../context/auth/AuthContext";
 
-const AuthMenu = () => {
+interface AuthMenuPrompt {
+  setAuthMenuVisibility: (flag: boolean) => void;
+}
+
+const AuthMenu = ({ setAuthMenuVisibility }: AuthMenuPrompt) => {
   const { role, setRole } = useAuth();
 
   const navigate = useNavigate();
@@ -11,11 +15,32 @@ const AuthMenu = () => {
     <ul className="auth-menu">
       {role === Role.Common && (
         <>
-          <li onClick={() => navigate("/auth/login")}>Вход</li>
-          <li onClick={() => navigate("/auth/register")}>Регистрация</li>
+          <li
+            onClick={() => {
+              setAuthMenuVisibility(false);
+              navigate("/auth/login");
+            }}
+          >
+            Вход
+          </li>
+          <li
+            onClick={() => {
+              setAuthMenuVisibility(false);
+              navigate("/auth/register");
+            }}
+          >
+            Регистрация
+          </li>
         </>
       )}
-      <li onClick={() => setRole(Role.Common)}>Выход</li>
+      <li
+        onClick={() => {
+          setAuthMenuVisibility(false);
+          setRole(Role.Common);
+        }}
+      >
+        Выход
+      </li>
     </ul>
   );
 };

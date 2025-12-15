@@ -19,9 +19,9 @@
 }
 
 .container-header {
-  height: 10vh;
+  height: 2.5vw;
   margin-top: 5%;
-  margin-bottom: 7.5%;
+  margin-bottom: 5%;
 }
 
 .col-logo {
@@ -114,7 +114,7 @@
   flex-direction: column;
 }
 
-.hotel-create-form {
+.common-form {
   display: flex;
   flex-direction: column;
   row-gap: 5vh;
@@ -244,7 +244,7 @@
 
 .container-main-title,
 .container-description,
-.hotel-create-form {
+.common-form {
   background-color: white;
   margin: 0;
   padding: 2vw;
@@ -332,7 +332,7 @@
 
 .avatar-btn {
   width: 2.5vw;
-  height: 10vh;
+  height: 2.5vw;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -342,8 +342,8 @@
 }
 
 .avatar-btn img {
-  width: 2.5vw;
-  height: 8vh;
+  width: 2vw;
+  height: 2vw;
 
   object-fit: contain;
   cursor: pointer;
@@ -351,10 +351,10 @@
 
 .auth-menu {
   position: absolute;
-  top: 27%;
+  top: 6.5vw;
   background-color: white;
   border-radius: 0.5vw;
-  padding: 1vw;
+  padding: 0.5vw;
 }
 
 .auth-menu li {
@@ -367,4 +367,14 @@
 
 .auth-menu li:hover {
   background-color: #079aa2;
+}
+
+.radio-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.role-radio {
+  width: 1vw;
+  height: 1vw;
 }

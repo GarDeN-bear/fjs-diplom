@@ -6,7 +6,12 @@ const Header = () => {
   const [authMenuVisibility, setAuthMenuVisibility] = useState<boolean>(false);
 
   return (
-    <header className="container container-header">
+    <header
+      className="container container-header"
+      style={{
+        marginBottom: authMenuVisibility ? "7.5%" : "5%",
+      }}
+    >
       <div className="col-logo">
         <Link to="/">
           <img src="../../../assets/cat-svgrepo-com.svg" alt="logo" />
@@ -22,7 +27,9 @@ const Header = () => {
             }}
           />
         </button>
-        {authMenuVisibility && <AuthMenu />}
+        {authMenuVisibility && (
+          <AuthMenu setAuthMenuVisibility={setAuthMenuVisibility} />
+        )}
       </div>
     </header>
   );

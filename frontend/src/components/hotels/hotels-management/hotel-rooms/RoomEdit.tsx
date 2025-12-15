@@ -37,7 +37,7 @@ const RoomEdit = () => {
         onSubmit={() => {
           onHandleSubmit(room);
         }}
-        className="hotel-create-form"
+        className="common-form"
       >
         <div className="form-group">
           <label htmlFor="images" className="form-label">

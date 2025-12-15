@@ -1,8 +1,19 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
+import { useNavigate } from "react-router-dom";
+
 import { emptyRegisterUser, type RegisterUser } from "../../utils/utils";
+import { useHotels } from "../context/hotels/HotelsContext";
 
 const RegisterCard = () => {
   const [user, setUser] = useState<RegisterUser>(emptyRegisterUser);
+
+  const { returnToMain } = useHotels();
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (returnToMain) navigate("/");
+  }, []);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -19,7 +30,7 @@ const RegisterCard = () => {
 
   const showFormView = () => {
     return (
-      <form onSubmit={handleSubmit} className="auth-form">
+      <form onSubmit={handleSubmit} className="common-form">
         <div className="form-group">
           <label htmlFor="email" className="form-label">
             e-mail
@@ -30,7 +41,6 @@ const RegisterCard = () => {
             value={user.email}
             onChange={(e) => handleChange("email", e.target.value)}
             placeholder="Введите почту"
-            readOnly
             required
           />
         </div>
@@ -81,6 +91,7 @@ const RegisterCard = () => {
           <div className="radio-group">
             <label>
               <input
+                className="role-radio"
                 type="radio"
                 name="role"
                 value="client"
@@ -91,6 +102,7 @@ const RegisterCard = () => {
             </label>
             <label>
               <input
+                className="role-radio"
                 type="radio"
                 name="role"
                 value="admin"
@@ -101,6 +113,7 @@ const RegisterCard = () => {
             </label>
             <label>
               <input
+                className="role-radio"
                 type="radio"
                 name="role"
                 value="manager"
@@ -123,7 +136,8 @@ const RegisterCard = () => {
 
   return (
     <div className="auth-card">
-      <h1 className="container-main-title">Регистрация</h1>;{showFormView()}
+      <h1 className="container-main-title">Регистрация</h1>
+      {showFormView()}
     </div>
   );
 };

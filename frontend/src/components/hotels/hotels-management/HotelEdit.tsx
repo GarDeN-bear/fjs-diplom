@@ -368,7 +368,7 @@ const HotelEdit = () => {
 
   const showHotelFormView = () => {
     return (
-      <form onSubmit={handleSubmit} className="hotel-create-form">
+      <form onSubmit={handleSubmit} className="common-form">
         <div className="form-group">
           <label htmlFor="title" className="form-label">
             Название отеля
