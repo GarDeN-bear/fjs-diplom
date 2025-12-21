@@ -19,6 +19,7 @@ import HotelCreate from "./hotels/hotels-management/HotelCreate";
 import HotelsSearch from "./hotels/hotels-search/HotelsSearch";
 import LoginCard from "./auth/LoginCard";
 import RegisterCard from "./auth/RegisterCard";
+import UserCard from "./auth/UserCard";
 
 const AppProviders = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -60,6 +61,7 @@ const Main = () => {
           <Route path="/hotel/create" element={<HotelCreate />} />
           <Route path="/auth/login" element={<LoginCard />} />
           <Route path="/auth/register" element={<RegisterCard />} />
+          <Route path="/user" element={<UserCard />} />
         </Routes>
       </AppProviders>
     </section>

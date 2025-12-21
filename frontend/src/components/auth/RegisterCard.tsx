@@ -1,13 +1,23 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { emptyRegisterUser, type RegisterUser } from "../../utils/utils";
+import {
+  emptyUser,
+  Role,
+  VITE_BACKEND_URL,
+  type User,
+  type UserResponce,
+} from "../../utils/utils";
 import { useHotels } from "../context/hotels/HotelsContext";
+import { useAuth } from "../context/auth/AuthContext";
 
 const RegisterCard = () => {
-  const [user, setUser] = useState<RegisterUser>(emptyRegisterUser);
+  const [user, setUser] = useState<User>(emptyUser);
+  const [message, setMessage] = useState<string>("");
 
   const { returnToMain } = useHotels();
+
+  const { login } = useAuth();
 
   const navigate = useNavigate();
 
@@ -20,12 +30,91 @@ const RegisterCard = () => {
     sendRegisterData();
   };
 
-  const sendRegisterData = () => {
-    console.log(user);
+  const sendRegisterData = async () => {
+    try {
+      const { role, _id, ...userWithoutRoleAndId } = user;
+      setMessage("");
+      const url: string = `${VITE_BACKEND_URL}/api/${
+        user.role === Role.Admin ? "admin/users" : "client/register"
+      }`;
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(userWithoutRoleAndId),
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        setMessage(error.message);
+        throw new Error(`Ошибка при создании профиля": ${error.message}`);
+      }
+
+      const data: UserResponce = await response.json();
+
+      login(user);
+
+      console.log("Профиль создан:", data);
+    } catch (error) {
+      throw new Error(`Ошибка при создании профиля": ${error}`);
+    }
   };
 
-  const handleChange = (field: keyof RegisterUser, value: string) => {
+  const handleChange = (field: keyof User, value: string) => {
     setUser({ ...user, [field]: value });
+  };
+
+  const showResponseMessages = () => {
+    return (
+      <div>
+        <p>{message}</p>
+      </div>
+    );
+  };
+
+  const showAdminPart = () => {
+    return (
+      <div className="form-group">
+        <label className="form-label">Роль</label>
+        <div className="radio-group">
+          <label>
+            <input
+              className="role-radio"
+              type="radio"
+              name="role"
+              value="client"
+              checked={user.role === "client"}
+              onChange={(e) => handleChange("role", e.target.value)}
+            />
+            Клиент
+          </label>
+          <label>
+            <input
+              className="role-radio"
+              type="radio"
+              name="role"
+              value="admin"
+              checked={user.role === "admin"}
+              onChange={(e) => handleChange("role", e.target.value)}
+            />
+            Администратор
+          </label>
+          <label>
+            <input
+              className="role-radio"
+              type="radio"
+              name="role"
+              value="manager"
+              checked={user.role === "manager"}
+              onChange={(e) => handleChange("role", e.target.value)}
+            />
+            Менеджер
+          </label>
+        </div>
+      </div>
+    );
   };
 
   const showFormView = () => {
@@ -85,46 +174,8 @@ const RegisterCard = () => {
             placeholder="Введите телефон"
           />
         </div>
-
-        <div className="form-group">
-          <label className="form-label">Роль</label>
-          <div className="radio-group">
-            <label>
-              <input
-                className="role-radio"
-                type="radio"
-                name="role"
-                value="client"
-                checked={user.role === "client"}
-                onChange={(e) => handleChange("role", e.target.value)}
-              />
-              Клиент
-            </label>
-            <label>
-              <input
-                className="role-radio"
-                type="radio"
-                name="role"
-                value="admin"
-                checked={user.role === "admin"}
-                onChange={(e) => handleChange("role", e.target.value)}
-              />
-              Администратор
-            </label>
-            <label>
-              <input
-                className="role-radio"
-                type="radio"
-                name="role"
-                value="manager"
-                checked={user.role === "manager"}
-                onChange={(e) => handleChange("role", e.target.value)}
-              />
-              Менеджер
-            </label>
-          </div>
-        </div>
-
+        {user.role === Role.Admin && showAdminPart()}
+        {showResponseMessages()}
         <div className="form-actions">
           <button type="submit" className="btn btn-primary">
             Регистрация

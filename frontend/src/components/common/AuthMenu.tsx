@@ -1,42 +1,70 @@
 import { useNavigate } from "react-router-dom";
 
-import { useAuth, Role } from "../context/auth/AuthContext";
+import { useAuth } from "../context/auth/AuthContext";
+import { emptyUser, Role, VITE_BACKEND_URL } from "../../utils/utils";
 
 interface AuthMenuPrompt {
   setAuthMenuVisibility: (flag: boolean) => void;
 }
 
 const AuthMenu = ({ setAuthMenuVisibility }: AuthMenuPrompt) => {
-  const { role, setRole } = useAuth();
+  const { user, token, setToken, setUser } = useAuth();
 
   const navigate = useNavigate();
 
+  const logout = async () => {
+    try {
+      const url: string = `${VITE_BACKEND_URL}/api/auth/logout`;
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        const error = await response.text();
+        throw new Error(`Ошибка при выходе": ${error}`);
+      }
+      setAuthMenuVisibility(false);
+      setUser(emptyUser);
+      setToken("");
+      navigate("/");
+    } catch (error) {
+      throw new Error(`Ошибка при выходе": ${error}`);
+    }
+  };
+
   return (
     <ul className="auth-menu">
-      {role === Role.Common && (
-        <>
-          <li
-            onClick={() => {
-              setAuthMenuVisibility(false);
-              navigate("/auth/login");
-            }}
-          >
-            Вход
-          </li>
-          <li
-            onClick={() => {
-              setAuthMenuVisibility(false);
-              navigate("/auth/register");
-            }}
-          >
-            Регистрация
-          </li>
-        </>
+      {user.role !== Role.Common && (
+        <li
+          onClick={() => {
+            navigate("/user");
+          }}
+        >
+          Профиль
+        </li>
       )}
       <li
         onClick={() => {
           setAuthMenuVisibility(false);
-          setRole(Role.Common);
+          navigate("/auth/login");
+        }}
+      >
+        Вход
+      </li>
+      <li
+        onClick={() => {
+          setAuthMenuVisibility(false);
+          navigate("/auth/register");
+        }}
+      >
+        Регистрация
+      </li>
+      <li
+        onClick={() => {
+          logout();
         }}
       >
         Выход

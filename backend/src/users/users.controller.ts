@@ -34,8 +34,6 @@ export class UsersController {
     return this.usersService.create(data);
   }
 
-  @UseGuards(RolesGuard, JwtAuthGuard)
-  @Roles('client')
   @Post('client/register')
   register(@Body() data: CreateUserDto): Promise<UserDocument> {
     return this.usersService.create(data);

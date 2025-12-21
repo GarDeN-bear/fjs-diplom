@@ -9,7 +9,7 @@ const Header = () => {
     <header
       className="container container-header"
       style={{
-        marginBottom: authMenuVisibility ? "7.5%" : "5%",
+        marginBottom: authMenuVisibility ? "10%" : "5%",
       }}
     >
       <div className="col-logo">

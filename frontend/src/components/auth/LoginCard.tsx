@@ -1,31 +1,39 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { emptyLoginUser, type LoginUser } from "../../utils/utils";
+import { emptyUser, type User } from "../../utils/utils";
 import { useHotels } from "../context/hotels/HotelsContext";
+import { useAuth } from "../context/auth/AuthContext";
 
 const LoginCard = () => {
-  const [user, setUser] = useState<LoginUser>(emptyLoginUser);
+  const [user, setUser] = useState<User>(emptyUser);
+  const [message, setMessage] = useState<string>("");
 
   const { returnToMain } = useHotels();
+  const { user: authUser, login } = useAuth();
 
   const navigate = useNavigate();
 
   useEffect(() => {
     if (returnToMain) navigate("/");
+    setUser(authUser);
   }, []);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    sendRegisterData();
+    login(user);
   };
 
-  const sendRegisterData = () => {
-    console.log(user);
-  };
-
-  const handleChange = (field: keyof LoginUser, value: string) => {
+  const handleChange = (field: keyof User, value: string) => {
     setUser({ ...user, [field]: value });
+  };
+
+  const showResponseMessages = () => {
+    return (
+      <div>
+        <p>{message}</p>
+      </div>
+    );
   };
 
   const showFormView = () => {
@@ -58,7 +66,7 @@ const LoginCard = () => {
             required
           />
         </div>
-
+        {showResponseMessages()}
         <div className="form-actions">
           <button type="submit" className="btn btn-primary">
             Вход

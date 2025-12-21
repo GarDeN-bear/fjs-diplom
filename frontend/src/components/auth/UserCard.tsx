@@ -1,22 +1,35 @@
-import { useAuth, Role } from "../context/auth/AuthContext";
+import { useAuth } from "../context/auth/AuthContext";
 
-import AuthCard from "./LoginCard";
-import ClientCard from "./ClientCard";
+import ClientCard, { ClientCardMode } from "./ClientCard";
 import AdminCard from "./AdminCard";
 import ManagerCard from "./ManagerCard";
+import { Role } from "../../utils/utils";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const UserCard = () => {
-  const { role } = useAuth();
-  switch (role) {
-    case Role.Client:
-      return <ClientCard />;
-    case Role.Admin:
-      return <AdminCard />;
-    case Role.Manager:
-      return <ManagerCard />;
-    default:
-      return <AuthCard />;
-  }
+  const { user } = useAuth();
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user.role === Role.Common) navigate("/");
+  }, []);
+
+  const showUserCard = () => {
+    switch (user.role) {
+      case Role.Client:
+        return <ClientCard mode={ClientCardMode.Common} />;
+      case Role.Admin:
+        return <AdminCard />;
+      case Role.Manager:
+        return <ManagerCard />;
+      default:
+        break;
+    }
+  };
+
+  return <section className="user">{showUserCard()}</section>;
 };
 
 export default UserCard;

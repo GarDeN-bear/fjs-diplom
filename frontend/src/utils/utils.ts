@@ -32,30 +32,43 @@ export interface CreateReservation {
   dateEnd: Date;
 }
 
-export interface LoginUser {
-  email: string;
-  password: string;
+export enum Role {
+  Common = "common",
+  Client = "client",
+  Admin = "admin",
+  Manager = "manager",
 }
 
-export const emptyLoginUser: LoginUser = {
-  email: "",
-  password: "",
-};
-
-export interface RegisterUser {
+export interface User {
+  _id: string;
   email: string;
-  password: string;
+  password?: string;
   name: string;
   contactPhone?: string;
   role?: string;
 }
 
-export const emptyRegisterUser: RegisterUser = {
+export interface UserResponce {
+  _id: string;
+  email: string;
+  passwordHash: string;
+  name: string;
+  contactPhone?: string;
+  role?: string;
+}
+
+export interface AuthResponce {
+  user: UserResponce;
+  token: string;
+}
+
+export const emptyUser: User = {
+  _id: "",
   email: "",
   password: "",
   name: "",
   contactPhone: "",
-  role: "client",
+  role: Role.Common,
 };
 
 export const limit: number = 1000;

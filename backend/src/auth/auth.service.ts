@@ -32,9 +32,9 @@ export class AuthService {
     return user;
   }
 
-  async login(data: LoginDto): Promise<string> {
+  async login(data: LoginDto): Promise<{ user: UserDocument; token: string }> {
     const user: UserDocument = await this.validateUser(data);
-    return this.jwtService.sign({ id: user.id });
+    return { user: user, token: this.jwtService.sign({ id: user.id }) };
   }
 
   async logout() {
