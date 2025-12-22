@@ -35,15 +35,15 @@ export class HotelsController {
     return this.hotelsService.findById(id);
   }
 
-  // @UseGuards(RolesGuard, JwtAuthGuard)
-  // @Roles('admin')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
   @Post('admin/hotels/')
   create(@Body() data: CreateHotelDto): Promise<HotelDocument> {
     return this.hotelsService.create(data);
   }
 
-  // @UseGuards(RolesGuard, JwtAuthGuard)
-  // @Roles('admin')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
   @Put('admin/hotels/:id')
   update(
     @Param('id') id: string,
@@ -52,8 +52,8 @@ export class HotelsController {
     return this.hotelsService.update(id, data);
   }
 
-  // @UseGuards(RolesGuard, JwtAuthGuard)
-  // @Roles('admin')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
   @Delete('admin/hotels/:id')
   delete(@Param('id') id: string): Promise<void> {
     console.log(id);

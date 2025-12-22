@@ -6,7 +6,6 @@ import {
   Role,
   VITE_BACKEND_URL,
   type User,
-  type UserResponce,
 } from "../../utils/utils";
 import { useHotels } from "../context/hotels/HotelsContext";
 import { useAuth } from "../context/auth/AuthContext";
@@ -52,7 +51,7 @@ const RegisterCard = () => {
         throw new Error(`Ошибка при создании профиля": ${error.message}`);
       }
 
-      const data: UserResponce = await response.json();
+      const data: User = await response.json();
 
       login(user);
 

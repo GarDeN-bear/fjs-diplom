@@ -22,7 +22,7 @@ const ManagerCard = () => {
 
   useEffect(() => {
     fetchUsersOnPage();
-  }, [currentNumber]);
+  }, [users, currentNumber]);
 
   useEffect(() => {
     scrollToTop();
@@ -40,8 +40,10 @@ const ManagerCard = () => {
         (currentNumber - 1) *
         itemsOnPage
       ).toString()}`;
-      const response = await fetch(url);
+
+      const response = await fetch(url, { credentials: "include" });
       const data: User[] = await response.json();
+
       setUsers(data);
       const totalPages = Math.ceil(data.length / itemsOnPage);
       const numbers = [];

@@ -22,7 +22,7 @@ import { Roles } from 'src/auth/decorators/roles.decorator';
 export class ReservationsController {
   constructor(private readonly reservationsService: ReservationsService) {}
 
-  @UseGuards(RolesGuard, JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('manager')
   @Get('manager/reservations/')
   getReservationsForManager(
@@ -31,14 +31,14 @@ export class ReservationsController {
     return this.reservationsService.getReservations(filter);
   }
 
-  @UseGuards(RolesGuard, JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('manager')
   @Delete('manager/reservations/:id')
   removeReservationForManager(@Param('id') id: string): Promise<void> {
     return this.reservationsService.removeReservation(id);
   }
 
-  // @UseGuards(RolesGuard, JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard, RolesGuard)
   // @Roles('client')
   @Post('client/reservations/')
   addReservationForClient(
@@ -47,7 +47,7 @@ export class ReservationsController {
     return this.reservationsService.addReservation(data);
   }
 
-  @UseGuards(RolesGuard, JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('client')
   @Get('client/reservations/')
   getReservationsForClient(
@@ -56,7 +56,7 @@ export class ReservationsController {
     return this.reservationsService.getReservations(filter);
   }
 
-  @UseGuards(RolesGuard, JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('client')
   @Delete('client/reservations/:id')
   removeReservationForClient(@Param('id') id: string): Promise<void> {

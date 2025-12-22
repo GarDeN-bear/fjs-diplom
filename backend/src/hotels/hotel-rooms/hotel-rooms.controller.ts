@@ -42,8 +42,8 @@ export class HotelRoomsController {
     return this.hotelRoomsService.findById(id);
   }
 
-  // @UseGuards(RolesGuard, JwtAuthGuard)
-  // @Roles('admin')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
   @UseInterceptors(FileFieldsInterceptor([{ name: 'images', maxCount: 10 }]))
   @Post('admin/hotel-rooms/')
   create(
@@ -61,7 +61,7 @@ export class HotelRoomsController {
     return this.hotelRoomsService.create(data);
   }
 
-  // @UseGuards(RolesGuard, JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard, RolesGuard)
   // @Roles('admin')
   @UseInterceptors(FileFieldsInterceptor([{ name: 'images', maxCount: 10 }]))
   @Put('admin/hotel-rooms/:id')
@@ -80,7 +80,7 @@ export class HotelRoomsController {
     return this.hotelRoomsService.update(id, data);
   }
 
-  // @UseGuards(RolesGuard, JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard, RolesGuard)
   // @Roles('admin')
   @Delete('admin/hotel-rooms/:id')
   delete(@Param('id') id: string): Promise<void> {

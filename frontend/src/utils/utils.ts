@@ -48,20 +48,6 @@ export interface User {
   role?: string;
 }
 
-export interface UserResponce {
-  _id: string;
-  email: string;
-  passwordHash: string;
-  name: string;
-  contactPhone?: string;
-  role?: string;
-}
-
-export interface AuthResponce {
-  user: UserResponce;
-  token: string;
-}
-
 export const emptyUser: User = {
   _id: "",
   email: "",

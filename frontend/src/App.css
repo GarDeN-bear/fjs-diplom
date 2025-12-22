@@ -173,7 +173,8 @@
 }
 
 .hotels-list,
-.rooms-list {
+.rooms-list,
+.users-list {
   display: flex;
   flex-direction: column;
   row-gap: 5vh;
@@ -194,7 +195,8 @@
 }
 
 .hotel-card,
-.room-card {
+.room-card,
+.user-info {
   display: flex;
   flex-direction: row;
   width: 100%;
@@ -377,4 +379,12 @@
 .role-radio {
   width: 1vw;
   height: 1vw;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+
+  background-color: white;
+  padding: 2.5%;
 }

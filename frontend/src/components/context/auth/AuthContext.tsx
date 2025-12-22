@@ -1,17 +1,11 @@
-import React, { createContext, useContext, useState } from "react";
-import {
-  emptyUser,
-  VITE_BACKEND_URL,
-  type AuthResponce,
-  type User,
-} from "../../../utils/utils";
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { emptyUser, VITE_BACKEND_URL, type User } from "../../../utils/utils";
 import { useNavigate } from "react-router-dom";
 
 interface AuthContextType {
   user: User;
-  token: string;
   setUser: (user: User) => void;
-  setToken: (token: string) => void;
+  logout: () => void;
   login: (user: User) => void;
 }
 
@@ -23,9 +17,54 @@ export const AuthContextProvider = ({
   children: React.ReactNode;
 }) => {
   const [user, setUser] = useState<User>(emptyUser);
-  const [token, setToken] = useState<string>("");
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    checkAuth();
+  }, []);
+
+  const checkAuth = async () => {
+    try {
+      const url: string = `${VITE_BACKEND_URL}/api/auth/me`;
+      const response = await fetch(url, {
+        method: "GET",
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        setUser(emptyUser);
+        const error = await response.json();
+        throw new Error(`Ошибка при входе": ${error.message}`);
+      }
+
+      const data = await response.json();
+      setUser(data);
+      console.log("Профиль:", data);
+    } catch (error) {
+      console.error("Auth check error:", error);
+      setUser(emptyUser);
+    }
+  };
+
+  const logout = async () => {
+    try {
+      const url: string = `${VITE_BACKEND_URL}/api/auth/logout`;
+      const response = await fetch(url, {
+        method: "POST",
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        const error = await response.text();
+        throw new Error(`Ошибка при выходе": ${error}`);
+      }
+      setUser(emptyUser);
+      navigate("/");
+    } catch (error) {
+      throw new Error(`Ошибка при выходе": ${error}`);
+    }
+  };
 
   const login = async (user: User) => {
     try {
@@ -44,18 +83,8 @@ export const AuthContextProvider = ({
         throw new Error(`Ошибка при входе": ${error.message}`);
       }
 
-      const data: AuthResponce = await response.json();
-
-      const authUser: User = {
-        _id: data.user._id,
-        email: data.user.email,
-        name: data.user.name,
-        contactPhone: data.user.contactPhone,
-        role: data.user.role,
-      };
-
-      setUser(authUser);
-      setToken(data.token);
+      const data = await response.json();
+      setUser(data);
       navigate("/user");
       console.log("Профиль:", data);
     } catch (error) {
@@ -64,10 +93,9 @@ export const AuthContextProvider = ({
   };
 
   const value: AuthContextType = {
-    token,
     user,
     setUser,
-    setToken,
+    logout,
     login,
   };
 

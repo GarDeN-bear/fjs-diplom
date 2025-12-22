@@ -1,7 +1,8 @@
-import {ValidationPipe} from '@nestjs/common';
-import {NestFactory} from '@nestjs/core';
+import { ValidationPipe } from '@nestjs/common';
+import { NestFactory } from '@nestjs/core';
+import cookieParser from 'cookie-parser';
 
-import {AppModule} from './app.module';
+import { AppModule } from './app.module';
 
 const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [
   'http://localhost:5000',
@@ -9,6 +10,9 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  app.use(cookieParser());
+
   app.enableCors({
     origin: allowedOrigins,
     methods: ['GET,PUT,POST,DELETE'],
@@ -17,12 +21,12 @@ async function bootstrap() {
   });
 
   app.useGlobalPipes(
-      new ValidationPipe({
-        transform: true,  // ВКЛЮЧИТЬ трансформацию
-        transformOptions: {
-          enableImplicitConversion: false,  // Разрешить неявное преобразование
-        },
-      }),
+    new ValidationPipe({
+      transform: true, // ВКЛЮЧИТЬ трансформацию
+      transformOptions: {
+        enableImplicitConversion: false, // Разрешить неявное преобразование
+      },
+    }),
   );
 
   await app.listen(process.env.PORT ?? 3000);

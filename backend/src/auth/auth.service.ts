@@ -1,18 +1,14 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import { Response } from 'express';
 
 import { UsersService } from '../users/users.service';
 import { UserDocument } from '../users/schemas/user.schema';
 import * as bcrypt from 'bcrypt';
 import { LoginDto } from './dto/auth.dto';
-import { CreateUserDto } from 'src/users/dto/user.dto';
 
 @Injectable()
 export class AuthService {
-  constructor(
-    private usersService: UsersService,
-    private jwtService: JwtService,
-  ) {}
+  constructor(private usersService: UsersService) {}
 
   async validateUser(data: LoginDto): Promise<UserDocument> {
     const user = await this.usersService.findByEmail(data.email);
@@ -32,12 +28,9 @@ export class AuthService {
     return user;
   }
 
-  async login(data: LoginDto): Promise<{ user: UserDocument; token: string }> {
+  async login(data: LoginDto): Promise<UserDocument> {
     const user: UserDocument = await this.validateUser(data);
-    return { user: user, token: this.jwtService.sign({ id: user.id }) };
-  }
 
-  async logout() {
-    return { message: 'Logged out successfully' };
+    return user;
   }
 }

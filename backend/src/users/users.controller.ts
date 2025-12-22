@@ -21,13 +21,14 @@ import { UserDocument } from './schemas/user.schema';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.auth.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { console } from 'inspector';
 
 @UsePipes(new ValidationPipe())
 @Controller('api')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @UseGuards(RolesGuard, JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
   @Post('admin/users/')
   create(@Body() data: CreateUserDto): Promise<UserDocument> {
@@ -35,24 +36,28 @@ export class UsersController {
   }
 
   @Post('client/register')
-  register(@Body() data: CreateUserDto): Promise<UserDocument> {
-    return this.usersService.create(data);
+  async register(@Body() data: CreateUserDto) {
+    const user: UserDocument = await this.usersService.create(data);
+    const { passwordHash, ...userData } = user;
+
+    return userData;
   }
 
-  @UseGuards(RolesGuard, JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
   @Get('admin/users/')
   findAllForAdmin(@Query() data: SearchUserParamsDto): Promise<UserDocument[]> {
     return this.usersService.findAll(data);
   }
-  @UseGuards(RolesGuard, JwtAuthGuard)
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
   @Get('admin/users/:id')
   findByIdForAdmin(@Param('id') id: string): Promise<UserDocument> {
     return this.usersService.findById(id);
   }
 
-  @UseGuards(RolesGuard, JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('manager')
   @Get('manager/users/')
   findAllForManager(
@@ -61,7 +66,7 @@ export class UsersController {
     return this.usersService.findAll(data);
   }
 
-  @UseGuards(RolesGuard, JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('manager')
   @Get('manager/users/:id')
   findByIdForManager(@Param('id') id: string): Promise<UserDocument> {

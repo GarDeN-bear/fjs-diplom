@@ -1,4 +1,5 @@
-import { Role, type User } from "../../utils/utils";
+import { useEffect, useState } from "react";
+import { emptyUser, Role, type User } from "../../utils/utils";
 import { useAuth } from "../context/auth/AuthContext";
 
 export enum ClientCardMode {
@@ -11,7 +12,17 @@ interface ClientCardPrompt {
 }
 
 const ClientCard = ({ mode, userData }: ClientCardPrompt) => {
-  const { user } = useAuth();
+  const [user, setUser] = useState<User>(emptyUser);
+
+  const { user: userAuth } = useAuth();
+
+  useEffect(() => {
+    if (mode === ClientCardMode.Common) {
+      setUser(userAuth);
+    } else {
+      setUser(userData || emptyUser);
+    }
+  }, []);
 
   const showClientCardCommonView = () => {
     return (
@@ -23,25 +34,15 @@ const ClientCard = ({ mode, userData }: ClientCardPrompt) => {
     );
   };
 
-  const showClientCardCatalogView = () => {
-    return <></>;
-  };
-
-  const showClientCardView = () => {
-    switch (mode) {
-      case ClientCardMode.Catalog:
-        return showClientCardCatalogView();
-      default:
-        return showClientCardCommonView();
-    }
-  };
-
   return (
     <>
       {mode === ClientCardMode.Common && (
-        <h1 className="container-main-title">Профиль</h1>
+        <div className="container-main-title">
+          <h1>Профиль</h1>
+          {showClientCardCommonView()}
+        </div>
       )}
-      <div className="user-card">{showClientCardView()}</div>
+      {mode === ClientCardMode.Catalog && showClientCardCommonView()}
     </>
   );
 };
