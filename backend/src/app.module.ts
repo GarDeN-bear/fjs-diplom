@@ -10,6 +10,7 @@ import { HotelsModule } from './hotels/hotels.module';
 import { ReservationsModule } from './reservations/reservations.module';
 import { AuthModule } from './auth/auth.module';
 import { HotelRoomsModule } from './hotels/hotel-rooms/hotel-rooms.module';
+import { SupportModule } from './support/support.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { HotelRoomsModule } from './hotels/hotel-rooms/hotel-rooms.module';
     forwardRef(() => HotelsModule),
     forwardRef(() => ReservationsModule),
     forwardRef(() => AuthModule),
+    forwardRef(() => SupportModule),
   ],
   controllers: [AppController],
   providers: [AppService],

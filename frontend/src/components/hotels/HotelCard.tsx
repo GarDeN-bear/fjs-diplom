@@ -6,6 +6,7 @@ import RoomCard from "./hotel-rooms/RoomCard";
 
 import { HotelCardMode, RoomCardMode } from "../context/hotels/HotelsContext";
 import { useHotelsSearch } from "../context/hotels/HotelsSearchContext";
+import { useAuth } from "../context/auth/AuthContext";
 
 interface HotelCardPrompt {
   mode: HotelCardMode;
@@ -17,6 +18,8 @@ const HotelCard = ({ mode, hotelData }: HotelCardPrompt) => {
   const [hotel, setHotel] = useState<utils.Hotel>(utils.emptyHotel);
   const [rooms, setRooms] = useState<utils.HotelRoom[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const { user } = useAuth();
 
   const { dateStart, dateEnd, setHotelName } = useHotelsSearch();
   const navigate = useNavigate();
@@ -116,14 +119,16 @@ const HotelCard = ({ mode, hotelData }: HotelCardPrompt) => {
               Забронировать
             </button>
           )}
-          <button
-            className="btn btn-primary"
-            onClick={() => {
-              navigate(`/hotel/edit/${hotel._id}`);
-            }}
-          >
-            Редактировать
-          </button>
+          {user.role === utils.Role.Admin && (
+            <button
+              className="btn btn-primary"
+              onClick={() => {
+                navigate(`/hotel/edit/${hotel._id}`);
+              }}
+            >
+              Редактировать
+            </button>
+          )}
         </div>
       </>
     );

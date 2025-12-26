@@ -36,7 +36,7 @@ export class AuthController {
       secure: false,
       sameSite: 'lax',
       path: '/',
-      maxAge: 60 * 1000,
+      maxAge: 60 * 60 * 1000,
     });
 
     const { passwordHash, ...userWithoutPassword } = user;

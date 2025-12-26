@@ -31,8 +31,11 @@ export class UsersController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
   @Post('admin/users/')
-  create(@Body() data: CreateUserDto): Promise<UserDocument> {
-    return this.usersService.create(data);
+  async create(@Body() data: CreateUserDto) {
+    const user: UserDocument = await this.usersService.create(data);
+    const { passwordHash, ...userData } = user;
+
+    return userData;
   }
 
   @Post('client/register')

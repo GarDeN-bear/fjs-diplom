@@ -15,14 +15,24 @@ const AuthMenu = ({ setAuthMenuVisibility }: AuthMenuPrompt) => {
   return (
     <ul className="auth-menu">
       {user.role !== Role.Common && (
-        <li
-          onClick={() => {
-            setAuthMenuVisibility(false);
-            navigate("/user");
-          }}
-        >
-          Профиль
-        </li>
+        <>
+          <li
+            onClick={() => {
+              setAuthMenuVisibility(false);
+              navigate("/user");
+            }}
+          >
+            Профиль
+          </li>
+          <li
+            onClick={() => {
+              navigate("/support");
+              setAuthMenuVisibility(false);
+            }}
+          >
+            Поддержка
+          </li>
+        </>
       )}
       <li
         onClick={() => {

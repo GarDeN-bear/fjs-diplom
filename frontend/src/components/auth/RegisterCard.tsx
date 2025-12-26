@@ -16,12 +16,14 @@ const RegisterCard = () => {
 
   const { returnToMain } = useHotels();
 
-  const { login } = useAuth();
+  const { user: authUser, login } = useAuth();
 
   const navigate = useNavigate();
 
   useEffect(() => {
     if (returnToMain) navigate("/");
+
+    setUser(authUser);
   }, []);
 
   const handleSubmit = (e: FormEvent) => {
@@ -31,17 +33,17 @@ const RegisterCard = () => {
 
   const sendRegisterData = async () => {
     try {
-      const { role, _id, ...userWithoutRoleAndId } = user;
+      const { _id, ...userWithoutId } = user;
       setMessage("");
       const url: string = `${VITE_BACKEND_URL}/api/${
-        user.role === Role.Admin ? "admin/users" : "client/register"
+        authUser.role === Role.Admin ? "admin/users" : "client/register"
       }`;
       const response = await fetch(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(userWithoutRoleAndId),
+        body: JSON.stringify(userWithoutId),
         credentials: "include",
       });
 
@@ -117,6 +119,7 @@ const RegisterCard = () => {
   };
 
   const showFormView = () => {
+    console.log(user.role);
     return (
       <form onSubmit={handleSubmit} className="common-form">
         <div className="form-group">
@@ -173,7 +176,7 @@ const RegisterCard = () => {
             placeholder="Введите телефон"
           />
         </div>
-        {user.role === Role.Admin && showAdminPart()}
+        {authUser.role === Role.Admin && showAdminPart()}
         {showResponseMessages()}
         <div className="form-actions">
           <button type="submit" className="btn btn-primary">

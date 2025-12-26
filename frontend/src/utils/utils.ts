@@ -48,6 +48,50 @@ export interface User {
   role?: string;
 }
 
+export interface Message {
+  _id: string;
+  author: string;
+  text: string;
+  sentAt: Date;
+  readAt: Date;
+}
+
+export interface SupportRequest {
+  _id: string;
+  user: string;
+  messages: Message[];
+  isActive?: boolean;
+  hasNewMessages?: boolean;
+}
+
+export const emptySupportRequest: SupportRequest = {
+  _id: "",
+  user: "",
+  messages: [],
+};
+
+export interface CreateSupportRequest {
+  user: string;
+  text: string;
+}
+
+export interface CreateMessageRequest {
+  author: string;
+  supportRequest: string;
+  text: string;
+}
+
+export interface MessageResponce {
+  supportRequest: string;
+  message: Message;
+}
+
+export const emptyCreateMessageRequest: CreateMessageRequest = {
+  author: "",
+  supportRequest: "",
+  text: "",
+};
+
 export const emptyUser: User = {
   _id: "",
   email: "",

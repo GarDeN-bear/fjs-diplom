@@ -388,3 +388,29 @@
   background-color: white;
   padding: 2.5%;
 }
+
+.message-list {
+  display: flex;
+  flex-direction: column;
+  height: 40vw;
+  overflow-y: auto;
+  row-gap: 1vw;
+  background-color: white;
+  border-radius: 0.5vw;
+  padding: 0.5vw;
+}
+
+.message-card {
+  background-color: cornflowerblue;
+  border-radius: 0.5vw;
+  padding: 0.5vw;
+}
+
+.message-card-left {
+  background-color: #079aa2;
+  text-align: left;
+}
+
+.message-card-right {
+  text-align: right;
+}
