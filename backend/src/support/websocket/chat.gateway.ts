@@ -99,6 +99,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
 
     client.join(roomId);
+    console.log(this.server.sockets.adapter.rooms.get(roomId)?.size);
 
     console.log(`User ${userId} joined room ${roomId} via socket`);
   }

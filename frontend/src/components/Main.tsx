@@ -22,6 +22,7 @@ import RegisterCard from "./auth/RegisterCard";
 import UserCard from "./auth/UserCard";
 import { SocketProvider } from "./context/support/SupportContext";
 import SupportCard from "./support/SupportCard";
+import ManagerChatCard from "./support/ManagerChatCard";
 
 const AppProviders = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -66,6 +67,10 @@ const Main = () => {
           <Route path="/auth/register" element={<RegisterCard />} />
           <Route path="/user" element={<UserCard />} />
           <Route path="/support" element={<SupportCard />} />
+          <Route
+            path="/manager-chat-card/:userId"
+            element={<ManagerChatCard />}
+          />
         </Routes>
       </AppProviders>
     </section>

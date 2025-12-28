@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { emptyUser, Role, type User } from "../../utils/utils";
+import { emptyUser, type User } from "../../utils/utils";
 import { useAuth } from "../context/auth/AuthContext";
 
 export enum ClientCardMode {
@@ -9,9 +9,14 @@ export enum ClientCardMode {
 interface ClientCardPrompt {
   mode: ClientCardMode;
   userData?: User;
+  onConnectBtnClick?: () => void;
 }
 
-const ClientCard = ({ mode, userData }: ClientCardPrompt) => {
+const ClientCard = ({
+  mode,
+  userData,
+  onConnectBtnClick,
+}: ClientCardPrompt) => {
   const [user, setUser] = useState<User>(emptyUser);
 
   const { user: userAuth } = useAuth();
@@ -26,10 +31,15 @@ const ClientCard = ({ mode, userData }: ClientCardPrompt) => {
 
   const showClientCardCommonView = () => {
     return (
-      <div className="user-info">
-        <span className="user-info-item">{`e-mail: ${user.email}`}</span>
-        <span className="user-info-item">{`Имя: ${user.name}`}</span>
-        <span className="user-info-item">{`Телефон: ${user.contactPhone}`}</span>
+      <div className="user-info-card">
+        <div className="user-info">
+          <span className="user-info-item">{`e-mail: ${user.email}`}</span>
+          <span className="user-info-item">{`Имя: ${user.name}`}</span>
+          <span className="user-info-item">{`Телефон: ${user.contactPhone}`}</span>
+        </div>
+        {onConnectBtnClick && (
+          <button onClick={onConnectBtnClick}>Подключиться</button>
+        )}
       </div>
     );
   };

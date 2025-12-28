@@ -46,7 +46,7 @@ export class SupportController {
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('client')
+  @Roles('client', 'manager')
   @Get('client/support-requests')
   @HttpCode(HttpStatus.OK)
   findSupportRequestsForClient(

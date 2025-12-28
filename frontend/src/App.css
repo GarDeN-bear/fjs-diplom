@@ -381,12 +381,23 @@
   height: 1vw;
 }
 
-.user-info {
+.user-info-card {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
 
   background-color: white;
   padding: 2.5%;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-info-card button {
+  background-color: cornflowerblue;
+  border-radius: 1vw;
+  height: 10%;
 }
 
 .message-list {

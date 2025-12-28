@@ -1,24 +1,20 @@
-import { useEffect, useState, type FormEvent } from "react";
-import MessageCard from "./MessageCard";
+import { useEffect, useState } from "react";
+import ChatCard from "./ChatCard";
 import {
   emptyCreateMessageRequest,
   emptySupportRequest,
   VITE_BACKEND_URL,
   type CreateMessageRequest,
-  type CreateSupportRequest,
   type MessageResponce,
   type SupportRequest,
-  type User,
 } from "../../utils/utils";
 import { useAuth } from "../context/auth/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useSocket } from "../context/support/SupportContext";
 
-interface ManagerSupportCardPrompt {
-  userData: User;
-}
+const ManagerChatCard = () => {
+  const { userId } = useParams();
 
-const ManagerChatCard = ({ userData }: ManagerSupportCardPrompt) => {
   const [activeSupportRequest, setActiveSupportRequest] =
     useState<SupportRequest>(emptySupportRequest);
   const [message, setMessage] = useState<CreateMessageRequest>(
@@ -34,45 +30,6 @@ const ManagerChatCard = ({ userData }: ManagerSupportCardPrompt) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const unsubscribeNewSupportRequest = subscribeToEvent(
-      "newSupportRequest",
-      (data: SupportRequest) => {
-        if (data.user === user._id) {
-          setActiveSupportRequest(data);
-          setLoading(false);
-        }
-      }
-    );
-
-    const unsubscribeNewMessage = subscribeToEvent(
-      "newMessage",
-      (data: MessageResponce) => {
-        if (data.supportRequest === activeSupportRequest._id) {
-          activeSupportRequest.messages.push(data.message);
-          setActiveSupportRequest(activeSupportRequest);
-          setLoading(false);
-          setMessage((prev) => ({ ...prev, text: "" }));
-        }
-      }
-    );
-
-    if (
-      activeSupportRequest._id.length > 0 &&
-      activeSupportRequest.user.length > 0
-    ) {
-      socket?.emit("joinClientToRoom", {
-        userId: activeSupportRequest.user,
-        roomId: activeSupportRequest._id,
-      });
-    }
-
-    return () => {
-      unsubscribeNewSupportRequest();
-      unsubscribeNewMessage();
-    };
-  }, [activeSupportRequest, socket]);
-
-  useEffect(() => {
     if (!user._id) navigate("/");
     setMessage((prev) => ({ ...prev, author: user._id }));
 
@@ -80,9 +37,11 @@ const ManagerChatCard = ({ userData }: ManagerSupportCardPrompt) => {
   }, [user]);
 
   const fetchChat = async () => {
+    if (!userId) return;
+
     try {
-      const url = new URL(`${VITE_BACKEND_URL}/api/manager/support-requests`);
-      url.searchParams.append("user", userData._id);
+      const url = new URL(`${VITE_BACKEND_URL}/api/client/support-requests`);
+      url.searchParams.append("user", userId);
       url.searchParams.append("isActive", "true");
       const response = await fetch(url, { credentials: "include" });
 
@@ -107,42 +66,39 @@ const ManagerChatCard = ({ userData }: ManagerSupportCardPrompt) => {
     }
   };
 
-  const sendCreateNewSupportRequest = async () => {
-    try {
-      const createSupportRequest: CreateSupportRequest = {
-        user: message.author,
-        text: message.text,
-      };
-
-      const response = await fetch(
-        `${VITE_BACKEND_URL}/api/client/support-requests/`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(createSupportRequest),
-          credentials: "include",
+  useEffect(() => {
+    const unsubscribeNewMessage = subscribeToEvent(
+      "newMessage",
+      (data: MessageResponce) => {
+        if (data.supportRequest === activeSupportRequest._id) {
+          activeSupportRequest.messages.push(data.message);
+          setActiveSupportRequest(activeSupportRequest);
+          setLoading(false);
+          setMessage((prev) => ({ ...prev, text: "" }));
         }
-      );
-
-      if (!response.ok) {
-        const error = await response.text();
-        throw new Error(`Ошибка при создании запроса в поддержку: ${error}`);
       }
-      const data: SupportRequest = await response.json();
+    );
 
-      setMessage((prev) => ({
-        ...prev,
-        supportRequest: data._id,
-      }));
-    } catch (error) {
-      throw new Error(`Ошибка при создании запроса в поддержку: ${error}`);
+    if (
+      activeSupportRequest._id.length > 0 &&
+      activeSupportRequest.user.length > 0
+    ) {
+      socket?.emit("joinClientToRoom", {
+        userId: user._id,
+        roomId: activeSupportRequest._id,
+      });
     }
+
+    return () => {
+      unsubscribeNewMessage();
+    };
+  }, [activeSupportRequest, socket, userId]);
+
+  const handleSubmit = () => {
+    sendCreateNewMessage();
   };
 
   const sendCreateNewMessage = async () => {
-    console.log(message);
     try {
       const response = await fetch(
         `${VITE_BACKEND_URL}/api/common/support-requests/${activeSupportRequest._id}/messages`,
@@ -165,63 +121,20 @@ const ManagerChatCard = ({ userData }: ManagerSupportCardPrompt) => {
     }
   };
 
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-
-    activeSupportRequest.isActive
-      ? sendCreateNewMessage()
-      : sendCreateNewSupportRequest();
-  };
-
-  const showChatView = () => {
-    return (
-      <div className="message-list">
-        {activeSupportRequest.messages.map((message, index) => (
-          <MessageCard
-            key={index}
-            isYour={message.author === user._id}
-            isRead={false}
-            messageData={message.text}
-          />
-        ))}
-      </div>
-    );
-  };
-
-  const showChatCardForm = () => {
-    return (
-      <form onSubmit={handleSubmit} className="common-form">
-        <div className="form-group">
-          <input
-            type="text"
-            id="message"
-            value={message.text}
-            onChange={(e) => {
-              setMessage((prev) => ({ ...prev, text: e.target.value }));
-            }}
-            placeholder="Введите сообщение"
-            required
-          />
-        </div>
-
-        <div className="form-actions">
-          <button type="submit" className="btn btn-primary">
-            Отправить
-          </button>
-        </div>
-      </form>
-    );
-  };
+  const closeSupportRequest = () => {};
 
   if (loading) return <div>Загрузка...</div>;
 
   return (
-    <div className="chat-card">
+    <div className="support-card">
       <h1 className="container-main-title">Поддержка</h1>
-
-      {showChatView()}
-      {showChatCardForm()}
+      <ChatCard
+        activeSupportRequest={activeSupportRequest}
+        message={message}
+        handleSubmit={handleSubmit}
+        setMessage={setMessage}
+        closeSupportRequest={closeSupportRequest}
+      />
     </div>
   );
 };
