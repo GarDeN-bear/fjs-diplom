@@ -86,6 +86,16 @@ const ClientSupportCard = () => {
       }
     );
 
+    const unsubscribeMarkMessagesAsRead = subscribeToEvent(
+      "markMessagesAsRead",
+      (data: SupportRequest) => {
+        if (activeSupportRequest._id === data._id) {
+          setActiveSupportRequest(data);
+          setLoading(false);
+        }
+      }
+    );
+
     if (
       activeSupportRequest._id.length > 0 &&
       activeSupportRequest.user.length > 0
@@ -99,6 +109,7 @@ const ClientSupportCard = () => {
     return () => {
       unsubscribeNewSupportRequest();
       unsubscribeNewMessage();
+      unsubscribeMarkMessagesAsRead();
     };
   }, [activeSupportRequest, socket]);
 

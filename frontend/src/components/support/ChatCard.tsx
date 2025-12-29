@@ -1,7 +1,9 @@
-import { type FormEvent } from "react";
+import { useRef, type FormEvent } from "react";
 import MessageCard from "./MessageCard";
 import {
+  VITE_BACKEND_URL,
   type CreateMessageRequest,
+  type Message,
   type SupportRequest,
 } from "../../utils/utils";
 import { useAuth } from "../context/auth/AuthContext";
@@ -23,15 +25,88 @@ const ChatCard = ({
 }: ChatCardPrompt) => {
   const { user } = useAuth();
 
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+
+  const checkIfMessageIsVisible = (messageId: string): boolean => {
+    if (!messagesContainerRef.current) return false;
+
+    const messageElement = document.getElementById(messageId);
+    if (!messageElement) return false;
+
+    const container = messagesContainerRef.current;
+    const messageRect = messageElement.getBoundingClientRect();
+    const containerRect = container.getBoundingClientRect();
+
+    return (
+      messageRect.top >= containerRect.top &&
+      messageRect.bottom <= containerRect.bottom
+    );
+  };
+
+  const handleScroll = async () => {
+    await markMessagesAsRead();
+  };
+
+  const markMessagesAsRead = async () => {
+    if (!activeSupportRequest._id || !user._id) return;
+
+    let createdBefore: Date = new Date();
+    let hasUnreadMessages = false;
+    activeSupportRequest.messages.forEach((msg: Message) => {
+      if (
+        !msg.readAt &&
+        msg.author !== user._id &&
+        checkIfMessageIsVisible(msg._id)
+      ) {
+        createdBefore = new Date(msg.sentAt);
+        hasUnreadMessages = true;
+        return;
+      }
+    });
+
+    if (!hasUnreadMessages) return;
+
+    try {
+      const response = await fetch(
+        `${VITE_BACKEND_URL}/api/common/support-requests/${activeSupportRequest._id}/messages/read`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            user: user._id,
+            supportRequest: activeSupportRequest._id,
+            createdBefore: createdBefore.toISOString(),
+          }),
+          credentials: "include",
+        }
+      );
+
+      if (!response.ok) {
+        const error = await response.text();
+        console.error(`Ошибка при пометке сообщений как прочитанных: ${error}`);
+      }
+    } catch (error) {
+      console.error(`Ошибка при пометке сообщений как прочитанных: ${error}`);
+    } finally {
+    }
+  };
+
   const showChatView = () => {
     return (
-      <div className="message-list">
+      <div
+        className="message-list"
+        ref={messagesContainerRef}
+        onScroll={handleScroll}
+      >
         {activeSupportRequest.messages.map((message, index) => (
           <MessageCard
             key={index}
             isYour={message.author === user._id}
-            isRead={false}
+            isRead={message.readAt !== undefined}
             messageData={message.text}
+            messageId={message._id}
           />
         ))}
       </div>

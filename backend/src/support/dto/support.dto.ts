@@ -29,6 +29,7 @@ export class MarkMessagesAsReadDto {
   supportRequest: string;
 
   @IsDate()
+  @Transform(({ value }) => (value ? new Date(value) : null))
   createdBefore: Date;
 }
 

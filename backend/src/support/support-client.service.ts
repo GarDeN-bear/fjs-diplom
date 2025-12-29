@@ -77,12 +77,14 @@ export class SupportClientService implements ISupportRequestClientService {
     support.messages.forEach((msg: MessageDocument) => {
       if (
         !msg.readAt &&
-        msg.sentAt < params.createdBefore &&
-        msg.author.toString() === params.user
+        msg.sentAt <= params.createdBefore &&
+        msg.author.toString() !== params.user
       ) {
         msg.readAt = new Date();
       }
     });
+
+    this.eventEmitter.emit('sendMarkMessagesAsRead', support);
 
     await support.save();
   }

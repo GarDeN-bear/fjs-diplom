@@ -32,6 +32,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.eventEmitter.on('sendMessage', (data) => {
       this.handleSendMessageToRoom(data.roomId, data.message);
     });
+    this.eventEmitter.on('sendMarkMessagesAsRead', (data) => {
+      this.handleSendMarkMessagesAsRead(data);
+    });
   }
 
   handleConnection(client: Socket) {
@@ -138,5 +141,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       .to(roomId)
       .emit('newMessage', { supportRequest: roomId, message: message });
     console.log(`Message sent to room ${roomId} via EventEmitter`);
+  }
+
+  private handleSendMarkMessagesAsRead(supportRequest: SupportDocument) {
+    const roomId: string = supportRequest._id.toString();
+    this.server.to(roomId).emit('markMessagesAsRead', supportRequest);
+    console.log(
+      `Mark messages as read sent to room ${roomId} via EventEmitter`,
+    );
   }
 }

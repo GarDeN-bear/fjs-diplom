@@ -83,7 +83,7 @@ const ManagerSupportCard = () => {
 
   const fetchChat = async (userId: string): Promise<boolean> => {
     try {
-      const url = new URL(`${VITE_BACKEND_URL}/api/client/support-requests`);
+      const url = new URL(`${VITE_BACKEND_URL}/api/manager/support-requests`);
       url.searchParams.append("user", userId);
       url.searchParams.append("isActive", "true");
       const response = await fetch(url, { credentials: "include" });

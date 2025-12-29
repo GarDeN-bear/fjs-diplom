@@ -6,12 +6,14 @@ import { ISupportRequestEmployeeService } from './interfaces/support.interface';
 import { Support, SupportDocument } from './schemas/support.schema';
 import { MarkMessagesAsReadDto } from './dto/support.dto';
 import { MessageDocument } from './messages/schemas/message.schema';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()
 export class SupportEmployeeService implements ISupportRequestEmployeeService {
   constructor(
     @InjectModel(Support.name)
     private supportModel: Model<SupportDocument>,
+    private eventEmitter: EventEmitter2,
   ) {}
 
   async markMessagesAsRead(params: MarkMessagesAsReadDto) {
@@ -22,16 +24,17 @@ export class SupportEmployeeService implements ISupportRequestEmployeeService {
     if (!support) {
       throw new Error('Support request not found');
     }
-
     support.messages.forEach((msg: MessageDocument) => {
       if (
         !msg.readAt &&
-        msg.sentAt < params.createdBefore &&
-        msg.author.toString() === params.user
+        msg.sentAt <= params.createdBefore &&
+        msg.author.toString() !== params.user
       ) {
         msg.readAt = new Date();
       }
     });
+
+    this.eventEmitter.emit('sendMarkMessagesAsRead', support);
 
     await support.save();
   }

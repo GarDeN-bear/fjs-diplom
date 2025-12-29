@@ -40,7 +40,7 @@ const ManagerChatCard = () => {
     if (!userId) return;
 
     try {
-      const url = new URL(`${VITE_BACKEND_URL}/api/client/support-requests`);
+      const url = new URL(`${VITE_BACKEND_URL}/api/manager/support-requests`);
       url.searchParams.append("user", userId);
       url.searchParams.append("isActive", "true");
       const response = await fetch(url, { credentials: "include" });
@@ -78,6 +78,15 @@ const ManagerChatCard = () => {
         }
       }
     );
+    const unsubscribeMarkMessagesAsRead = subscribeToEvent(
+      "markMessagesAsRead",
+      (data: SupportRequest) => {
+        if (activeSupportRequest._id === data._id) {
+          setActiveSupportRequest(data);
+          setLoading(false);
+        }
+      }
+    );
 
     if (
       activeSupportRequest._id.length > 0 &&
@@ -91,6 +100,7 @@ const ManagerChatCard = () => {
 
     return () => {
       unsubscribeNewMessage();
+      unsubscribeMarkMessagesAsRead();
     };
   }, [activeSupportRequest, socket, userId]);
 
@@ -121,7 +131,7 @@ const ManagerChatCard = () => {
     }
   };
 
-  const closeSupportRequest = () => {};
+  const closeSupportRequest = async () => {};
 
   if (loading) return <div>Загрузка...</div>;
 

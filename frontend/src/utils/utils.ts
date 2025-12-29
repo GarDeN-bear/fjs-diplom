@@ -79,6 +79,7 @@ export interface CreateMessageRequest {
   author: string;
   supportRequest: string;
   text: string;
+  readAt?: Date;
 }
 
 export interface MessageResponce {
