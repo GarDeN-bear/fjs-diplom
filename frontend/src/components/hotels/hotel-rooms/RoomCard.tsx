@@ -22,7 +22,6 @@ const RoomCard = ({ mode, roomData, roomCardAddView }: RoomCardProps) => {
 
   useEffect(() => {
     let id: string | undefined = roomId;
-
     switch (mode) {
       case RoomCardMode.Hotel:
       case RoomCardMode.HotelCatalog:
@@ -53,19 +52,19 @@ const RoomCard = ({ mode, roomData, roomCardAddView }: RoomCardProps) => {
   };
 
   const sendCreateReservationData = async () => {
-    if (!room.hotel || !roomId || !dateStart || !dateEnd) {
+    if (!user._id || !room.hotel || !roomId || !dateStart || !dateEnd) {
       return;
     }
 
     try {
-      const reservation: utils.CreateReservation = {
-        userId: "",
+      const reservation: utils.Reservation = {
+        userId: user._id,
         hotelId: room.hotel,
         roomId: roomId,
         dateStart: dateStart,
         dateEnd: dateEnd,
       };
-      console.log(reservation);
+
       const response = await fetch(
         `${utils.VITE_BACKEND_URL}/api/client/reservations/`,
         {
@@ -111,21 +110,24 @@ const RoomCard = ({ mode, roomData, roomCardAddView }: RoomCardProps) => {
         {room.images.map((image, index) => (
           <div key={index} className="room-image">
             <img src={utils.getImageUrl(image)} alt={`Комната ${index + 1}`} />
-            <div className="form-actions">
-              {mode === RoomCardMode.Common && (
-                <button
-                  className="btn btn-primary"
-                  onClick={() => handleOnReservationBtn()}
-                >
-                  Забронировать
-                </button>
-              )}
-            </div>
+
             {roomCardAddView && roomCardAddView(room)}
           </div>
         ))}
         <div className="room-card-description">
           <p>{room.description}</p>
+        </div>
+        <div className="form-actions">
+          {mode === RoomCardMode.Common &&
+            (user.role === utils.Role.Client ||
+              user.role === utils.Role.Common) && (
+              <button
+                className="btn btn-primary"
+                onClick={() => handleOnReservationBtn()}
+              >
+                Забронировать
+              </button>
+            )}
         </div>
       </>
     );
@@ -143,7 +145,7 @@ const RoomCard = ({ mode, roomData, roomCardAddView }: RoomCardProps) => {
         {mode !== RoomCardMode.HotelCatalog && (
           <div className="room-card-description">
             <p>{room.description}</p>
-            {mode === RoomCardMode.Common && (
+            {mode === RoomCardMode.Hotel && (
               <button
                 onClick={() => {
                   navigate(`/room/${roomData?._id}`);

@@ -24,7 +24,8 @@ export const emptyRoom: HotelRoom = {
   hotel: "",
 };
 
-export interface CreateReservation {
+export interface Reservation {
+  _id?: string;
   userId: string;
   hotelId: string;
   roomId: string;

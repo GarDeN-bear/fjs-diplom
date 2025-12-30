@@ -6,6 +6,7 @@ import {
   Delete,
   Param,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 
 import { ReservationsService } from './reservations.service';
@@ -26,7 +27,7 @@ export class ReservationsController {
   @Roles('manager')
   @Get('manager/reservations/')
   getReservationsForManager(
-    @Body() filter: ReservationSearchOptionsDto,
+    @Query() filter: ReservationSearchOptionsDto,
   ): Promise<ReservationDocument[]> {
     return this.reservationsService.getReservations(filter);
   }
@@ -51,7 +52,7 @@ export class ReservationsController {
   @Roles('client')
   @Get('client/reservations/')
   getReservationsForClient(
-    @Body() filter: ReservationSearchOptionsDto,
+    @Query() filter: ReservationSearchOptionsDto,
   ): Promise<ReservationDocument[]> {
     return this.reservationsService.getReservations(filter);
   }

@@ -23,6 +23,7 @@ import UserCard from "./auth/UserCard";
 import { SocketProvider } from "./context/support/SupportContext";
 import SupportCard from "./support/SupportCard";
 import ManagerChatCard from "./support/ManagerChatCard";
+import ReservationsCatalog from "./reservations/ReservationsCatalog";
 
 const AppProviders = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -32,9 +33,7 @@ const AppProviders = ({ children }: { children: React.ReactNode }) => {
           <RoomEditProvider>
             <HotelCreateProvider>
               <RoomCreateProvider>
-                <SocketProvider>
-                  <HotelsProvider>{children}</HotelsProvider>
-                </SocketProvider>
+                <SocketProvider>{children}</SocketProvider>
               </RoomCreateProvider>
             </HotelCreateProvider>
           </RoomEditProvider>
@@ -51,6 +50,7 @@ const Main = () => {
         <Routes>
           <Route path="/" element={<HotelCatalog />} />
           <Route path="/search" element={<HotelsSearch />} />
+          <Route path="/reservations/:id?" element={<ReservationsCatalog />} />
           <Route path="/room/edit/:id" element={<RoomEdit />} />
           <Route path="/room/create" element={<RoomCreate />} />
           <Route

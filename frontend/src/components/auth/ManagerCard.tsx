@@ -8,6 +8,7 @@ import {
   type User,
 } from "../../utils/utils";
 import Pagination from "../common/Pagination";
+import { useNavigate } from "react-router-dom";
 
 const ManagerCard = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -15,6 +16,8 @@ const ManagerCard = () => {
   const [currentNumber, setCurrentNumber] = useState(1);
   const [numbers, setNumbers] = useState<number[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchUsers().finally(() => setLoading(false));
@@ -64,6 +67,9 @@ const ManagerCard = () => {
             key={index}
             mode={ClientCardMode.Catalog}
             userData={user}
+            onReservationBtnClick={() => {
+              navigate(`/reservations/${user._id}`);
+            }}
           />
         ))}
       </div>

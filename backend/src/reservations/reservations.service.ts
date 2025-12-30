@@ -34,31 +34,12 @@ export class ReservationsService implements IReservation {
   async getReservations(
     filter: ReservationSearchOptionsDto,
   ): Promise<ReservationDocument[]> {
-    const { userId } = filter;
+    const { userId, limit, offset } = filter;
 
     const query: any = {};
-
     if (userId) {
       query.userId = new Types.ObjectId(userId);
     }
-
-    if (filter.dateStart && filter.dateEnd) {
-      query.$or.push({
-        dateStart: { $lte: filter.dateEnd },
-        dateEnd: { $gte: filter.dateStart },
-      });
-    } else if (filter.dateStart) {
-      query.dateStart = { $gte: filter.dateStart };
-    } else if (filter.dateEnd) {
-      query.dateEnd = { $lte: filter.dateEnd };
-    }
-
-    return this.reservationModel
-      .find(query)
-      .populate('userId')
-      .populate('hotelId')
-      .populate('roomId')
-      .sort({ dateStart: 1 })
-      .exec();
+    return this.reservationModel.find(query).limit(limit).skip(offset).exec();
   }
 }

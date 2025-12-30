@@ -19,6 +19,11 @@ const Menu = () => {
             <Link to="/hotel/create">Добавить гостиницу</Link>
           </li>
         )}
+        {user.role === Role.Client && (
+          <li className="row">
+            <Link to="/reservations">Брони</Link>
+          </li>
+        )}
       </ul>
     </nav>
   );

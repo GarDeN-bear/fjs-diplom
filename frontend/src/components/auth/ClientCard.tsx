@@ -10,12 +10,14 @@ interface ClientCardPrompt {
   mode: ClientCardMode;
   userData?: User;
   onConnectBtnClick?: () => void;
+  onReservationBtnClick?: () => void;
 }
 
 const ClientCard = ({
   mode,
   userData,
   onConnectBtnClick,
+  onReservationBtnClick,
 }: ClientCardPrompt) => {
   const [user, setUser] = useState<User>(emptyUser);
 
@@ -39,6 +41,9 @@ const ClientCard = ({
         </div>
         {onConnectBtnClick && (
           <button onClick={onConnectBtnClick}>Подключиться</button>
+        )}
+        {onReservationBtnClick && (
+          <button onClick={onReservationBtnClick}>Брони</button>
         )}
       </div>
     );
