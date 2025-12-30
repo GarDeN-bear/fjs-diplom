@@ -11,6 +11,7 @@ export enum HotelCardMode {
 export enum RoomCardMode {
   Common,
   Create,
+  Edit,
   Hotel,
   HotelCatalog,
   None,

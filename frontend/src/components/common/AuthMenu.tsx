@@ -50,14 +50,16 @@ const AuthMenu = ({ setAuthMenuVisibility }: AuthMenuPrompt) => {
       >
         Регистрация
       </li>
-      <li
-        onClick={() => {
-          logout();
-          setAuthMenuVisibility(false);
-        }}
-      >
-        Выход
-      </li>
+      {user.role !== Role.Common && (
+        <li
+          onClick={() => {
+            logout();
+            setAuthMenuVisibility(false);
+          }}
+        >
+          Выход
+        </li>
+      )}
     </ul>
   );
 };

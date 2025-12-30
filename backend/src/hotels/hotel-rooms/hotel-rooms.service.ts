@@ -29,10 +29,7 @@ export class HotelRoomsService implements IHotelRoomService {
   }
 
   async findById(id: string): Promise<HotelRoomDocument> {
-    const hotelRoom = await this.hotelRoomModel
-      .findById(id)
-      .populate('hotel')
-      .exec();
+    const hotelRoom = await this.hotelRoomModel.findById(id).exec();
     if (!hotelRoom) {
       throw new NotFoundException('Room was not found');
     }

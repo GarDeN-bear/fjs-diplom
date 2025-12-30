@@ -24,6 +24,7 @@ const HotelEdit = () => {
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
+
   const location = useLocation();
 
   useEffect(() => {
@@ -340,7 +341,7 @@ const HotelEdit = () => {
 
           <button
             className="btn-edit btn-remove"
-            onClick={() => removeRoom(room)}
+            onClick={() => removeRoom(room, true)}
             title="Удалить"
           >
             ×
@@ -399,7 +400,11 @@ const HotelEdit = () => {
           <button type="submit" className="btn btn-primary">
             Сохранить
           </button>
-          <button className="btn btn-secondary" onClick={() => navigate("/")}>
+          <button
+            type="button"
+            className="btn btn-secondary"
+            onClick={() => navigate("/")}
+          >
             Отменить
           </button>
         </div>

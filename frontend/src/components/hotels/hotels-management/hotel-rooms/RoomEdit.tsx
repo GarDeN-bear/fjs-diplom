@@ -1,13 +1,15 @@
-import { useEffect } from "react";
+import { useEffect, type FormEvent } from "react";
 
 import * as utils from "../../../../utils/utils";
 import { useRoomEdit } from "../../../context/hotels/RoomEditContext";
 import RoomCard from "../../hotel-rooms/RoomCard";
 import { useNavigate } from "react-router-dom";
 import { RoomCardMode, useHotels } from "../../../context/hotels/HotelsContext";
+import { useHotelEdit } from "../../../context/hotels/HotelEditContext";
 
 const RoomEdit = () => {
   const { room, setRoom, onHandleSubmit } = useRoomEdit();
+  const { hotel } = useHotelEdit();
   const { returnToMain } = useHotels();
 
   const navigate = useNavigate();
@@ -16,7 +18,7 @@ const RoomEdit = () => {
     if (returnToMain) navigate("/");
 
     utils.scrollToTop();
-  }, [room]);
+  }, [room.images]);
 
   const handleChange = async (
     field: keyof utils.HotelRoom,
@@ -32,9 +34,12 @@ const RoomEdit = () => {
   };
 
   const showEditView = () => {
+    if (!room) return;
+
     return (
       <form
-        onSubmit={() => {
+        onSubmit={(e: FormEvent) => {
+          e.preventDefault();
           onHandleSubmit(room);
         }}
         className="common-form"
@@ -44,7 +49,7 @@ const RoomEdit = () => {
             Изображения
           </label>
           <div className="room-cards">
-            <RoomCard mode={RoomCardMode.Common} roomData={room} />
+            <RoomCard mode={RoomCardMode.Edit} roomData={room} />
           </div>
           <input
             id="images"
@@ -77,7 +82,7 @@ const RoomEdit = () => {
             type="button"
             className="btn btn-secondary"
             onClick={() => {
-              useNavigate()("/hotel/edit");
+              navigate(`/hotel/edit/${hotel._id}`);
             }}
           >
             Отменить

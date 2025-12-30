@@ -33,7 +33,7 @@ const RegisterCard = () => {
 
   const sendRegisterData = async () => {
     try {
-      const { _id, ...userWithoutId } = user;
+      const { role, _id, ...userWithoutRoleAndId } = user;
       setMessage("");
       const url: string = `${VITE_BACKEND_URL}/api/${
         authUser.role === Role.Admin ? "admin/users" : "client/register"
@@ -43,7 +43,11 @@ const RegisterCard = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(userWithoutId),
+        body: JSON.stringify(
+          authUser.role === Role.Admin
+            ? { role: role, ...userWithoutRoleAndId }
+            : userWithoutRoleAndId
+        ),
         credentials: "include",
       });
 

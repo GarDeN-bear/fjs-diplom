@@ -40,7 +40,7 @@ const HotelCard = ({ mode, hotelData }: HotelCardPrompt) => {
     }
 
     fetchRooms(id).finally(() => setLoading(false));
-  }, [hotelData]);
+  }, [hotelData, hotelId]);
 
   const fetchHotel = async (id?: string) => {
     if (!id) return;
@@ -52,6 +52,7 @@ const HotelCard = ({ mode, hotelData }: HotelCardPrompt) => {
       const data: utils.Hotel = await response.json();
 
       setHotel(data);
+      setHotelName(data.title);
     } catch (error) {
       console.error("Ошибка: ", error);
     }
@@ -74,9 +75,8 @@ const HotelCard = ({ mode, hotelData }: HotelCardPrompt) => {
     }
   };
 
-  const handleOnReservationBtn = (title: string) => {
+  const handleOnReservationBtn = () => {
     navigate(`/search`);
-    setHotelName(title);
   };
 
   const hotelCardCatalogView = () => {
@@ -114,7 +114,7 @@ const HotelCard = ({ mode, hotelData }: HotelCardPrompt) => {
           {(!dateStart || !dateEnd) && (
             <button
               className="btn btn-primary"
-              onClick={() => handleOnReservationBtn(hotel?.title)}
+              onClick={() => handleOnReservationBtn()}
             >
               Забронировать
             </button>

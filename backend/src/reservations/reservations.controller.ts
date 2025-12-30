@@ -38,8 +38,8 @@ export class ReservationsController {
     return this.reservationsService.removeReservation(id);
   }
 
-  // @UseGuards(JwtAuthGuard, RolesGuard)
-  // @Roles('client')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('client')
   @Post('client/reservations/')
   addReservationForClient(
     @Body() data: CreateReservationDto,

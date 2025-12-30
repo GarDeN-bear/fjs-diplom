@@ -222,6 +222,12 @@
   background-color: cornflowerblue;
   border-radius: 1vw;
 }
+
+.room-card-description button {
+  background-color: cornflowerblue;
+  border-radius: 1vw;
+}
+
 .room-image {
   position: relative;
 }

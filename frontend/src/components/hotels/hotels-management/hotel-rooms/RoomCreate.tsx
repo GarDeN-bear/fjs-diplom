@@ -82,7 +82,7 @@ const RoomCreate = () => {
             type="button"
             className="btn btn-secondary"
             onClick={() => {
-              useNavigate()("/");
+              navigate("/");
             }}
           >
             Отменить

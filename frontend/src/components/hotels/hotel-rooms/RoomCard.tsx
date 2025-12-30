@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import * as utils from "../../../utils/utils";
 import { RoomCardMode } from "../../context/hotels/HotelsContext";
 import { useHotelsSearch } from "../../context/hotels/HotelsSearchContext";
+import { useAuth } from "../../context/auth/AuthContext";
 interface RoomCardProps {
   mode: RoomCardMode;
   roomData?: utils.HotelRoom;
@@ -17,6 +18,7 @@ const RoomCard = ({ mode, roomData, roomCardAddView }: RoomCardProps) => {
   const navigate = useNavigate();
 
   const { dateStart, dateEnd } = useHotelsSearch();
+  const { user } = useAuth();
 
   useEffect(() => {
     let id: string | undefined = roomId;
@@ -25,6 +27,7 @@ const RoomCard = ({ mode, roomData, roomCardAddView }: RoomCardProps) => {
       case RoomCardMode.Hotel:
       case RoomCardMode.HotelCatalog:
       case RoomCardMode.Create:
+      case RoomCardMode.Edit:
         if (roomData) setRoom(roomData);
         setLoading(false);
         break;
@@ -62,7 +65,7 @@ const RoomCard = ({ mode, roomData, roomCardAddView }: RoomCardProps) => {
         dateStart: dateStart,
         dateEnd: dateEnd,
       };
-
+      console.log(reservation);
       const response = await fetch(
         `${utils.VITE_BACKEND_URL}/api/client/reservations/`,
         {
@@ -88,6 +91,16 @@ const RoomCard = ({ mode, roomData, roomCardAddView }: RoomCardProps) => {
   };
 
   const handleOnReservationBtn = () => {
+    if (user.role === utils.Role.Common) {
+      navigate(`/auth/login`);
+      return;
+    }
+
+    if (!dateStart || !dateEnd) {
+      navigate(`/search`);
+      return;
+    }
+
     sendCreateReservationData();
     navigate("/");
   };
@@ -99,12 +112,14 @@ const RoomCard = ({ mode, roomData, roomCardAddView }: RoomCardProps) => {
           <div key={index} className="room-image">
             <img src={utils.getImageUrl(image)} alt={`Комната ${index + 1}`} />
             <div className="form-actions">
-              <button
-                className="btn btn-primary"
-                onClick={() => handleOnReservationBtn()}
-              >
-                Забронировать
-              </button>
+              {mode === RoomCardMode.Common && (
+                <button
+                  className="btn btn-primary"
+                  onClick={() => handleOnReservationBtn()}
+                >
+                  Забронировать
+                </button>
+              )}
             </div>
             {roomCardAddView && roomCardAddView(room)}
           </div>
@@ -128,6 +143,15 @@ const RoomCard = ({ mode, roomData, roomCardAddView }: RoomCardProps) => {
         {mode !== RoomCardMode.HotelCatalog && (
           <div className="room-card-description">
             <p>{room.description}</p>
+            {mode === RoomCardMode.Common && (
+              <button
+                onClick={() => {
+                  navigate(`/room/${roomData?._id}`);
+                }}
+              >
+                Подробнее
+              </button>
+            )}
           </div>
         )}
       </>

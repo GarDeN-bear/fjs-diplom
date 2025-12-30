@@ -104,7 +104,7 @@ export const emptyUser: User = {
 
 export const limit: number = 1000;
 export const offset: number = 0;
-export const itemsOnPage: number = 3;
+export const itemsOnPage: number = 10;
 
 export const VITE_BACKEND_URL =
   import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
