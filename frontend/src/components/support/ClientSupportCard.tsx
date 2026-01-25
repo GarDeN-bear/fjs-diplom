@@ -3,21 +3,27 @@ import ChatCard from "./ChatCard";
 import {
   emptyCreateMessageRequest,
   emptySupportRequest,
-  VITE_BACKEND_URL,
   type CreateMessageRequest,
-  type CreateSupportRequest,
   type MessageResponce,
   type SupportRequest,
 } from "../../utils/utils";
 import { useAuth } from "../context/auth/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useSocket } from "../context/support/SupportContext";
+import {
+  getSupportRequestsRequest,
+  sendCreateNewMessageRequest,
+  sendCreateNewSupportRequest,
+  type GetSupportRequestsData,
+  type SendCreateNewMessageRequestData,
+  type SendCreateNewSupportRequestData,
+} from "../api/support";
 
 const ClientSupportCard = () => {
   const [activeSupportRequest, setActiveSupportRequest] =
     useState<SupportRequest>(emptySupportRequest);
   const [message, setMessage] = useState<CreateMessageRequest>(
-    emptyCreateMessageRequest
+    emptyCreateMessageRequest,
   );
 
   const [loading, setLoading] = useState(true);
@@ -36,31 +42,23 @@ const ClientSupportCard = () => {
   }, [user]);
 
   const fetchChat = async () => {
-    try {
-      const url = new URL(`${VITE_BACKEND_URL}/api/client/support-requests`);
-      url.searchParams.append("user", user._id);
-      url.searchParams.append("isActive", "true");
-      const response = await fetch(url, { credentials: "include" });
+    const data: GetSupportRequestsData = {
+      userId: user._id,
+      role: "client",
+    };
 
-      if (!response.ok) {
-        const error = await response.text();
-        throw new Error(`Ошибка: ${error}`);
-      }
+    const resultData: SupportRequest[] | undefined =
+      await getSupportRequestsRequest(data);
 
-      const data: SupportRequest[] = await response.json();
+    const activeRequest: SupportRequest | undefined = resultData?.find(
+      (req) => req.isActive,
+    );
 
-      const activeRequest: SupportRequest | undefined = data.find(
-        (req) => req.isActive
-      );
-
-      setActiveSupportRequest(activeRequest || emptySupportRequest);
-      setMessage((prev) => ({
-        ...prev,
-        supportRequest: activeRequest?._id || "",
-      }));
-    } catch (error) {
-      console.log("Ошибка: ", error);
-    }
+    setActiveSupportRequest(activeRequest || emptySupportRequest);
+    setMessage((prev) => ({
+      ...prev,
+      supportRequest: activeRequest?._id || "",
+    }));
   };
 
   useEffect(() => {
@@ -71,7 +69,7 @@ const ClientSupportCard = () => {
           setActiveSupportRequest(data);
           setLoading(false);
         }
-      }
+      },
     );
 
     const unsubscribeNewMessage = subscribeToEvent(
@@ -83,7 +81,7 @@ const ClientSupportCard = () => {
           setLoading(false);
           setMessage((prev) => ({ ...prev, text: "" }));
         }
-      }
+      },
     );
 
     const unsubscribeMarkMessagesAsRead = subscribeToEvent(
@@ -93,7 +91,7 @@ const ClientSupportCard = () => {
           setActiveSupportRequest(data);
           setLoading(false);
         }
-      }
+      },
     );
 
     if (
@@ -116,64 +114,31 @@ const ClientSupportCard = () => {
   const handleSubmit = () => {
     activeSupportRequest.isActive
       ? sendCreateNewMessage()
-      : sendCreateNewSupportRequest();
+      : sendCreateNewSupport();
   };
 
-  const sendCreateNewSupportRequest = async () => {
-    try {
-      const createSupportRequest: CreateSupportRequest = {
-        user: message.author,
-        text: message.text,
-      };
+  const sendCreateNewSupport = async () => {
+    const data: SendCreateNewSupportRequestData = {
+      message: message,
+      role: "client",
+    };
 
-      const response = await fetch(
-        `${VITE_BACKEND_URL}/api/client/support-requests/`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(createSupportRequest),
-          credentials: "include",
-        }
-      );
+    const resultData: SupportRequest | undefined =
+      await sendCreateNewSupportRequest(data);
 
-      if (!response.ok) {
-        const error = await response.text();
-        throw new Error(`Ошибка при создании запроса в поддержку: ${error}`);
-      }
-      const data: SupportRequest = await response.json();
-
-      setMessage((prev) => ({
-        ...prev,
-        supportRequest: data._id,
-      }));
-    } catch (error) {
-      throw new Error(`Ошибка при создании запроса в поддержку: ${error}`);
-    }
+    setMessage((prev) => ({
+      ...prev,
+      supportRequest: resultData?._id || "",
+    }));
   };
 
   const sendCreateNewMessage = async () => {
-    try {
-      const response = await fetch(
-        `${VITE_BACKEND_URL}/api/common/support-requests/${activeSupportRequest._id}/messages`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(message),
-          credentials: "include",
-        }
-      );
+    const data: SendCreateNewMessageRequestData = {
+      activeSupportRequestId: activeSupportRequest._id,
+      message: message,
+    };
 
-      if (!response.ok) {
-        const error = await response.text();
-        throw new Error(`Ошибка при отправке сообщения: ${error}`);
-      }
-    } catch (error) {
-      throw new Error(`Ошибка при отправке сообщения: ${error}`);
-    }
+    await sendCreateNewMessageRequest(data);
   };
 
   if (loading) return <div>Загрузка...</div>;

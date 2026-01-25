@@ -3,7 +3,6 @@ import ChatCard from "./ChatCard";
 import {
   emptyCreateMessageRequest,
   emptySupportRequest,
-  VITE_BACKEND_URL,
   type CreateMessageRequest,
   type MessageResponce,
   type SupportRequest,
@@ -11,6 +10,12 @@ import {
 import { useAuth } from "../context/auth/AuthContext";
 import { useNavigate, useParams } from "react-router-dom";
 import { useSocket } from "../context/support/SupportContext";
+import {
+  getSupportRequestsRequest,
+  sendCreateNewMessageRequest,
+  type GetSupportRequestsData,
+  type SendCreateNewMessageRequestData,
+} from "../api/support";
 
 const ManagerChatCard = () => {
   const { userId } = useParams();
@@ -18,7 +23,7 @@ const ManagerChatCard = () => {
   const [activeSupportRequest, setActiveSupportRequest] =
     useState<SupportRequest>(emptySupportRequest);
   const [message, setMessage] = useState<CreateMessageRequest>(
-    emptyCreateMessageRequest
+    emptyCreateMessageRequest,
   );
 
   const [loading, setLoading] = useState(true);
@@ -39,31 +44,23 @@ const ManagerChatCard = () => {
   const fetchChat = async () => {
     if (!userId) return;
 
-    try {
-      const url = new URL(`${VITE_BACKEND_URL}/api/manager/support-requests`);
-      url.searchParams.append("user", userId);
-      url.searchParams.append("isActive", "true");
-      const response = await fetch(url, { credentials: "include" });
+    const data: GetSupportRequestsData = {
+      userId: user._id,
+      role: "manager",
+    };
 
-      if (!response.ok) {
-        const error = await response.text();
-        throw new Error(`Ошибка: ${error}`);
-      }
+    const resultData: SupportRequest[] | undefined =
+      await getSupportRequestsRequest(data);
 
-      const data: SupportRequest[] = await response.json();
+    const activeRequest: SupportRequest | undefined = resultData?.find(
+      (req) => req.isActive,
+    );
 
-      const activeRequest: SupportRequest | undefined = data.find(
-        (req) => req.isActive
-      );
-
-      setActiveSupportRequest(activeRequest || emptySupportRequest);
-      setMessage((prev) => ({
-        ...prev,
-        supportRequest: activeRequest?._id || "",
-      }));
-    } catch (error) {
-      console.log("Ошибка: ", error);
-    }
+    setActiveSupportRequest(activeRequest || emptySupportRequest);
+    setMessage((prev) => ({
+      ...prev,
+      supportRequest: activeRequest?._id || "",
+    }));
   };
 
   useEffect(() => {
@@ -76,7 +73,7 @@ const ManagerChatCard = () => {
           setLoading(false);
           setMessage((prev) => ({ ...prev, text: "" }));
         }
-      }
+      },
     );
     const unsubscribeMarkMessagesAsRead = subscribeToEvent(
       "markMessagesAsRead",
@@ -85,7 +82,7 @@ const ManagerChatCard = () => {
           setActiveSupportRequest(data);
           setLoading(false);
         }
-      }
+      },
     );
 
     if (
@@ -109,26 +106,12 @@ const ManagerChatCard = () => {
   };
 
   const sendCreateNewMessage = async () => {
-    try {
-      const response = await fetch(
-        `${VITE_BACKEND_URL}/api/common/support-requests/${activeSupportRequest._id}/messages`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(message),
-          credentials: "include",
-        }
-      );
+    const data: SendCreateNewMessageRequestData = {
+      activeSupportRequestId: activeSupportRequest._id,
+      message: message,
+    };
 
-      if (!response.ok) {
-        const error = await response.text();
-        throw new Error(`Ошибка при отправке сообщения: ${error}`);
-      }
-    } catch (error) {
-      throw new Error(`Ошибка при отправке сообщения: ${error}`);
-    }
+    await sendCreateNewMessageRequest(data);
   };
 
   const closeSupportRequest = async () => {};

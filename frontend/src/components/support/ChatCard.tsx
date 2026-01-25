@@ -1,12 +1,15 @@
 import { useRef, type FormEvent } from "react";
 import MessageCard from "./MessageCard";
 import {
-  VITE_BACKEND_URL,
   type CreateMessageRequest,
   type Message,
   type SupportRequest,
 } from "../../utils/utils";
 import { useAuth } from "../context/auth/AuthContext";
+import {
+  type MarkMessagesAsReadRequestData,
+  markMessagesAsReadRequest,
+} from "../api/support";
 
 interface ChatCardPrompt {
   activeSupportRequest: SupportRequest;
@@ -66,31 +69,13 @@ const ChatCard = ({
 
     if (!hasUnreadMessages) return;
 
-    try {
-      const response = await fetch(
-        `${VITE_BACKEND_URL}/api/common/support-requests/${activeSupportRequest._id}/messages/read`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            user: user._id,
-            supportRequest: activeSupportRequest._id,
-            createdBefore: createdBefore.toISOString(),
-          }),
-          credentials: "include",
-        }
-      );
+    const data: MarkMessagesAsReadRequestData = {
+      activeSupportRequestId: activeSupportRequest._id,
+      userId: user._id,
+      createdBefore: createdBefore.toISOString(),
+    };
 
-      if (!response.ok) {
-        const error = await response.text();
-        console.error(`Ошибка при пометке сообщений как прочитанных: ${error}`);
-      }
-    } catch (error) {
-      console.error(`Ошибка при пометке сообщений как прочитанных: ${error}`);
-    } finally {
-    }
+    await markMessagesAsReadRequest(data);
   };
 
   const showChatView = () => {

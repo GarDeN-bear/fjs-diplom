@@ -1,15 +1,19 @@
 import { useEffect, useState } from "react";
 import {
   itemsOnPage,
-  limit,
   scrollToTop,
-  VITE_BACKEND_URL,
   type SupportRequest,
   type User,
 } from "../../utils/utils";
 import Pagination from "../common/Pagination";
 import ClientCard, { ClientCardMode } from "../auth/ClientCard";
 import { useNavigate } from "react-router-dom";
+import {
+  getSupportRequestsRequest,
+  getUsersRequest,
+  type GetSupportRequestsData,
+  type GetUsersRequestData,
+} from "../api/support";
 
 const ManagerSupportCard = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -49,60 +53,46 @@ const ManagerSupportCard = () => {
   };
 
   const fetchUsers = async () => {
-    try {
-      const url: string = `${VITE_BACKEND_URL}/api/manager/users?limit=${limit.toString()}&offset=${(
-        (currentNumber - 1) *
-        itemsOnPage
-      ).toString()}`;
+    const data: GetUsersRequestData = {
+      currentNumber: currentNumber,
+      itemsOnPage: itemsOnPage,
+      role: "manager",
+    };
+    const resultData: User[] | undefined = await getUsersRequest(data);
 
-      const response = await fetch(url, { credentials: "include" });
-      const data: User[] = await response.json();
+    const userPromises = resultData?.map(async (user) => {
+      const hasActiveChat = await fetchChat(user._id);
+      return hasActiveChat ? user : null;
+    });
 
-      const userPromises = data.map(async (user) => {
-        const hasActiveChat = await fetchChat(user._id);
-        return hasActiveChat ? user : null;
-      });
+    const usersWithChats = await Promise.all(userPromises || []);
+    const filteredUsers = usersWithChats.filter(
+      (user): user is User => user !== null,
+    );
 
-      const usersWithChats = await Promise.all(userPromises);
-      const filteredUsers = usersWithChats.filter(
-        (user): user is User => user !== null
-      );
+    setUsers(filteredUsers);
 
-      setUsers(filteredUsers);
-
-      const totalPages = Math.ceil(filteredUsers.length / itemsOnPage);
-      const numbers = [];
-      for (let i = 1; i <= totalPages; i++) {
-        numbers.push(i);
-      }
-      setNumbers(numbers);
-    } catch (error) {
-      console.log("Ошибка: ", error);
+    const totalPages = Math.ceil(filteredUsers.length / itemsOnPage);
+    const numbers = [];
+    for (let i = 1; i <= totalPages; i++) {
+      numbers.push(i);
     }
+    setNumbers(numbers);
   };
 
   const fetchChat = async (userId: string): Promise<boolean> => {
-    try {
-      const url = new URL(`${VITE_BACKEND_URL}/api/manager/support-requests`);
-      url.searchParams.append("user", userId);
-      url.searchParams.append("isActive", "true");
-      const response = await fetch(url, { credentials: "include" });
+    const data: GetSupportRequestsData = {
+      userId: userId,
+      role: "manager",
+    };
 
-      if (!response.ok) {
-        const error = await response.text();
-        throw new Error(`Ошибка: ${error}`);
-      }
+    const resultData: SupportRequest[] | undefined =
+      await getSupportRequestsRequest(data);
 
-      const data: SupportRequest[] = await response.json();
-      const activeRequest: SupportRequest | undefined = data.find(
-        (req) => req.isActive
-      );
-
-      return activeRequest !== undefined;
-    } catch (error) {
-      console.log("Ошибка: ", error);
-      return false;
-    }
+    const activeRequest: SupportRequest | undefined = resultData?.find(
+      (req) => req.isActive,
+    );
+    return activeRequest !== undefined;
   };
 
   const onConnectBtnClick = (user: User) => {
