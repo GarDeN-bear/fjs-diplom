@@ -2,7 +2,7 @@
 
 services:
   backend:
-    image: node:22-alpine
+    build: ./backend
     working_dir: /backend
     volumes:
       - ./backend:/backend
@@ -13,9 +13,8 @@ services:
       - PORT=3000
       - MONGO_URL=mongodb://root:example@mongo:27017/
       - SESSION_SECRET=7f4a8d3e1c9b2a5f6e8c0d7b3a9f1e5c2d8b4a7f0e9c6d5b8a3f1e7c4a9d2b6f8e
-    command: npm run start:dev
   frontend:
-    image: node:22-alpine
+    build: ./frontend
     working_dir: /frontend
     volumes:
       - ./frontend:/frontend
@@ -25,7 +24,6 @@ services:
       - VITE_PORT=5000
       - VITE_HOST=0.0.0.0
       - VITE_BACKEND_URL=http://localhost:3000
-    command: npm run dev
     depends_on:
       - backend
   mongo:
