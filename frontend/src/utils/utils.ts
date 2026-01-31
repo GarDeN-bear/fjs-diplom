@@ -15,6 +15,7 @@ export interface HotelRoom {
   description: string;
   images: (string | File)[];
   hotel: string;
+  isEnabled: boolean;
 }
 
 export const emptyRoom: HotelRoom = {
@@ -22,6 +23,7 @@ export const emptyRoom: HotelRoom = {
   description: "",
   images: [],
   hotel: "",
+  isEnabled: false,
 };
 
 export interface Reservation {

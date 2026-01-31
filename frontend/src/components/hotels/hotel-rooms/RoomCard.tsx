@@ -41,7 +41,7 @@ const RoomCard = ({ mode, roomData, roomCardAddView }: RoomCardProps) => {
 
     try {
       const response = await fetch(
-        `${utils.VITE_BACKEND_URL}/api/common/hotel-rooms/${id}`
+        `${utils.VITE_BACKEND_URL}/api/common/hotel-rooms/${id}`,
       );
 
       const data: utils.HotelRoom = await response.json();
@@ -74,7 +74,7 @@ const RoomCard = ({ mode, roomData, roomCardAddView }: RoomCardProps) => {
           },
           body: JSON.stringify(reservation),
           credentials: "include",
-        }
+        },
       );
 
       if (!response.ok) {
@@ -124,8 +124,9 @@ const RoomCard = ({ mode, roomData, roomCardAddView }: RoomCardProps) => {
               <button
                 className="btn btn-primary"
                 onClick={() => handleOnReservationBtn()}
+                disabled={!room.isEnabled}
               >
-                Забронировать
+                {room.isEnabled ? "Забронировать" : "Не доступен"}
               </button>
             )}
         </div>

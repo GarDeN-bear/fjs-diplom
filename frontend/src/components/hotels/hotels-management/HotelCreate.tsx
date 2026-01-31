@@ -71,7 +71,7 @@ const HotelCreate = () => {
 
           formData.append("hotel", hotelId);
           formData.append("description", room.description || "");
-          formData.append("isEnabled", "false"); //!TODO
+          formData.append("isEnabled", "true");
           if (room.images && room.images.length > 0) {
             Array.from(room.images)
               .filter((img) => img instanceof File)

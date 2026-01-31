@@ -7,6 +7,7 @@ import { HotelCardMode } from "../../context/hotels/HotelsContext";
 import { useHotels } from "../../context/hotels/HotelsContext";
 import { useNavigate } from "react-router-dom";
 import SearchForm from "./SearchForm";
+import { useAuth } from "../../context/auth/AuthContext";
 
 const HotelsSearch = () => {
   const [hotelsOnPage, setHotelsOnPage] = useState<utils.Hotel[]>([]);
@@ -19,6 +20,7 @@ const HotelsSearch = () => {
   const { hotels: allHotel } = useHotels();
 
   const { returnToMain } = useHotels();
+  const { user } = useAuth();
 
   const navigate = useNavigate();
 
@@ -56,11 +58,14 @@ const HotelsSearch = () => {
       url.searchParams.append("limit", utils.limit.toString());
       url.searchParams.append(
         "offset",
-        ((currentNumber - 1) * utils.itemsOnPage).toString()
+        ((currentNumber - 1) * utils.itemsOnPage).toString(),
       );
       url.searchParams.append("dateStart", dateStart.toISOString());
       url.searchParams.append("dateEnd", dateEnd.toISOString());
-      url.searchParams.append("isEnabled", "false");
+      url.searchParams.append(
+        "isEnabled",
+        user.role !== utils.Role.Manager ? "true" : "false",
+      );
 
       const response = await fetch(url.toString());
 

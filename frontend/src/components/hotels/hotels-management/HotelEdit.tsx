@@ -152,7 +152,7 @@ const HotelEdit = () => {
 
           formData.append("hotel", hotel._id);
           formData.append("description", room.room.description || "");
-          formData.append("isEnabled", "false"); //!TODO
+          formData.append("isEnabled", "true");
           if (room.room.images && room.room.images.length > 0) {
             Array.from(room.room.images)
               .filter((img) => img instanceof File)

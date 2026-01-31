@@ -17,6 +17,7 @@ const HotelCard = ({ mode, hotelData }: HotelCardPrompt) => {
   const hotelId = useParams().id;
   const [hotel, setHotel] = useState<utils.Hotel>(utils.emptyHotel);
   const [rooms, setRooms] = useState<utils.HotelRoom[]>([]);
+  const [isEnabled, setIsEnabled] = useState(true);
   const [loading, setLoading] = useState(true);
 
   const { user } = useAuth();
@@ -47,7 +48,7 @@ const HotelCard = ({ mode, hotelData }: HotelCardPrompt) => {
 
     try {
       const response = await fetch(
-        `${utils.VITE_BACKEND_URL}/api/common/hotels/${id}`
+        `${utils.VITE_BACKEND_URL}/api/common/hotels/${id}`,
       );
       const data: utils.Hotel = await response.json();
 
@@ -65,10 +66,17 @@ const HotelCard = ({ mode, hotelData }: HotelCardPrompt) => {
       const response = await fetch(
         `${
           utils.VITE_BACKEND_URL
-        }/api/common/hotel-rooms?limit=${utils.limit.toString()}&offset=${utils.offset.toString()}&hotel=${id}`
+        }/api/common/hotel-rooms?limit=${utils.limit.toString()}&offset=${utils.offset.toString()}&hotel=${id}`,
       );
       const data: utils.HotelRoom[] = await response.json();
-
+      let flag: boolean = false;
+      for (const element of data) {
+        if (element.isEnabled) {
+          flag = true;
+          break;
+        }
+      }
+      setIsEnabled(flag);
       setRooms(data);
     } catch (error) {
       console.error("Ошибка: ", error);
@@ -115,8 +123,9 @@ const HotelCard = ({ mode, hotelData }: HotelCardPrompt) => {
             <button
               className="btn btn-primary"
               onClick={() => handleOnReservationBtn()}
+              disabled={!isEnabled}
             >
-              Забронировать
+              {isEnabled ? "Забронировать" : "Не доступен"}
             </button>
           )}
           {user.role === utils.Role.Admin && (

@@ -46,8 +46,6 @@ export class HotelRoomsService implements IHotelRoomService {
 
     if (isEnabled !== undefined) {
       searchQuery.isEnabled = isEnabled;
-    } else {
-      searchQuery.isEnabled = false;
     }
 
     const allPotentialRooms = await this.hotelRoomModel
