@@ -4,7 +4,7 @@ import { User } from 'src/users/schemas/user.schema';
 
 export type MessageDocument = Message & Document & { _id: ObjectId };
 
-@Schema({ timestamps: true })
+@Schema({ timestamps: true, _id: true })
 export class Message {
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })
   author: Types.ObjectId | User;

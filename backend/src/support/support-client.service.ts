@@ -10,6 +10,7 @@ import {
   MarkMessagesAsReadDto,
 } from './dto/support.dto';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { User, UserDocument } from 'src/users/schemas/user.schema';
 
 @Injectable()
 export class SupportClientService implements ISupportRequestClientService {
@@ -18,6 +19,8 @@ export class SupportClientService implements ISupportRequestClientService {
     private supportModel: Model<SupportDocument>,
     @InjectModel(Message.name)
     private messageModel: Model<MessageDocument>,
+    @InjectModel(User.name)
+    private userModel: Model<UserDocument>,
     private eventEmitter: EventEmitter2,
   ) {}
 
@@ -96,6 +99,40 @@ export class SupportClientService implements ISupportRequestClientService {
       throw new Error('Support request not found');
     }
 
-    return support.messages.filter((msg: MessageDocument) => !msg.readAt);
+    const unreadMessages = support.messages.filter(
+      (msg: MessageDocument) => !msg.readAt,
+    );
+
+    if (unreadMessages.length === 0) {
+      return [];
+    }
+
+    const authorIds = unreadMessages
+      .map((msg) => msg.author)
+      .filter(
+        (author, index, self) =>
+          author &&
+          self.findIndex((a) => a && a.toString() === author.toString()) ===
+            index,
+      );
+
+    const users = await this.userModel
+      .find({ _id: { $in: authorIds } })
+      .select('_id role')
+      .exec();
+
+    const userMap = new Map();
+    users.forEach((user) => {
+      userMap.set(user._id.toString(), user);
+    });
+
+    return unreadMessages.filter((msg: MessageDocument) => {
+      if (!msg.author) return false;
+
+      const userId = msg.author.toString();
+      const user = userMap.get(userId);
+
+      return user && user.role !== 'client';
+    });
   }
 }

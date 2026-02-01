@@ -3,6 +3,7 @@ import {
   VITE_BACKEND_URL,
   type CreateMessageRequest,
   type CreateSupportRequest,
+  type Message,
   type SupportRequest,
   type User,
 } from "../../utils/utils";
@@ -163,5 +164,58 @@ export const getUsersRequest = async (
     return data;
   } catch (error) {
     console.log("Ошибка: ", error);
+  }
+};
+
+export interface GetUnreadCountRequestData {
+  activeSupportRequestId: string;
+}
+export const getUnreadCountRequest = async (
+  requestData: GetUnreadCountRequestData,
+): Promise<Message[] | undefined> => {
+  try {
+    const response = await fetch(
+      `${VITE_BACKEND_URL}/api/common/support-requests/unread-count/${requestData.activeSupportRequestId}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      },
+    );
+
+    const data: Message[] = await response.json();
+    return data;
+  } catch (error) {
+    console.log("Ошибка: ", error);
+  }
+};
+
+export interface SendCloseSupportRequestData {
+  activeSupportRequestId: string;
+}
+
+export const sendCloseSupportRequest = async (
+  requestData: SendCloseSupportRequestData,
+) => {
+  try {
+    const response = await fetch(
+      `${VITE_BACKEND_URL}/api/common/support-requests/close/${requestData.activeSupportRequestId}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      },
+    );
+
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(`Ошибка при закрытии запроса: ${error}`);
+    }
+  } catch (error) {
+    throw new Error(`Ошибка при закрытии запроса: ${error}`);
   }
 };

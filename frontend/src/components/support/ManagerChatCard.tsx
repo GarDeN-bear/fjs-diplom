@@ -12,8 +12,10 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useSocket } from "../context/support/SupportContext";
 import {
   getSupportRequestsRequest,
+  sendCloseSupportRequest,
   sendCreateNewMessageRequest,
   type GetSupportRequestsData,
+  type SendCloseSupportRequestData,
   type SendCreateNewMessageRequestData,
 } from "../api/support";
 
@@ -39,13 +41,13 @@ const ManagerChatCard = () => {
     setMessage((prev) => ({ ...prev, author: user._id }));
 
     fetchChat().finally(() => setLoading(false));
-  }, [user]);
+  }, [userId]);
 
   const fetchChat = async () => {
     if (!userId) return;
 
     const data: GetSupportRequestsData = {
-      userId: user._id,
+      userId: userId,
       role: "manager",
     };
 
@@ -114,7 +116,13 @@ const ManagerChatCard = () => {
     await sendCreateNewMessageRequest(data);
   };
 
-  const closeSupportRequest = async () => {};
+  const closeSupportRequest = async () => {
+    const data: SendCloseSupportRequestData = {
+      activeSupportRequestId: activeSupportRequest._id,
+    };
+    await sendCloseSupportRequest(data);
+    navigate("/");
+  };
 
   if (loading) return <div>Загрузка...</div>;
 

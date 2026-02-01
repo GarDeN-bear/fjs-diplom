@@ -10,6 +10,7 @@ import {
   HttpStatus,
   Query,
   Request,
+  Put,
 } from '@nestjs/common';
 
 import { RolesGuard } from 'src/auth/guards/roles.guard';
@@ -95,5 +96,28 @@ export class SupportController {
     } else {
       return this.supportEmployeeService.markMessagesAsRead(data);
     }
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('client', 'manager')
+  @Get('common/support-requests/unread-count/:id')
+  @HttpCode(HttpStatus.OK)
+  getUreadCount(
+    @Param('id') supportRequest: string,
+    @Request() req: any,
+  ): Promise<Message[]> {
+    const role = req.user.role;
+    if (role === 'client') {
+      return this.supportClientService.getUnreadCount(supportRequest);
+    } else {
+      return this.supportEmployeeService.getUnreadCount(supportRequest);
+    }
+  }
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('manager')
+  @Put('common/support-requests/close/:id')
+  @HttpCode(HttpStatus.OK)
+  closeRequest(@Param('id') supportRequest: string) {
+    this.supportEmployeeService.closeRequest(supportRequest);
   }
 }
