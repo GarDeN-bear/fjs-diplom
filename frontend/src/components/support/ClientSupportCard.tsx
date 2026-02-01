@@ -4,7 +4,6 @@ import {
   emptyCreateMessageRequest,
   emptySupportRequest,
   type CreateMessageRequest,
-  type Message,
   type MessageResponce,
   type SupportRequest,
 } from "../../utils/utils";
@@ -13,11 +12,9 @@ import { useNavigate } from "react-router-dom";
 import { useSocket } from "../context/support/SupportContext";
 import {
   getSupportRequestsRequest,
-  getUnreadCountRequest,
   sendCreateNewMessageRequest,
   sendCreateNewSupportRequest,
   type GetSupportRequestsData,
-  type GetUnreadCountRequestData,
   type SendCreateNewMessageRequestData,
   type SendCreateNewSupportRequestData,
 } from "../api/support";
